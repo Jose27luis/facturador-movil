@@ -117,10 +117,26 @@ Catálogo del negocio.
 - **Autenticación:** token (Bearer) emitido por el login móvil; se envía en cada petición.
 - **El facturador es la única fuente de verdad** (la app no guarda datos de negocio localmente, salvo caché ligera).
 
-### Stack recomendado para la app
-- **React Native + Expo + TypeScript** (rápido de desarrollar, multiplataforma iOS/Android, alineado con el conocimiento de React del equipo).
-- **Estado/datos:** React Query (cacheo y sincronización de las APIs) + almacenamiento seguro del token (Expo SecureStore).
-- **UI:** una librería de componentes móvil (ej. React Native Paper o Tamagui) + íconos.
+### Stack que usaremos (decidido)
+
+La app se desarrolla con **React Native + Expo + TypeScript**.
+
+**Por qué:** un solo código para **iOS y Android**, alineado con el conocimiento de **React/TypeScript** del equipo (cero curva de lenguaje nuevo), entorno de desarrollo rápido con **Expo** (pruebas en el celular con Expo Go, builds y actualizaciones OTA), y encaje natural con la API REST/JSON de pro8.
+
+| Capa | Tecnología |
+|---|---|
+| Framework | **React Native** (con **Expo**) |
+| Lenguaje | **TypeScript** (tipado estricto) |
+| Navegación | **Expo Router** (navegación basada en archivos) + bottom tabs |
+| Datos / API | **TanStack React Query** (cacheo, reintentos, sincronización) + **axios** |
+| Estado local | **Zustand** (sesión/tenant) o Context, según necesidad |
+| Token seguro | **Expo SecureStore** |
+| UI / componentes | **React Native Paper** (o Tamagui) + **lucide-react-native** para íconos |
+| Gráficos (dashboard) | **react-native-gifted-charts** (o victory-native) |
+| Formularios | **react-hook-form** |
+| Calidad | **ESLint** + **Prettier**, tipado estricto |
+
+**Reglas de código (igual que los demás proyectos):** tipado estricto, sin `any`, sin comentarios decorativos, sin placeholders en inputs (usar labels visibles), commits granulares en español (conventional).
 
 ---
 
