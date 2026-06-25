@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Public Sans',system-ui,sans-serif;}
+</style>
+</helmet>
+
+<!-- ========== PHONE FRAME MACRO ========== -->
+<!-- Each frame: 300×630, label above -->
+
+<!-- ===== SECTION LABELS ===== -->
+<div data-drags-parent="1" style="position:absolute;left:80px;top:30px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">01 — Autenticación</div>
+<div data-drags-parent="1" style="position:absolute;left:470px;top:30px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">02 — Dashboard</div>
+<div data-drags-parent="1" style="position:absolute;left:860px;top:30px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">03 — Ventas · Lista</div>
+
+<div data-drags-parent="1" style="position:absolute;left:80px;top:780px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">04 — Ventas · Detalle</div>
+<div data-drags-parent="1" style="position:absolute;left:470px;top:780px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">05 — Ventas · Resúmenes SUNAT</div>
+<div data-drags-parent="1" style="position:absolute;left:860px;top:780px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">06 — Nueva venta · Tipo</div>
+
+<div data-drags-parent="1" style="position:absolute;left:80px;top:1530px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">07 — Nueva venta · Productos</div>
+<div data-drags-parent="1" style="position:absolute;left:470px;top:1530px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">08 — Nueva venta · Emitida ✓</div>
+<div data-drags-parent="1" style="position:absolute;left:860px;top:1530px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">09 — Compras</div>
+
+<div data-drags-parent="1" style="position:absolute;left:80px;top:2280px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">10 — Productos · Catálogo</div>
+<div data-drags-parent="1" style="position:absolute;left:470px;top:2280px;font:700 11px 'Public Sans',system-ui;color:rgba(50,40,30,.5);text-transform:uppercase;letter-spacing:.8px;">11 — Productos · Editar</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 1: LOGIN -->
+<!-- ========================================== -->
+<div style="position:absolute;left:80px;top:56px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;z-index:10;"><span style="font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:80px 24px 0;display:flex;flex-direction:column;">
+    <div style="width:42px;height:42px;border-radius:12px;background:#211D17;display:flex;align-items:center;justify-content:center;margin-bottom:14px;"><span style="color:#F3EEE3;font-weight:800;font-size:17px;letter-spacing:-.5px;">mf</span></div>
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px;">Móvil Facturador</div>
+    <div style="font-size:11px;color:#8A8273;font-weight:500;margin-bottom:22px;">Tu facturación electrónica, en el bolsillo</div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Empresa</div>
+    <div style="height:40px;background:#fff;border:1px solid #E0D8C8;border-radius:10px;display:flex;align-items:center;padding:0 12px;margin-bottom:12px;font-size:12px;"><span style="font-family:'IBM Plex Mono',monospace;">santarosa</span><span style="font-family:'IBM Plex Mono',monospace;color:#A89F8F;">.facturador.com</span></div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Usuario</div>
+    <div style="height:40px;background:#fff;border:1px solid #E0D8C8;border-radius:10px;display:flex;align-items:center;padding:0 12px;margin-bottom:12px;font-size:12px;">ventas@santarosa.pe</div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Contraseña</div>
+    <div style="height:40px;background:#fff;border:1px solid #E0D8C8;border-radius:10px;display:flex;align-items:center;padding:0 12px;margin-bottom:18px;font-size:16px;letter-spacing:3px;">••••••••</div>
+    <div style="height:44px;background:#211D17;border-radius:11px;display:flex;align-items:center;justify-content:center;gap:7px;"><span style="color:#F3EEE3;font-size:14px;font-weight:700;">Ingresar</span><span style="color:#F3EEE3;font-size:14px;">→</span></div>
+    <div style="text-align:center;font-size:10px;color:#9A9183;margin-top:12px;">Conecta con tu facturador pro8 · SUNAT</div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 2: DASHBOARD -->
+<!-- ========================================== -->
+<div style="position:absolute;left:470px;top:56px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;z-index:10;"><span style="font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:56px 16px 0;height:calc(100% - 68px);overflow:hidden;display:flex;flex-direction:column;gap:8px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2px;">
+      <div><div style="font-size:11px;color:#8A8273;font-weight:600;">Hola, Santa Rosa Textil</div><div style="font-size:20px;font-weight:800;letter-spacing:-.5px;">Resumen</div></div>
+      <div style="width:34px;height:34px;border-radius:50%;background:#211D17;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-weight:700;font-size:12px;">SR</span></div>
+    </div>
+    <div style="display:flex;gap:6px;"><span style="padding:5px 11px;border-radius:999px;background:#211D17;color:#F3EEE3;font-size:11px;font-weight:700;">Hoy</span><span style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid #E6DFD1;font-size:11px;font-weight:700;color:#6E665B;">Semana</span><span style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid #E6DFD1;font-size:11px;font-weight:700;color:#6E665B;">Mes</span></div>
+    <div style="background:#211D17;border-radius:15px;padding:14px;color:#F3EEE3;">
+      <div style="font-size:9px;color:#B8AF9C;font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Vendido · Hoy</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;letter-spacing:-1px;margin-top:4px;">S/ 1,314.90</div>
+      <div style="display:flex;align-items:center;gap:5px;margin-top:6px;"><span style="background:#33564099;color:#9FE3B6;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;">▲ 8%</span><span style="font-size:10px;color:#B8AF9C;">vs. ayer</span></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px;">
+        <div style="font-size:9px;color:#8A8273;font-weight:700;text-transform:uppercase;letter-spacing:.3px;">Comprobantes</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;margin-top:3px;">14</div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px;">
+        <div style="font-size:9px;color:#8A8273;font-weight:700;text-transform:uppercase;letter-spacing:.3px;">Ticket prom.</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;margin-top:3px;">S/ 93.92</div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:12px 10px 8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;">Ventas por día</span><span style="font-size:10px;color:#8A8273;">7 días</span></div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:5px;height:56px;">
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:35%;background:#CFC6B5;border-radius:3px;min-height:4px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">J</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:70%;background:#CFC6B5;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">V</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:100%;background:#CFC6B5;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">S</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:45%;background:#CFC6B5;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">D</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:85%;background:#CFC6B5;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">L</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:62%;background:#CFC6B5;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">M</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end;"><div style="width:100%;height:98%;background:#211D17;border-radius:3px;"></div><span style="font-size:8px;color:#9A9183;font-weight:600;">M</span></div>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom tab -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#FAF7F0;border-top:1px solid #E6DFD1;display:flex;align-items:flex-start;padding:7px 4px 0;">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#211D17;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M3.5 9.5L11.5 3l8 6.5V19a1 1 0 01-1 1h-4v-6h-6v6h-4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:700;">Inicio</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 3h13v17l-2.2-1.4-2.2 1.4-2.1-1.4-2.2 1.4L7 18.6 5 20V3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Ventas</span></div>
+    <div style="flex:1;display:flex;justify-content:center;"><div style="width:40px;height:40px;border-radius:13px;background:#211D17;margin-top:-14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(33,29,23,.28);"><span style="color:#F3EEE3;font-size:20px;line-height:1;margin-top:-1px;">+</span></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 7h13l-1.1 10.5a1.6 1.6 0 01-1.6 1.4H7.7a1.6 1.6 0 01-1.6-1.4L5 7z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M8.5 7a3 3 0 016 0" stroke="currentColor" stroke-width="1.6" fill="none"/></svg><span style="font-size:8.5px;font-weight:600;">Compras</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M11.5 3l8 4.5v8L11.5 20l-8-4.5v-8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M3.5 7.5l8 4.5 8-4.5M11.5 12v8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Productos</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);z-index:5;"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 3: VENTAS LISTA -->
+<!-- ========================================== -->
+<div style="position:absolute;left:860px;top:56px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:14px 18px 0;z-index:10;"><span style="font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:56px 14px 0;height:calc(100% - 68px);overflow:hidden;">
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:9px;">Ventas</div>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:0 11px;height:38px;gap:7px;margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg><span style="font-size:12px;color:#A89F8F;">Buscar número o cliente</span></div>
+    <div style="display:flex;gap:6px;margin-bottom:10px;"><span style="padding:5px 11px;border-radius:999px;background:#211D17;color:#F3EEE3;font-size:10px;font-weight:700;">Todos</span><span style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid #E6DFD1;font-size:10px;font-weight:700;color:#6E665B;">Boletas</span><span style="padding:5px 11px;border-radius:999px;background:#fff;border:1px solid #E6DFD1;font-size:10px;font-weight:700;color:#6E665B;">Facturas</span></div>
+    <!-- Resumen alerta -->
+    <div style="display:flex;align-items:center;gap:9px;background:#F6EDD8;border:1px solid #E8D9B0;border-radius:12px;padding:10px 11px;margin-bottom:8px;">
+      <div style="width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid #E8D9B0;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:14px;">📋</span></div>
+      <div><div style="font-size:11px;font-weight:700;color:#7A4E00;">2 boletas pendientes de resumir</div><div style="font-size:10px;color:#8A6A2E;">Envía el resumen diario a SUNAT</div></div>
+    </div>
+    <!-- Rows -->
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:32px;height:32px;border-radius:9px;background:#211D17;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:800;font-size:11px;">F</span></div>
+      <div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">F001-000245</span><span style="font-size:9px;font-weight:700;background:#E7F2EA;color:#1B6B3A;padding:2px 6px;border-radius:999px;">Aceptado</span></div><div style="font-size:11px;color:#6E665B;margin-top:2px;">Comercial Andina S.A.C.</div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;">S/ 1,180</div><div style="font-size:9.5px;color:#A89F8F;margin-top:1px;">25 jun</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:32px;height:32px;border-radius:9px;background:#5C5547;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:800;font-size:11px;">B</span></div>
+      <div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">B001-001120</span><span style="font-size:9px;font-weight:700;background:#F6EDD8;color:#8A5A00;padding:2px 6px;border-radius:999px;">Pendiente</span></div><div style="font-size:11px;color:#6E665B;margin-top:2px;">Cliente varios</div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;">S/ 45.00</div><div style="font-size:9.5px;color:#A89F8F;margin-top:1px;">25 jun</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:32px;height:32px;border-radius:9px;background:#5C5547;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:800;font-size:11px;">B</span></div>
+      <div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">B001-001119</span><span style="font-size:9px;font-weight:700;background:#E7F2EA;color:#1B6B3A;padding:2px 6px;border-radius:999px;">Aceptado</span></div><div style="font-size:11px;color:#6E665B;margin-top:2px;">María Quispe Flores</div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;">S/ 89.90</div><div style="font-size:9.5px;color:#A89F8F;margin-top:1px;">25 jun</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;">
+      <div style="width:32px;height:32px;border-radius:9px;background:#211D17;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:800;font-size:11px;">F</span></div>
+      <div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">F001-000244</span><span style="font-size:9px;font-weight:700;background:#F6E2E0;color:#9B2C2C;padding:2px 6px;border-radius:999px;">Anulado</span></div><div style="font-size:11px;color:#6E665B;margin-top:2px;">Inversiones del Sur</div></div>
+      <div style="text-align:right;flex-shrink:0;"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;">S/ 2,360</div><div style="font-size:9.5px;color:#A89F8F;margin-top:1px;">24 jun</div></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#FAF7F0;border-top:1px solid #E6DFD1;display:flex;align-items:flex-start;padding:7px 4px 0;">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M3.5 9.5L11.5 3l8 6.5V19a1 1 0 01-1 1h-4v-6h-6v6h-4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Inicio</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#211D17;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 3h13v17l-2.2-1.4-2.2 1.4-2.1-1.4-2.2 1.4L7 18.6 5 20V3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:700;">Ventas</span></div>
+    <div style="flex:1;display:flex;justify-content:center;"><div style="width:40px;height:40px;border-radius:13px;background:#211D17;margin-top:-14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(33,29,23,.28);"><span style="color:#F3EEE3;font-size:20px;line-height:1;margin-top:-1px;">+</span></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 7h13l-1.1 10.5a1.6 1.6 0 01-1.6 1.4H7.7a1.6 1.6 0 01-1.6-1.4L5 7z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Compras</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M11.5 3l8 4.5v8L11.5 20l-8-4.5v-8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Productos</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);z-index:5;"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 4: DETALLE VENTA -->
+<!-- ========================================== -->
+<div style="position:absolute;left:80px;top:806px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:54px 14px 0;height:100%;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;"><svg width="9" height="14" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span style="font-size:14px;font-weight:700;">Detalle</span>
+    </div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:14px;margin-bottom:9px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div><div style="font-size:10px;color:#8A8273;font-weight:600;">Factura electrónica</div><div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-top:2px;">F001-000245</div></div>
+        <span style="font-size:9px;font-weight:700;background:#E7F2EA;color:#1B6B3A;padding:3px 8px;border-radius:999px;">Aceptado</span>
+      </div>
+      <div style="height:1px;background:#EFE9DC;margin-bottom:10px;"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:11px;color:#8A8273;">Cliente</span><span style="font-size:11px;font-weight:600;">Comercial Andina S.A.C.</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:11px;color:#8A8273;">RUC</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;">20512345678</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:#8A8273;">Fecha</span><span style="font-size:11px;">25 jun 2026, 14:32</span></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:14px;margin-bottom:9px;">
+      <div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px;">Items</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><div><div style="font-size:11.5px;font-weight:600;">Polo algodón pima</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;">20 × S/ 49.90</div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;">S/ 998.00</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><div><div style="font-size:11.5px;font-weight:600;">Servicio de estampado</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;">12 × S/ 15.00</div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;">S/ 180.00</span></div>
+      <div style="height:1px;background:#EFE9DC;margin-bottom:9px;"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:10px;color:#8A8273;">Op. gravada</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;">S/ 1,000.00</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:10px;color:#8A8273;">IGV 18%</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;">S/ 180.00</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;font-weight:700;">Total</span><span style="font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;">S/ 1,180.00</span></div>
+    </div>
+    <div style="display:flex;gap:7px;">
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:11px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;"><svg width="16" height="16" viewBox="0 0 20 20"><rect x="2.5" y="4.5" width="15" height="11" rx="2" stroke="#211D17" stroke-width="1.6" fill="none"/><path d="M3 6l7 5 7-5" stroke="#211D17" stroke-width="1.6" fill="none"/></svg><span style="font-size:9.5px;font-weight:600;">Correo</span></div>
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:11px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;"><svg width="16" height="16" viewBox="0 0 20 20"><path d="M10 2.5v9M6.5 8L10 11.5 13.5 8" stroke="#211D17" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14v2.5h12V14" stroke="#211D17" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg><span style="font-size:9.5px;font-weight:600;">PDF</span></div>
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:11px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;"><svg width="16" height="16" viewBox="0 0 20 20"><rect x="3" y="3" width="5" height="5" rx="1" stroke="#211D17" stroke-width="1.4" fill="none"/><rect x="3" y="12" width="5" height="5" rx="1" stroke="#211D17" stroke-width="1.4" fill="none"/><rect x="12" y="3" width="5" height="5" rx="1" stroke="#211D17" stroke-width="1.4" fill="none"/><path d="M12 12h2.5v2.5M17 17v-5M14.5 17H17" stroke="#211D17" stroke-width="1.4" fill="none"/></svg><span style="font-size:9.5px;font-weight:600;">Ver QR</span></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 5: RESÚMENES SUNAT -->
+<!-- ========================================== -->
+<div style="position:absolute;left:470px;top:806px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:54px 14px 0;height:100%;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:14px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;"><svg width="9" height="14" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span style="font-size:14px;font-weight:700;">Resúmenes y bajas</span>
+    </div>
+    <div style="background:#fff;border:1px solid #E8D9B0;border-radius:14px;padding:14px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:#7A4E00;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Resumen diario de boletas</div>
+      <div style="font-size:11px;color:#6E665B;margin-bottom:11px;">2 boletas del día pendientes de reportar a SUNAT.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#F6EDD8;border-radius:10px;padding:10px 12px;margin-bottom:7px;"><div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;">B001-001120</div><div style="font-size:10px;color:#8A6A2E;margin-top:1px;">Cliente varios</div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;">S/ 45.00</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#F6EDD8;border-radius:10px;padding:10px 12px;margin-bottom:11px;"><div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;">B001-001121</div><div style="font-size:10px;color:#8A6A2E;margin-top:1px;">Cliente varios</div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;">S/ 28.50</span></div>
+      <div style="height:44px;background:#211D17;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-size:13px;font-weight:700;">Enviar resumen a SUNAT</span></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.3px;margin:6px 2px 9px;">Historial</div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:11px 12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;border-radius:8px;background:#211D17;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-size:8px;font-weight:800;">RC</span></div><div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">RC-20250624-1</div><div style="font-size:9.5px;color:#8A8273;margin-top:1px;">18 boletas · 24 jun</div></div></div>
+        <span style="font-size:9px;font-weight:700;background:#E7F2EA;color:#1B6B3A;padding:2px 7px;border-radius:999px;">Aceptado</span>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:11px 12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;"><div style="width:28px;height:28px;border-radius:8px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;"><span style="color:#6E665B;font-size:8px;font-weight:800;">RA</span></div><div><div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;">RA-20250622-1</div><div style="font-size:9.5px;color:#8A8273;margin-top:1px;">Baja B001-001110</div></div></div>
+        <span style="font-size:9px;font-weight:700;background:#F6E6DA;color:#A65A1E;padding:2px 7px;border-radius:999px;">Observado</span>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 6: NUEVA VENTA PASO 1 -->
+<!-- ========================================== -->
+<div style="position:absolute;left:860px;top:806px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:54px 14px 0;height:calc(100% - 62px);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;"><svg width="9" height="14" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div style="font-size:14px;font-weight:700;">Nueva venta</div><div style="font-size:10px;color:#8A8273;">Paso 1 de 4 · Comprobante</div></div>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:14px;"><div style="flex:1;height:4px;border-radius:2px;background:#211D17;"></div><div style="flex:1;height:4px;border-radius:2px;background:#E0D8C8;"></div><div style="flex:1;height:4px;border-radius:2px;background:#E0D8C8;"></div><div style="flex:1;height:4px;border-radius:2px;background:#E0D8C8;"></div></div>
+    <div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:9px;">Tipo de comprobante</div>
+    <!-- Boleta selected -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:2px solid #211D17;border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div><div style="font-size:13px;font-weight:700;">Boleta de venta</div><div style="font-size:10px;color:#8A8273;margin-top:2px;">Consumidor final · resumen diario</div></div>
+      <div style="width:18px;height:18px;border-radius:50%;border:6px solid #211D17;background:#fff;box-sizing:border-box;flex-shrink:0;"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div><div style="font-size:13px;font-weight:700;">Factura</div><div style="font-size:10px;color:#8A8273;margin-top:2px;">Empresa con RUC · crédito fiscal</div></div>
+      <div style="width:18px;height:18px;border-radius:50%;border:2px solid #CFC6B5;background:#fff;box-sizing:border-box;flex-shrink:0;"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:12px;margin-bottom:14px;">
+      <div><div style="font-size:13px;font-weight:700;">Nota de venta</div><div style="font-size:10px;color:#8A8273;margin-top:2px;">Interno · no se envía a SUNAT</div></div>
+      <div style="width:18px;height:18px;border-radius:50%;border:2px solid #CFC6B5;background:#fff;box-sizing:border-box;flex-shrink:0;"></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:9px;">Serie</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:12px 14px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;">B001</span><span style="font-size:10px;color:#8A8273;font-weight:600;">Correlativo B001-001122</span></div>
+    <div style="flex:1;"></div>
+    <div style="height:44px;background:#211D17;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-size:14px;font-weight:700;">Continuar</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 7: NUEVA VENTA PASO 3 PRODUCTOS -->
+<!-- ========================================== -->
+<div style="position:absolute;left:80px;top:1556px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:54px 14px 0;height:calc(100% - 62px);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;"><svg width="9" height="14" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div style="font-size:14px;font-weight:700;">Nueva venta</div><div style="font-size:10px;color:#8A8273;">Paso 3 de 4 · Productos</div></div>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:11px;"><div style="flex:1;height:4px;border-radius:2px;background:#211D17;"></div><div style="flex:1;height:4px;border-radius:2px;background:#211D17;"></div><div style="flex:1;height:4px;border-radius:2px;background:#211D17;"></div><div style="flex:1;height:4px;border-radius:2px;background:#E0D8C8;"></div></div>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:0 11px;height:38px;gap:7px;margin-bottom:8px;"><svg width="14" height="14" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg><span style="font-size:12px;color:#A89F8F;">Buscar en catálogo</span></div>
+    <!-- Running total -->
+    <div style="background:#211D17;border-radius:12px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:11px;color:#B8AF9C;font-weight:600;">2 item(s)</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:#F3EEE3;">S/ 139.80</span>
+    </div>
+    <!-- Added items -->
+    <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="flex:1;min-width:0;"><div style="font-size:11.5px;font-weight:600;">Polo algodón pima</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;margin-top:1px;">S/ 49.90 c/u</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:24px;height:24px;border-radius:7px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;"><span style="font-size:14px;line-height:1;margin-top:-1px;color:#211D17;">−</span></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;width:14px;text-align:center;">2</span>
+        <div style="width:24px;height:24px;border-radius:7px;background:#211D17;display:flex;align-items:center;justify-content:center;"><span style="font-size:14px;line-height:1;margin-top:-1px;color:#F3EEE3;">+</span></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:10px;">
+      <div style="flex:1;min-width:0;"><div style="font-size:11.5px;font-weight:600;">Gorra trucker bordada</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;margin-top:1px;">S/ 29.90 c/u</div></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:24px;height:24px;border-radius:7px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;"><span style="font-size:14px;line-height:1;margin-top:-1px;color:#211D17;">−</span></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;width:14px;text-align:center;">2</span>
+        <div style="width:24px;height:24px;border-radius:7px;background:#211D17;display:flex;align-items:center;justify-content:center;"><span style="font-size:14px;line-height:1;margin-top:-1px;color:#F3EEE3;">+</span></div>
+      </div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;">Catálogo</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;"><div><div style="font-size:11.5px;font-weight:600;">Mochila urbana 20L</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;">S/ 89.90</div></div><div style="width:26px;height:26px;border-radius:8px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;"><span style="font-size:14px;line-height:1;color:#211D17;">+</span></div></div>
+    <div style="flex:1;"></div>
+    <div style="height:44px;background:#211D17;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-size:14px;font-weight:700;">Continuar</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 8: VENTA EMITIDA -->
+<!-- ========================================== -->
+<div style="position:absolute;left:470px;top:1556px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#211D17;box-shadow:0 4px 28px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.12);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;color:#fff;">9:41</span></div>
+  <div style="padding:70px 24px 0;height:calc(100% - 28px);display:flex;flex-direction:column;align-items:center;text-align:center;">
+    <div style="width:72px;height:72px;border-radius:50%;background:#2C7A4B;display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+      <svg width="38" height="38" viewBox="0 0 44 44"><path d="M13 22.5l6 6 13-14" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="font-size:19px;font-weight:800;color:#F3EEE3;margin-bottom:5px;">Comprobante emitido</div>
+    <div style="font-size:12px;color:#B8AF9C;margin-bottom:22px;">Aceptado por SUNAT</div>
+    <div style="background:#F3EEE3;border-radius:16px;padding:16px;width:100%;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div style="width:68px;height:68px;background:repeating-conic-gradient(#211D17 0% 25%,#F3EEE3 0% 50%);background-size:11px 11px;border-radius:7px;flex-shrink:0;border:2.5px solid #211D17;"></div>
+      <div style="text-align:left;"><div style="font-size:10px;color:#8A8273;font-weight:600;">Boleta de venta</div><div style="font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;margin-top:2px;">B001-001122</div><div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:7px;color:#211D17;">S/ 139.80</div></div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:8px;padding-bottom:30px;">
+      <div style="height:44px;background:#F3EEE3;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="font-size:13px;font-weight:700;color:#211D17;">Ver detalle</span></div>
+      <div style="height:44px;border:1px solid #4A4439;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="font-size:13px;font-weight:700;color:#F3EEE3;">Emitir otra venta</span></div>
+      <div style="height:36px;display:flex;align-items:center;justify-content:center;"><span style="font-size:12px;font-weight:600;color:#B8AF9C;">Ir al inicio</span></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 9: COMPRAS -->
+<!-- ========================================== -->
+<div style="position:absolute;left:860px;top:1556px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:56px 14px 0;height:calc(100% - 68px);overflow:hidden;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;">Compras</div>
+      <div style="display:flex;align-items:center;gap:5px;background:#211D17;color:#F3EEE3;border-radius:9px;padding:6px 11px;"><span style="font-size:11px;font-weight:700;">+ Nueva</span></div>
+    </div>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:0 11px;height:38px;gap:7px;margin-bottom:10px;"><svg width="14" height="14" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg><span style="font-size:12px;color:#A89F8F;">Buscar proveedor o documento</span></div>
+    <div style="font-size:10px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.3px;margin-bottom:9px;">Junio 2026 · S/ 5,470.00</div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:8px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20"><path d="M5 6h11l-1 9a1.4 1.4 0 01-1.4 1.2H7.4A1.4 1.4 0 016 15L5 6z" stroke="#6E665B" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M8 6a2.5 2.5 0 015 0" stroke="#6E665B" stroke-width="1.5" fill="none"/></svg></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Distribuidora Textil Perú SAC</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;margin-top:2px;">F002-008812 · 24 jun</div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 3,540</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:8px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20"><path d="M5 6h11l-1 9a1.4 1.4 0 01-1.4 1.2H7.4A1.4 1.4 0 016 15L5 6z" stroke="#6E665B" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M8 6a2.5 2.5 0 015 0" stroke="#6E665B" stroke-width="1.5" fill="none"/></svg></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Importaciones Lima</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;margin-top:2px;">B003-000455 · 23 jun</div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 780</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 20 20"><path d="M5 6h11l-1 9a1.4 1.4 0 01-1.4 1.2H7.4A1.4 1.4 0 016 15L5 6z" stroke="#6E665B" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M8 6a2.5 2.5 0 015 0" stroke="#6E665B" stroke-width="1.5" fill="none"/></svg></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Servicios Gráficos SRL</div><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A8273;margin-top:2px;">F005-001203 · 22 jun</div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 1,150</span>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#FAF7F0;border-top:1px solid #E6DFD1;display:flex;align-items:flex-start;padding:7px 4px 0;">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M3.5 9.5L11.5 3l8 6.5V19a1 1 0 01-1 1h-4v-6h-6v6h-4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Inicio</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 3h13v17l-2.2-1.4-2.2 1.4-2.1-1.4-2.2 1.4L7 18.6 5 20V3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Ventas</span></div>
+    <div style="flex:1;display:flex;justify-content:center;"><div style="width:40px;height:40px;border-radius:13px;background:#211D17;margin-top:-14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(33,29,23,.28);"><span style="color:#F3EEE3;font-size:20px;line-height:1;margin-top:-1px;">+</span></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#211D17;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 7h13l-1.1 10.5a1.6 1.6 0 01-1.6 1.4H7.7a1.6 1.6 0 01-1.6-1.4L5 7z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:700;">Compras</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M11.5 3l8 4.5v8L11.5 20l-8-4.5v-8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Productos</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);z-index:5;"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 10: PRODUCTOS -->
+<!-- ========================================== -->
+<div style="position:absolute;left:80px;top:2306px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:56px 14px 0;height:calc(100% - 68px);overflow:hidden;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;">Productos</div>
+      <div style="display:flex;align-items:center;gap:5px;background:#211D17;color:#F3EEE3;border-radius:9px;padding:6px 11px;"><span style="font-size:11px;font-weight:700;">+ Nuevo</span></div>
+    </div>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:0 11px;height:38px;gap:7px;margin-bottom:9px;"><svg width="14" height="14" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg><span style="font-size:12px;color:#A89F8F;">Buscar en catálogo</span></div>
+    <div style="display:flex;gap:7px;margin-bottom:11px;"><span style="flex:1;padding:8px 0;border-radius:10px;background:#211D17;color:#F3EEE3;font-size:11px;font-weight:700;text-align:center;">Todos</span><span style="flex:1;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #E6DFD1;font-size:11px;font-weight:700;color:#6E665B;text-align:center;">Productos</span><span style="flex:1;padding:8px 0;border-radius:10px;background:#fff;border:1px solid #E6DFD1;font-size:11px;font-weight:700;color:#6E665B;text-align:center;">Servicios</span></div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 4px,#E7E0D0 4px,#E7E0D0 8px);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:9px;font-weight:700;color:#A89F8F;">PO</span></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Polo algodón pima</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:9px;font-weight:700;background:#E7EEF2;color:#2E5A78;padding:1px 6px;border-radius:999px;">Producto</span><span style="font-size:10px;color:#8A8273;">Stock 120</span></div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 49.90</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 4px,#E7E0D0 4px,#E7E0D0 8px);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:9px;font-weight:700;color:#A89F8F;">SE</span></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Servicio de estampado</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:9px;font-weight:700;background:#EAE3F2;color:#5B4A86;padding:1px 6px;border-radius:999px;">Servicio</span><span style="font-size:10px;color:#8A8273;">Servicio</span></div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 15.00</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;margin-bottom:7px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 4px,#E7E0D0 4px,#E7E0D0 8px);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:9px;font-weight:700;color:#A89F8F;">MO</span></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Mochila urbana 20L</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:9px;font-weight:700;background:#E7EEF2;color:#2E5A78;padding:1px 6px;border-radius:999px;">Producto</span><span style="font-size:10px;color:#F39C12;font-weight:600;">Stock bajo: 8</span></div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 89.90</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E6DFD1;border-radius:12px;padding:10px 11px;">
+      <div style="width:38px;height:38px;border-radius:10px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 4px,#E7E0D0 4px,#E7E0D0 8px);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="font-size:9px;font-weight:700;color:#A89F8F;">GR</span></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">Gorra trucker bordada</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><span style="font-size:9px;font-weight:700;background:#E7EEF2;color:#2E5A78;padding:1px 6px;border-radius:999px;">Producto</span><span style="font-size:10px;color:#8A8273;">Stock 45</span></div></div>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0;">S/ 29.90</span>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:68px;background:#FAF7F0;border-top:1px solid #E6DFD1;display:flex;align-items:flex-start;padding:7px 4px 0;">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M3.5 9.5L11.5 3l8 6.5V19a1 1 0 01-1 1h-4v-6h-6v6h-4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Inicio</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 3h13v17l-2.2-1.4-2.2 1.4-2.1-1.4-2.2 1.4L7 18.6 5 20V3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Ventas</span></div>
+    <div style="flex:1;display:flex;justify-content:center;"><div style="width:40px;height:40px;border-radius:13px;background:#211D17;margin-top:-14px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px rgba(33,29,23,.28);"><span style="color:#F3EEE3;font-size:20px;line-height:1;margin-top:-1px;">+</span></div></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#A89F8F;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M5 7h13l-1.1 10.5a1.6 1.6 0 01-1.6 1.4H7.7a1.6 1.6 0 01-1.6-1.4L5 7z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:600;">Compras</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:#211D17;"><svg width="18" height="18" viewBox="0 0 23 23"><path d="M11.5 3l8 4.5v8L11.5 20l-8-4.5v-8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg><span style="font-size:8.5px;font-weight:700;">Productos</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);z-index:5;"></div>
+</div>
+</div>
+
+<!-- ========================================== -->
+<!-- SCREEN 11: PRODUCTO FORM -->
+<!-- ========================================== -->
+<div style="position:absolute;left:470px;top:2306px;width:300px;">
+<div style="width:300px;height:630px;border-radius:36px;overflow:hidden;position:relative;background:#F3EEE3;box-shadow:0 4px 28px rgba(0,0,0,.13),0 0 0 1px rgba(0,0,0,.07);">
+  <div style="position:absolute;top:10px;left:50%;transform:translateX(-50%);width:90px;height:28px;border-radius:16px;background:#000;z-index:20;"></div>
+  <div style="position:absolute;top:0;left:0;right:0;height:48px;z-index:10;"><span style="position:absolute;top:14px;left:18px;font:600 12px '-apple-system',system-ui;">9:41</span></div>
+  <div style="padding:54px 14px 0;height:calc(100% - 62px);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:14px;">
+      <div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;"><svg width="9" height="14" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span style="font-size:14px;font-weight:700;">Editar producto</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="width:60px;height:60px;border-radius:14px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 5px,#E7E0D0 5px,#E7E0D0 10px);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#A89F8F" stroke-width="1.4" fill="none"/><circle cx="9" cy="9.5" r="1.4" fill="#A89F8F"/><path d="M5 16l4-4 3.5 3.5L16 12l3 3" stroke="#A89F8F" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div style="font-size:12px;font-weight:700;">Imagen del producto</div><div style="font-size:10.5px;color:#8A8273;margin-top:2px;">Toca para subir (JPG/PNG)</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Nombre</div>
+    <div style="background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:11px 12px;margin-bottom:12px;font-size:13px;font-weight:600;">Polo algodón pima</div>
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <div style="flex:1;"><div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Precio (S/)</div><div style="background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:11px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;">49.90</div></div>
+      <div style="flex:1;"><div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Stock</div><div style="background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:11px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;">120</div></div>
+    </div>
+    <div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Tipo</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <div style="flex:1;padding:9px 0;border-radius:10px;background:#211D17;color:#F3EEE3;font-size:11px;font-weight:700;text-align:center;">Producto</div>
+      <div style="flex:1;padding:9px 0;border-radius:10px;background:#fff;border:1px solid #E6DFD1;font-size:11px;font-weight:700;color:#6E665B;text-align:center;">Servicio</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:8px;">
+      <div style="flex:1;"><div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Unidad</div><div style="background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:11px 12px;font-size:12px;font-weight:600;">Unidad (NIU)</div></div>
+      <div style="flex:1;"><div style="font-size:10px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;">Categoría</div><div style="background:#fff;border:1px solid #E0D8C8;border-radius:11px;padding:11px 12px;font-size:12px;font-weight:600;">Ropa</div></div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="height:44px;background:#211D17;border-radius:11px;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-size:14px;font-weight:700;">Guardar producto</span></div>
+  </div>
+  <div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:90px;height:4px;border-radius:2px;background:rgba(0,0,0,.18);"></div>
+</div>
+</div>
+</x-dc>
+</body>
+</html>

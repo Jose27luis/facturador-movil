@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  @keyframes tIn{from{opacity:0;transform:transl(-50%,-10px);}to{opacity:1;transform:translate(-50%,0);}}
+  @keyframes scIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes pop{0%{transform:scale(.7);opacity:0;}60%{transform:scale(1.08);}100%{transform:scale(1);opacity:1;}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E4E0D6;padding:28px;font-family:'Public Sans',system-ui,sans-serif;">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="402px,874px">
+
+<div style="height:874px;position:relative;background:#F3EEE3;font-family:'Public Sans',system-ui,sans-serif;color:#211D17;display:flex;flex-direction:column;overflow:hidden;">
+
+<!-- ====================== LOGIN ====================== -->
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;padding:0 28px;background:#F3EEE3;">
+  <div style="height:120px;flex-shrink:0;"></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:34px;">
+    <div style="width:54px;height:54px;border-radius:15px;background:#211D17;display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <span style="color:#F3EEE3;font-weight:800;font-size:24px;letter-spacing:-1px;">mf</span>
+    </div>
+    <div style="font-size:27px;font-weight:800;letter-spacing:-.5px;line-height:1.1;">Móvil Facturador</div>
+    <div style="font-size:14px;color:#7A7163;font-weight:500;">Tu facturación electrónica, en el bolsillo</div>
+  </div>
+
+  <label style="font-size:12px;font-weight:600;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;">Empresa</label>
+  <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 14px;height:52px;margin-bottom:16px;">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:#211D17;">santarosa</span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;color:#A89F8F;margin-left:1px;">.facturador.com</span>
+  </div>
+
+  <label style="font-size:12px;font-weight:600;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;">Usuario</label>
+  <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 14px;height:52px;margin-bottom:16px;">
+    <span style="font-size:15px;color:#211D17;">ventas@santarosa.pe</span>
+  </div>
+
+  <label style="font-size:12px;font-weight:600;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;">Contraseña</label>
+  <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 14px;height:52px;margin-bottom:14px;">
+    <span style="font-size:18px;color:#211D17;letter-spacing:3px;">••••••••</span>
+    <span style="font-size:13px;color:#7A7163;font-weight:600;">Mostrar</span>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:26px;">
+    <div style="width:20px;height:20px;border-radius:6px;background:#211D17;display:flex;align-items:center;justify-content:center;">
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.5L4.8 9L10 3.2" stroke="#F3EEE3" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:13.5px;color:#5C5547;font-weight:500;">Recordar empresa en este dispositivo</span>
+  </div>
+
+  <button onClick="{{ doLogin }}" style="width:100%;height:54px;border:none;border-radius:14px;background:#211D17;color:#F3EEE3;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+    Ingresar
+    <svg width="17" height="17" viewBox="0 0 17 17"><path d="M3 8.5h10M9 4l4.5 4.5L9 13" stroke="#F3EEE3" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div style="text-align:center;margin-top:18px;font-size:12.5px;color:#9A9183;">Conecta con tu facturador electrónico pro8 · SUNAT</div>
+</div>
+</sc-if>
+
+<!-- ====================== DASHBOARD ====================== -->
+<sc-if value="{{ tabDashboard }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .25s ease;">
+  <div style="padding:58px 20px 12px;display:flex;align-items:flex-end;justify-content:space-between;flex-shrink:0;">
+    <div>
+      <div style="font-size:13px;color:#8A8273;font-weight:600;">Hola, Santa Rosa Textil</div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-.6px;line-height:1.1;">Resumen</div>
+    </div>
+    <div onClick="{{ logout }}" style="width:42px;height:42px;border-radius:50%;background:#211D17;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <span style="color:#F3EEE3;font-weight:700;font-size:15px;">SR</span>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <div style="display:flex;gap:8px;margin-bottom:18px;">
+      <div onClick="{{ pHoy }}" style="{{ pHoyStyle }}">Hoy</div>
+      <div onClick="{{ pSemana }}" style="{{ pSemanaStyle }}">Semana</div>
+      <div onClick="{{ pMes }}" style="{{ pMesStyle }}">Mes</div>
+    </div>
+
+    <div style="background:#211D17;border-radius:20px;padding:20px;margin-bottom:12px;color:#F3EEE3;">
+      <div style="font-size:12.5px;color:#B8AF9C;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Vendido · {{ periodLabel }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;letter-spacing:-1px;margin-top:6px;">{{ kpiVendido }}</div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:8px;">
+        <span style="display:inline-flex;align-items:center;gap:3px;background:#33564099;color:#9FE3B6;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px;">▲ {{ kpiDelta }}</span>
+        <span style="font-size:12.5px;color:#B8AF9C;">{{ kpiVsLabel }}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:12px;">
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:16px;padding:14px;">
+        <div style="font-size:11.5px;color:#8A8273;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Comprobantes</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;margin-top:5px;">{{ kpiComp }}</div>
+      </div>
+      <div style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:16px;padding:14px;">
+        <div style="font-size:11.5px;color:#8A8273;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Ticket prom.</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;margin-top:5px;">{{ kpiTicket }}</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:18px 16px 14px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:14.5px;font-weight:700;">Ventas por día</div>
+        <div style="font-size:12px;color:#8A8273;font-weight:500;">Últimos 7 días</div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:96px;">
+        <sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="7">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;">
+            <div style="width:100%;display:flex;align-items:flex-end;height:100%;">
+              <div style="{{ bar.fillStyle }}"></div>
+            </div>
+            <span style="font-size:11px;color:#9A9183;font-weight:600;">{{ bar.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:14.5px;font-weight:700;margin-bottom:14px;">Top productos</div>
+      <sc-for list="{{ topProds }}" as="tp" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:13px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#A89F8F;width:14px;">{{ tp.rank }}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
+              <span style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ tp.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#5C5547;margin-left:8px;">{{ tp.units }} und</span>
+            </div>
+            <div style="height:6px;background:#EFE9DC;border-radius:999px;overflow:hidden;">
+              <div style="{{ tp.barStyle }}"></div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin:6px 2px 10px;">Accesos rápidos</div>
+    <div style="display:flex;gap:10px;">
+      <div onClick="{{ openNuevaVenta }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 4v14M4 11h14" stroke="#211D17" stroke-width="2" stroke-linecap="round"/></svg>
+        <span style="font-size:12px;font-weight:600;text-align:center;">Nueva venta</span>
+      </div>
+      <div onClick="{{ openNuevaCompra }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M5 7h12l-1 9.5a1.5 1.5 0 01-1.5 1.3h-7A1.5 1.5 0 015 16.5L4 7z" stroke="#211D17" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M8 7a3 3 0 016 0" stroke="#211D17" stroke-width="1.7" fill="none"/></svg>
+        <span style="font-size:12px;font-weight:600;text-align:center;">Nueva compra</span>
+      </div>
+      <div onClick="{{ openNuevoProducto }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:14px 8px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 3l7 4v8l-7 4-7-4V7z" stroke="#211D17" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M4 7l7 4 7-4M11 11v8" stroke="#211D17" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg>
+        <span style="font-size:12px;font-weight:600;text-align:center;">Nuevo producto</span>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== VENTAS ====================== -->
+<sc-if value="{{ tabVentas }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .25s ease;">
+  <div style="padding:58px 20px 10px;flex-shrink:0;">
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.6px;">Ventas</div>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 13px;height:46px;margin-top:12px;gap:9px;">
+      <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <span style="font-size:14.5px;color:#A89F8F;">Buscar por número o cliente</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:11px;overflow-x:auto;">
+      <div onClick="{{ fTodos }}" style="{{ fTodosStyle }}">Todos</div>
+      <div onClick="{{ fBoletas }}" style="{{ fBoletasStyle }}">Boletas</div>
+      <div onClick="{{ fFacturas }}" style="{{ fFacturasStyle }}">Facturas</div>
+      <div onClick="{{ fNotas }}" style="{{ fNotasStyle }}">Notas</div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:auto;padding:8px 20px 22px;">
+    <div onClick="{{ openResumenes }}" style="display:flex;align-items:center;gap:12px;background:#F6EDD8;border:1px solid #E8D9B0;border-radius:15px;padding:13px 14px;margin-bottom:14px;cursor:pointer;">
+      <div style="width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid #E8D9B0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="19" height="19" viewBox="0 0 19 19"><path d="M4 3h11v13l-2-1.3-1.8 1.3L9.5 15l-1.7 1.3L6 15l-2 1.3z" stroke="#8A5A00" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M7 7h5M7 10h5" stroke="#8A5A00" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13.5px;font-weight:700;color:#7A4E00;">2 boletas pendientes de resumir</div>
+        <div style="font-size:12px;color:#8A6A2E;">Envía el resumen diario a SUNAT</div>
+      </div>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#8A5A00" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+
+    <sc-for list="{{ ventasView }}" as="v" hint-placeholder-count="6">
+      <div onClick="{{ v.open }}" style="display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:13px 14px;margin-bottom:10px;cursor:pointer;">
+        <div style="{{ v.badgeStyle }}">{{ v.badge }}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;">{{ v.numero }}</span>
+            <span style="{{ v.chipStyle }}">{{ v.estado }}</span>
+          </div>
+          <div style="font-size:13px;color:#6E665B;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.cliente }}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;">{{ v.total }}</div>
+          <div style="font-size:11.5px;color:#A89F8F;margin-top:2px;">{{ v.fecha }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== COMPRAS ====================== -->
+<sc-if value="{{ tabCompras }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .25s ease;">
+  <div style="padding:58px 20px 10px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.6px;">Compras</div>
+    <div onClick="{{ openNuevaCompra }}" style="display:flex;align-items:center;gap:6px;background:#211D17;color:#F3EEE3;border-radius:11px;padding:8px 13px;cursor:pointer;">
+      <svg width="15" height="15" viewBox="0 0 15 15"><path d="M7.5 2.5v10M2.5 7.5h10" stroke="#F3EEE3" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span style="font-size:13px;font-weight:700;">Nueva</span>
+    </div>
+  </div>
+  <div style="padding:4px 20px 10px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 13px;height:46px;gap:9px;">
+      <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <span style="font-size:14.5px;color:#A89F8F;">Buscar por proveedor o documento</span>
+    </div>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <div style="font-size:12px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin:4px 2px 10px;">Junio 2026 · S/ 5,470.00</div>
+    <sc-for list="{{ comprasView }}" as="c" hint-placeholder-count="3">
+      <div onClick="{{ c.open }}" style="display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:13px 14px;margin-bottom:10px;cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:11px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 6h11l-1 9a1.4 1.4 0 01-1.4 1.2H7.4A1.4 1.4 0 016 15L5 6z" stroke="#6E665B" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M8 6a2.5 2.5 0 015 0" stroke="#6E665B" stroke-width="1.6" fill="none"/></svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.proveedor }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:3px;">{{ c.numero }} · {{ c.fecha }}</div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;flex-shrink:0;">{{ c.total }}</div>
+      </div>
+    </sc-for>
+    <div style="display:flex;gap:9px;align-items:flex-start;background:#EFEAE0;border-radius:13px;padding:13px;margin-top:8px;">
+      <svg width="17" height="17" viewBox="0 0 17 17" style="flex-shrink:0;margin-top:1px;"><circle cx="8.5" cy="8.5" r="7" stroke="#8A8273" stroke-width="1.5" fill="none"/><path d="M8.5 7.5v4M8.5 5.2v.1" stroke="#8A8273" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span style="font-size:12px;color:#6E665B;line-height:1.5;">Las compras se sincronizan con pro8. El registro completo desde el móvil llega en la próxima fase.</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== PRODUCTOS ====================== -->
+<sc-if value="{{ tabProductos }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .25s ease;">
+  <div style="padding:58px 20px 10px;flex-shrink:0;display:flex;align-items:flex-end;justify-content:space-between;">
+    <div style="font-size:26px;font-weight:800;letter-spacing:-.6px;">Productos</div>
+    <div onClick="{{ openNuevoProducto }}" style="display:flex;align-items:center;gap:6px;background:#211D17;color:#F3EEE3;border-radius:11px;padding:8px 13px;cursor:pointer;">
+      <svg width="15" height="15" viewBox="0 0 15 15"><path d="M7.5 2.5v10M2.5 7.5h10" stroke="#F3EEE3" stroke-width="1.9" stroke-linecap="round"/></svg>
+      <span style="font-size:13px;font-weight:700;">Nuevo</span>
+    </div>
+  </div>
+  <div style="padding:4px 20px 10px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 13px;height:46px;gap:9px;margin-bottom:11px;">
+      <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <span style="font-size:14.5px;color:#A89F8F;">Buscar en el catálogo</span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div onClick="{{ cTodos }}" style="{{ cTodosStyle }}">Todos</div>
+      <div onClick="{{ cProd }}" style="{{ cProdStyle }}">Productos</div>
+      <div onClick="{{ cServ }}" style="{{ cServStyle }}">Servicios</div>
+    </div>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <sc-for list="{{ productosView }}" as="p" hint-placeholder-count="6">
+      <div onClick="{{ p.open }}" style="display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:12px 14px;margin-bottom:10px;cursor:pointer;">
+        <div style="width:46px;height:46px;border-radius:12px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 5px,#E7E0D0 5px,#E7E0D0 10px);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:11px;font-weight:700;color:#A89F8F;">{{ p.ini }}</span>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ p.nombre }}</div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:4px;">
+            <span style="{{ p.tipoStyle }}">{{ p.tipo }}</span>
+            <span style="font-size:12px;color:#8A8273;">{{ p.stockTxt }}</span>
+          </div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;flex-shrink:0;">{{ p.precio }}</div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: DETALLE VENTA ====================== -->
+<sc-if value="{{ subDetalleVenta }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 10px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+    <div onClick="{{ back }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:17px;font-weight:700;">Detalle</span>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:18px;margin-bottom:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;color:#8A8273;font-weight:600;">{{ det.tipoFull }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;margin-top:2px;">{{ det.numero }}</div>
+        </div>
+        <span style="{{ det.chipStyle }}">{{ det.estado }}</span>
+      </div>
+      <div style="height:1px;background:#EFE9DC;margin:15px 0;"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;color:#8A8273;">Cliente</span><span style="font-size:13.5px;font-weight:600;text-align:right;max-width:60%;">{{ det.cliente }}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;color:#8A8273;">{{ det.docLabel }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ det.docNum }}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:#8A8273;">Fecha de emisión</span><span style="font-size:13px;">{{ det.fechaFull }}</span></div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:16px;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Items</div>
+      <sc-for list="{{ det.items }}" as="it" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px;">
+          <div style="flex:1;min-width:0;padding-right:10px;">
+            <div style="font-size:13.5px;font-weight:600;">{{ it.nombre }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">{{ it.qty }} × {{ it.precio }}</div>
+          </div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;">{{ it.total }}</span>
+        </div>
+      </sc-for>
+      <div style="height:1px;background:#EFE9DC;margin:8px 0 12px;"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;color:#8A8273;">Op. gravada</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ det.neto }}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="font-size:13px;color:#8A8273;">IGV (18%)</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ det.igv }}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:15px;font-weight:700;">Total</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;">{{ det.total }}</span></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:12px;">
+      <div onClick="{{ toastCorreo }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 20 20"><rect x="2.5" y="4.5" width="15" height="11" rx="2" stroke="#211D17" stroke-width="1.6" fill="none"/><path d="M3 6l7 5 7-5" stroke="#211D17" stroke-width="1.6" fill="none"/></svg>
+        <span style="font-size:11.5px;font-weight:600;">Correo</span>
+      </div>
+      <div onClick="{{ toastPdf }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 2.5v9M6.5 8L10 11.5 13.5 8" stroke="#211D17" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 14v2.5h12V14" stroke="#211D17" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+        <span style="font-size:11.5px;font-weight:600;">PDF</span>
+      </div>
+      <div onClick="{{ toastQr }}" style="flex:1;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:13px 6px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 20 20"><rect x="3" y="3" width="5.5" height="5.5" rx="1" stroke="#211D17" stroke-width="1.5" fill="none"/><rect x="3" y="11.5" width="5.5" height="5.5" rx="1" stroke="#211D17" stroke-width="1.5" fill="none"/><rect x="11.5" y="3" width="5.5" height="5.5" rx="1" stroke="#211D17" stroke-width="1.5" fill="none"/><path d="M11.5 11.5h2.5v2.5M17 17v-5.5M14 17h3" stroke="#211D17" stroke-width="1.5" fill="none"/></svg>
+        <span style="font-size:11.5px;font-weight:600;">Ver QR</span>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: RESÚMENES SUNAT ====================== -->
+<sc-if value="{{ subResumenes }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 10px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+    <div onClick="{{ back }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:17px;font-weight:700;">Resúmenes y bajas</span>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <sc-if value="{{ resumenPending }}" hint-placeholder-val="{{ true }}">
+    <div style="background:#fff;border:1px solid #E8D9B0;border-radius:18px;padding:18px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;color:#7A4E00;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Resumen diario de boletas</div>
+      <div style="font-size:13.5px;color:#6E665B;margin-bottom:14px;">Boletas emitidas hoy que aún no se reportan a SUNAT.</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#F6EDD8;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+        <div><div style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500;">B001-001120</div><div style="font-size:12px;color:#8A6A2E;margin-top:2px;">Cliente varios</div></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;">S/ 45.00</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;background:#F6EDD8;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <div><div style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500;">B001-001121</div><div style="font-size:12px;color:#8A6A2E;margin-top:2px;">Cliente varios</div></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;">S/ 28.50</span>
+      </div>
+      <button onClick="{{ enviarResumen }}" style="width:100%;height:50px;border:none;border-radius:13px;background:#211D17;color:#F3EEE3;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;">Enviar resumen a SUNAT</button>
+    </div>
+    </sc-if>
+    <sc-if value="{{ resumenSentFlag }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:11px;background:#E7F2EA;border:1px solid #C2E0CC;border-radius:15px;padding:14px;margin-bottom:14px;">
+      <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="10" fill="#1B6B3A"/><path d="M6.5 11.2l3 3 6-6.4" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div><div style="font-size:13.5px;font-weight:700;color:#1B6B3A;">Resumen enviado</div><div style="font-size:12px;color:#3E6B4E;">Ticket 202506250000871 · procesando</div></div>
+    </div>
+    </sc-if>
+
+    <div style="font-size:12px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin:6px 2px 10px;">Historial</div>
+    <sc-for list="{{ resumenes }}" as="r" hint-placeholder-count="3">
+      <div style="background:#fff;border:1px solid #E6DFD1;border-radius:15px;padding:13px 14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="{{ r.tagStyle }}">{{ r.tag }}</div>
+            <div><div style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;">{{ r.id }}</div><div style="font-size:11.5px;color:#8A8273;margin-top:2px;">{{ r.desc }}</div></div>
+          </div>
+          <span style="{{ r.chipStyle }}">{{ r.estado }}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:11px;border-top:1px solid #EFE9DC;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#A89F8F;">Ticket {{ r.ticket }}</span>
+          <span onClick="{{ toastEstado }}" style="font-size:12.5px;font-weight:700;color:#211D17;cursor:pointer;">Actualizar estado</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: NUEVA VENTA ====================== -->
+<sc-if value="{{ subNuevaVenta }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 12px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+      <div onClick="{{ nvBack }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="flex:1;"><div style="font-size:17px;font-weight:700;">Nueva venta</div><div style="font-size:12.5px;color:#8A8273;">{{ nvStepLabel }}</div></div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <div style="{{ nvBar1 }}"></div><div style="{{ nvBar2 }}"></div><div style="{{ nvBar3 }}"></div><div style="{{ nvBar4 }}"></div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;overflow:auto;padding:8px 20px 16px;">
+    <!-- STEP 1: tipo + serie -->
+    <sc-if value="{{ nvS1 }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:11px;">Tipo de comprobante</div>
+      <div onClick="{{ nvTipoBoleta }}" style="{{ nvTipoBoletaStyle }}"><div><div style="font-size:15px;font-weight:700;">Boleta de venta</div><div style="font-size:12.5px;color:#8A8273;margin-top:2px;">Consumidor final · va en resumen diario</div></div><div style="{{ nvRadioBoleta }}"></div></div>
+      <div onClick="{{ nvTipoFactura }}" style="{{ nvTipoFacturaStyle }}"><div><div style="font-size:15px;font-weight:700;">Factura</div><div style="font-size:12.5px;color:#8A8273;margin-top:2px;">Empresa con RUC · crédito fiscal</div></div><div style="{{ nvRadioFactura }}"></div></div>
+      <div onClick="{{ nvTipoNota }}" style="{{ nvTipoNotaStyle }}"><div><div style="font-size:15px;font-weight:700;">Nota de venta</div><div style="font-size:12.5px;color:#8A8273;margin-top:2px;">Interno · no se envía a SUNAT</div></div><div style="{{ nvRadioNota }}"></div></div>
+      <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin:18px 0 11px;">Serie</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:15px 16px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;">{{ nvSerie }}</span>
+        <span style="font-size:13px;color:#8A8273;font-weight:600;">Correlativo {{ nvCorrelativo }}</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- STEP 2: cliente -->
+    <sc-if value="{{ nvS2 }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 13px;height:50px;gap:9px;margin-bottom:14px;">
+        <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span style="font-size:14.5px;color:#A89F8F;">Buscar por DNI o RUC</span>
+      </div>
+      <div onClick="{{ nvClienteVarios }}" style="{{ nvCVStyle }}">
+        <div style="width:42px;height:42px;border-radius:12px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="7" r="3.2" stroke="#6E665B" stroke-width="1.6" fill="none"/><path d="M4 16c0-3 2.7-5 6-5s6 2 6 5" stroke="#6E665B" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></div>
+        <div style="flex:1;"><div style="font-size:14.5px;font-weight:700;">Cliente varios</div><div style="font-size:12.5px;color:#8A8273;">Sin datos · venta rápida</div></div>
+        <div style="{{ nvRadioCV }}"></div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin:16px 2px 10px;">Resultados Reniec / SUNAT</div>
+      <div onClick="{{ nvClienteA }}" style="{{ nvCAStyle }}">
+        <div style="width:42px;height:42px;border-radius:12px;background:#211D17;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:700;font-size:14px;">MQ</span></div>
+        <div style="flex:1;min-width:0;"><div style="font-size:14.5px;font-weight:600;">María Quispe Flores</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">DNI 45128876</div></div>
+        <div style="{{ nvRadioCA }}"></div>
+      </div>
+      <div onClick="{{ nvClienteB }}" style="{{ nvCBStyle }}">
+        <div style="width:42px;height:42px;border-radius:12px;background:#211D17;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#F3EEE3;font-weight:700;font-size:14px;">CA</span></div>
+        <div style="flex:1;min-width:0;"><div style="font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Comercial Andina S.A.C.</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">RUC 20512345678</div></div>
+        <div style="{{ nvRadioCB }}"></div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- STEP 3: productos -->
+    <sc-if value="{{ nvS3 }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 13px;height:48px;gap:9px;margin-bottom:6px;">
+        <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span style="font-size:14px;color:#A89F8F;">Buscar en catálogo</span>
+      </div>
+      <sc-if value="{{ nvHasItems }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#211D17;border-radius:14px;padding:13px 15px;margin:10px 0 14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:13px;color:#B8AF9C;font-weight:600;">{{ nvCount }} item(s)</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:600;color:#F3EEE3;">{{ nvTotal }}</span>
+      </div>
+      <sc-for list="{{ nvItems }}" as="ni" hint-placeholder-count="1">
+        <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:11px 13px;margin-bottom:9px;">
+          <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ ni.nombre }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">{{ ni.precio }} c/u</div></div>
+          <div style="display:flex;align-items:center;gap:11px;">
+            <div onClick="{{ ni.dec }}" style="width:28px;height:28px;border-radius:8px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6h7" stroke="#211D17" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;width:18px;text-align:center;">{{ ni.qty }}</span>
+            <div onClick="{{ ni.inc }}" style="width:28px;height:28px;border-radius:8px;background:#211D17;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 2.5v7M2.5 6h7" stroke="#F3EEE3" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+      </sc-for>
+      </sc-if>
+      <div style="font-size:12px;font-weight:700;color:#8A8273;text-transform:uppercase;letter-spacing:.4px;margin:14px 2px 10px;">Catálogo</div>
+      <sc-for list="{{ catalogView }}" as="cp" hint-placeholder-count="4">
+        <div onClick="{{ cp.add }}" style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:11px 13px;margin-bottom:9px;cursor:pointer;">
+          <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ cp.nombre }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">{{ cp.precio }}</div></div>
+          <div style="width:30px;height:30px;border-radius:9px;background:#EFE9DC;display:flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 3v8M3 7h8" stroke="#211D17" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+
+    <!-- STEP 4: pago + resumen -->
+    <sc-if value="{{ nvS4 }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div style="background:#fff;border:1px solid #E6DFD1;border-radius:16px;padding:16px;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:9px;"><span style="font-size:13px;color:#8A8273;">Comprobante</span><span style="font-size:13.5px;font-weight:600;">{{ nvTipo }} · {{ nvSerie }}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:13px;"><span style="font-size:13px;color:#8A8273;">Cliente</span><span style="font-size:13.5px;font-weight:600;text-align:right;max-width:60%;">{{ nvClienteName }}</span></div>
+        <div style="height:1px;background:#EFE9DC;margin-bottom:13px;"></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:7px;"><span style="font-size:13px;color:#8A8273;">Op. gravada</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ nvNeto }}</span></div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:11px;"><span style="font-size:13px;color:#8A8273;">IGV (18%)</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ nvIgv }}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:15px;font-weight:700;">Total a pagar</span><span style="font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;">{{ nvTotal }}</span></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:11px;">Medio de pago</div>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;">
+        <div onClick="{{ nvPagoEfectivo }}" style="{{ nvPagoEfectivoStyle }}">Efectivo</div>
+        <div onClick="{{ nvPagoTarjeta }}" style="{{ nvPagoTarjetaStyle }}">Tarjeta</div>
+        <div onClick="{{ nvPagoTransfer }}" style="{{ nvPagoTransferStyle }}">Transferencia</div>
+        <div onClick="{{ nvPagoYape }}" style="{{ nvPagoYapeStyle }}">Yape / Plin</div>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+
+  <div style="flex-shrink:0;padding:12px 20px 26px;border-top:1px solid #E6DFD1;background:#F3EEE3;">
+    <button onClick="{{ nvPrimary }}" style="width:100%;height:54px;border:none;border-radius:14px;background:#211D17;color:#F3EEE3;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      {{ nvPrimaryLabel }}
+    </button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: VENTA EMITIDA ====================== -->
+<sc-if value="{{ subVentaEmitida }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;background:#211D17;padding:0 24px;">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+    <div style="width:84px;height:84px;border-radius:50%;background:#2C7A4B;display:flex;align-items:center;justify-content:center;animation:pop .5s ease;">
+      <svg width="44" height="44" viewBox="0 0 44 44"><path d="M13 22.5l6 6 13-14" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="font-size:22px;font-weight:800;color:#F3EEE3;margin-top:22px;">Comprobante emitido</div>
+    <div style="font-size:13.5px;color:#B8AF9C;margin-top:6px;">Aceptado por SUNAT</div>
+    <div style="background:#F3EEE3;border-radius:18px;padding:18px;margin-top:24px;width:100%;display:flex;align-items:center;gap:16px;">
+      <div style="width:78px;height:78px;background:repeating-conic-gradient(#211D17 0% 25%,#F3EEE3 0% 50%);background-size:13px 13px;border-radius:8px;flex-shrink:0;border:3px solid #211D17;"></div>
+      <div style="text-align:left;flex:1;">
+        <div style="font-size:12px;color:#8A8273;font-weight:600;">{{ nvResultTipo }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:2px;">{{ nvResultNum }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;margin-top:8px;">{{ nvResultTotal }}</div>
+      </div>
+    </div>
+  </div>
+  <div style="flex-shrink:0;padding-bottom:30px;display:flex;flex-direction:column;gap:10px;">
+    <button onClick="{{ emitirDetalle }}" style="width:100%;height:52px;border:none;border-radius:14px;background:#F3EEE3;color:#211D17;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;">Ver detalle</button>
+    <button onClick="{{ openNuevaVenta }}" style="width:100%;height:52px;border:1px solid #4A4439;border-radius:14px;background:transparent;color:#F3EEE3;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;">Emitir otra venta</button>
+    <button onClick="{{ goDashboard }}" style="width:100%;height:44px;border:none;background:transparent;color:#B8AF9C;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">Ir al inicio</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: NUEVA COMPRA ====================== -->
+<sc-if value="{{ subNuevaCompra }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 12px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+    <div onClick="{{ back }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:17px;font-weight:700;">Nueva compra</span>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:8px 20px 16px;">
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Proveedor</label>
+    <div style="display:flex;align-items:center;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:0 14px;height:52px;margin:8px 0 16px;gap:9px;">
+      <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="7.5" cy="7.5" r="5.5" stroke="#A89F8F" stroke-width="1.7" fill="none"/><path d="M11.5 11.5L15 15" stroke="#A89F8F" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;color:#A89F8F;">Buscar por RUC</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E6DFD1;border-radius:14px;padding:13px 14px;margin-bottom:16px;">
+      <div style="width:42px;height:42px;border-radius:12px;background:#211D17;display:flex;align-items:center;justify-content:center;"><span style="color:#F3EEE3;font-weight:700;font-size:13px;">DT</span></div>
+      <div><div style="font-size:14px;font-weight:600;">Distribuidora Textil Perú SAC</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">RUC 20498765432</div></div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Documento</label>
+    <div style="display:flex;gap:10px;margin:8px 0 16px;">
+      <div style="flex:1;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:13px 14px;"><div style="font-size:11px;color:#A89F8F;">Tipo</div><div style="font-size:14px;font-weight:600;margin-top:3px;">Factura</div></div>
+      <div style="flex:1.4;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:13px 14px;"><div style="font-size:11px;color:#A89F8F;">Número</div><div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;margin-top:3px;">F002-008813</div></div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Total</label>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:15px 16px;margin-top:8px;">
+      <span style="font-size:14px;color:#8A8273;">Monto del documento</span>
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;">S/ 1,260.00</span>
+    </div>
+  </div>
+  <div style="flex-shrink:0;padding:12px 20px 26px;border-top:1px solid #E6DFD1;">
+    <button onClick="{{ registrarCompra }}" style="width:100%;height:54px;border:none;border-radius:14px;background:#211D17;color:#F3EEE3;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;">Registrar compra</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: DETALLE COMPRA ====================== -->
+<sc-if value="{{ subDetalleCompra }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 10px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+    <div onClick="{{ back }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:17px;font-weight:700;">Compra</span>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 22px;">
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:18px;margin-bottom:12px;">
+      <div style="font-size:13px;color:#8A8273;font-weight:600;">Proveedor</div>
+      <div style="font-size:17px;font-weight:700;margin-top:2px;">{{ dc.proveedor }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#8A8273;margin-top:3px;">{{ dc.ruc }}</div>
+      <div style="height:1px;background:#EFE9DC;margin:14px 0;"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;color:#8A8273;">Documento</span><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ dc.numero }}</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:13px;color:#8A8273;">Fecha</span><span style="font-size:13px;">{{ dc.fecha }}</span></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E6DFD1;border-radius:18px;padding:16px;">
+      <div style="font-size:13px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Items</div>
+      <sc-for list="{{ dc.items }}" as="it" hint-placeholder-count="2">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px;">
+          <div style="flex:1;padding-right:10px;"><div style="font-size:13.5px;font-weight:600;">{{ it.nombre }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A8273;margin-top:2px;">{{ it.qty }} × {{ it.precio }}</div></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;">{{ it.total }}</span>
+        </div>
+      </sc-for>
+      <div style="height:1px;background:#EFE9DC;margin:8px 0 12px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:15px;font-weight:700;">Total</span><span style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;">{{ dc.total }}</span></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== SUB: PRODUCTO FORM ====================== -->
+<sc-if value="{{ subProductoForm }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:flex;flex-direction:column;animation:scIn .22s ease;">
+  <div style="padding:58px 16px 12px;flex-shrink:0;display:flex;align-items:center;gap:8px;">
+    <div onClick="{{ back }}" style="width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid #E6DFD1;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+      <svg width="11" height="18" viewBox="0 0 11 18"><path d="M9 2L2 9l7 7" stroke="#211D17" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <span style="font-size:17px;font-weight:700;">{{ pfTitle }}</span>
+  </div>
+  <div style="flex:1;min-height:0;overflow:auto;padding:8px 20px 16px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+      <div style="width:72px;height:72px;border-radius:16px;background:repeating-linear-gradient(135deg,#EFE9DC,#EFE9DC 6px,#E7E0D0 6px,#E7E0D0 12px);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" stroke="#A89F8F" stroke-width="1.6" fill="none"/><circle cx="9" cy="9.5" r="1.6" fill="#A89F8F"/><path d="M5 16l4-4 3.5 3.5L16 12l3 3" stroke="#A89F8F" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:700;">Imagen del producto</div><div style="font-size:12px;color:#8A8273;margin-top:3px;">Toca para subir una foto (JPG/PNG)</div></div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Nombre</label>
+    <div style="background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:14px;margin:8px 0 14px;font-size:15px;font-weight:600;">{{ pfNombre }}</div>
+    <div style="display:flex;gap:12px;margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Precio (S/)</label><div style="background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:14px;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;">{{ pfPrecio }}</div></div>
+      <div style="flex:1;"><label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Stock</label><div style="background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:14px;margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;">{{ pfStock }}</div></div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Tipo</label>
+    <div style="display:flex;gap:9px;margin:8px 0 14px;">
+      <div onClick="{{ pfTipoProd }}" style="{{ pfTipoProdStyle }}">Producto</div>
+      <div onClick="{{ pfTipoServ }}" style="{{ pfTipoServStyle }}">Servicio</div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:14px;">
+      <div style="flex:1;"><label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Unidad</label><div style="background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:14px;margin-top:8px;font-size:14px;font-weight:600;">Unidad (NIU)</div></div>
+      <div style="flex:1;"><label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Categoría</label><div style="background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:14px;margin-top:8px;font-size:14px;font-weight:600;">{{ pfCat }}</div></div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:#7A7163;text-transform:uppercase;letter-spacing:.4px;">Afectación IGV</label>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #E0D8C8;border-radius:13px;padding:15px 16px;margin-top:8px;">
+      <span style="font-size:14px;font-weight:600;">Gravado · IGV 18%</span>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="#A89F8F" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+  <div style="flex-shrink:0;padding:12px 20px 26px;border-top:1px solid #E6DFD1;">
+    <button onClick="{{ guardarProducto }}" style="width:100%;height:54px;border:none;border-radius:14px;background:#211D17;color:#F3EEE3;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;">Guardar producto</button>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== BOTTOM TAB BAR ====================== -->
+<sc-if value="{{ showTabbar }}" hint-placeholder-val="{{ false }}">
+<div style="flex-shrink:0;position:relative;background:#FBF8F1;border-top:1px solid #E6DFD1;padding:9px 8px 26px;display:flex;align-items:flex-start;">
+  <div onClick="{{ goDashboard }}" style="{{ navDash }}">
+    <svg width="23" height="23" viewBox="0 0 23 23"><path d="M3.5 9.5L11.5 3l8 6.5V19a1 1 0 01-1 1h-4v-6h-6v6h-4a1 1 0 01-1-1V9.5z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg>
+    <span style="font-size:10.5px;">Inicio</span>
+  </div>
+  <div onClick="{{ goVentas }}" style="{{ navVent }}">
+    <svg width="23" height="23" viewBox="0 0 23 23"><path d="M5 3h13v17l-2.2-1.4-2.2 1.4-2.1-1.4-2.2 1.4L7 18.6 5 20V3z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M8.5 8h6M8.5 11.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <span style="font-size:10.5px;">Ventas</span>
+  </div>
+  <div onClick="{{ openNuevaVenta }}" style="flex:1;display:flex;justify-content:center;">
+    <div style="width:54px;height:54px;border-radius:18px;background:#211D17;display:flex;align-items:center;justify-content:center;margin-top:-22px;box-shadow:0 8px 18px rgba(33,29,23,.3);cursor:pointer;">
+      <svg width="26" height="26" viewBox="0 0 26 26"><path d="M13 6v14M6 13h14" stroke="#F3EEE3" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+  <div onClick="{{ goCompras }}" style="{{ navComp }}">
+    <svg width="23" height="23" viewBox="0 0 23 23"><path d="M5 7h13l-1.1 10.5a1.6 1.6 0 01-1.6 1.4H7.7a1.6 1.6 0 01-1.6-1.4L5 7z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M8.5 7a3 3 0 016 0" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>
+    <span style="font-size:10.5px;">Compras</span>
+  </div>
+  <div onClick="{{ goProductos }}" style="{{ navProd }}">
+    <svg width="23" height="23" viewBox="0 0 23 23"><path d="M11.5 3l8 4.5v8L11.5 20l-8-4.5v-8z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M3.5 7.5l8 4.5 8-4.5M11.5 12v8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>
+    <span style="font-size:10.5px;">Productos</span>
+  </div>
+</div>
+</sc-if>
+
+<!-- ====================== TOAST ====================== -->
+<sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:64px;left:50%;transform:translateX(-50%);z-index:200;background:#211D17;color:#F3EEE3;padding:11px 18px;border-radius:13px;box-shadow:0 10px 30px rgba(33,29,23,.35);display:flex;align-items:center;gap:9px;animation:tIn .25s ease;white-space:nowrap;">
+  <svg width="17" height="17" viewBox="0 0 17 17"><circle cx="8.5" cy="8.5" r="8.5" fill="#9FE3B6"/><path d="M5 8.7l2.3 2.3 4.6-5" stroke="#211D17" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span style="font-size:13.5px;font-weight:600;">{{ toastMsg }}</span>
+</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;460&quot;,&quot;height&quot;:&quot;920&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      authed: false, tab: 'dashboard', sub: null,
+      period: 'hoy', vfilter: 'todos', pcat: 'todos',
+      det: null, dc: null, pf: null,
+      nv: null, nvResult: null,
+      resumenSent: false, toast: null,
+    };
+    this._t = null;
+
+    this.catalog = [
+      { id:1, nombre:'Polo algodón pima', tipo:'Producto', precio:49.9, stock:120, cat:'Ropa' },
+      { id:2, nombre:'Gorra trucker bordada', tipo:'Producto', precio:29.9, stock:45, cat:'Accesorios' },
+      { id:3, nombre:'Servicio de estampado', tipo:'Servicio', precio:15.0, stock:null, cat:'Servicios' },
+      { id:4, nombre:'Mochila urbana 20L', tipo:'Producto', precio:89.9, stock:8, cat:'Accesorios' },
+      { id:5, nombre:'Taza cerámica personalizada', tipo:'Producto', precio:19.9, stock:0, cat:'Hogar' },
+      { id:6, nombre:'Diseño de logotipo', tipo:'Servicio', precio:250.0, stock:null, cat:'Servicios' },
+    ];
+
+    this.ventas = [
+      { id:'v1', tipo:'F', tipoFull:'Factura electrónica', numero:'F001-000245', cliente:'Comercial Andina S.A.C.', docLabel:'RUC', docNum:'20512345678', total:1180.00, estado:'Aceptado', fecha:'25 jun', fechaFull:'25 jun 2026, 14:32', items:[{nombre:'Polo algodón pima',qty:20,precio:49.9},{nombre:'Servicio de estampado',qty:12,precio:15.0}] },
+      { id:'v2', tipo:'B', tipoFull:'Boleta de venta', numero:'B001-001120', cliente:'Cliente varios', docLabel:'Documento', docNum:'—', total:45.00, estado:'Pendiente', fecha:'25 jun', fechaFull:'25 jun 2026, 12:10', items:[{nombre:'Gorra trucker bordada',qty:1,precio:29.9},{nombre:'Servicio de estampado',qty:1,precio:15.0}] },
+      { id:'v3', tipo:'B', tipoFull:'Boleta de venta', numero:'B001-001119', cliente:'María Quispe Flores', docLabel:'DNI', docNum:'45128876', total:89.90, estado:'Aceptado', fecha:'25 jun', fechaFull:'25 jun 2026, 11:05', items:[{nombre:'Mochila urbana 20L',qty:1,precio:89.9}] },
+      { id:'v4', tipo:'F', tipoFull:'Factura electrónica', numero:'F001-000244', cliente:'Inversiones del Sur E.I.R.L.', docLabel:'RUC', docNum:'20498123456', total:2360.00, estado:'Aceptado', fecha:'24 jun', fechaFull:'24 jun 2026, 17:40', items:[{nombre:'Polo algodón pima',qty:40,precio:49.9},{nombre:'Diseño de logotipo',qty:1,precio:250.0}] },
+      { id:'v5', tipo:'N', tipoFull:'Nota de venta', numero:'NV01-000058', cliente:'Cliente varios', docLabel:'Documento', docNum:'—', total:30.00, estado:'Interno', fecha:'24 jun', fechaFull:'24 jun 2026, 16:02', items:[{nombre:'Servicio de estampado',qty:2,precio:15.0}] },
+      { id:'v6', tipo:'B', tipoFull:'Boleta de venta', numero:'B001-001118', cliente:'José Huamán Ríos', docLabel:'DNI', docNum:'09887234', total:120.00, estado:'Observado', fecha:'24 jun', fechaFull:'24 jun 2026, 10:18', items:[{nombre:'Gorra trucker bordada',qty:4,precio:29.9}] },
+      { id:'v7', tipo:'F', tipoFull:'Factura electrónica', numero:'F001-000243', cliente:'Textiles Lima SAC', docLabel:'RUC', docNum:'20600334455', total:540.00, estado:'Anulado', fecha:'23 jun', fechaFull:'23 jun 2026, 09:50', items:[{nombre:'Polo algodón pima',qty:10,precio:49.9}] },
+    ];
+
+    this.compras = [
+      { id:'c1', proveedor:'Distribuidora Textil Perú SAC', ruc:'RUC 20498765432', numero:'F002-008812', fecha:'24 jun 2026', total:3540.00, items:[{nombre:'Tela piqué (rollo)',qty:6,precio:480.0},{nombre:'Hilo poliéster',qty:30,precio:22.0}] },
+      { id:'c2', proveedor:'Importaciones Lima', ruc:'RUC 20511220033', numero:'B003-000455', fecha:'23 jun 2026', total:780.00, items:[{nombre:'Broches metálicos',qty:200,precio:1.5},{nombre:'Etiquetas tejidas',qty:1,precio:480.0}] },
+      { id:'c3', proveedor:'Servicios Gráficos SRL', ruc:'RUC 20488776655', numero:'F005-001203', fecha:'22 jun 2026', total:1150.00, items:[{nombre:'Impresión de catálogos',qty:500,precio:2.3}] },
+    ];
+
+    this.resumenes = [
+      { id:'RC-20250624-1', tag:'RC', desc:'18 boletas · 24 jun', estado:'Aceptado', ticket:'202506240001245', kind:'ok' },
+      { id:'RC-20250623-1', tag:'RC', desc:'22 boletas · 23 jun', estado:'Aceptado', ticket:'202506230000987', kind:'ok' },
+      { id:'RA-20250622-1', tag:'RA', desc:'Baja B001-001110', estado:'Observado', ticket:'202506220000341', kind:'warn' },
+    ];
+
+    this.bind = (f) => f.bind(this);
+  }
+
+  money(n){ return 'S/ ' + Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  showToast(msg){
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(()=>this.setState({ toast:null }), 2200);
+  }
+
+  componentWillUnmount(){ clearTimeout(this._t); }
+
+  // ---- status visual maps ----
+  chip(estado){
+    const m = {
+      'Aceptado':{ bg:'#E7F2EA', fg:'#1B6B3A' },
+      'Pendiente':{ bg:'#F6EDD8', fg:'#8A5A00' },
+      'Observado':{ bg:'#F6E6DA', fg:'#A65A1E' },
+      'Anulado':{ bg:'#F6E2E0', fg:'#9B2C2C' },
+      'Interno':{ bg:'#EFEAE0', fg:'#5C5547' },
+    }[estado] || { bg:'#EFEAE0', fg:'#5C5547' };
+    return { display:'inline-flex', alignItems:'center', padding:'2px 8px', borderRadius:'999px', fontSize:'11px', fontWeight:700, background:m.bg, color:m.fg, whiteSpace:'nowrap' };
+  }
+  badge(tipo){
+    const m = { 'B':'#5C5547', 'F':'#211D17', 'N':'#8A8273' }[tipo] || '#5C5547';
+    return { width:'40px', height:'40px', borderRadius:'12px', background:m, color:'#F3EEE3', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, fontSize:'15px', flexShrink:0 };
+  }
+
+  seg(active){
+    return { padding:'8px 15px', borderRadius:'999px', fontSize:'13.5px', fontWeight:700, cursor:'pointer', whiteSpace:'nowrap',
+      background: active ? '#211D17' : '#fff', color: active ? '#F3EEE3' : '#6E665B',
+      border: active ? '1px solid #211D17' : '1px solid #E6DFD1' };
+  }
+  pill(active){
+    return { padding:'10px 16px', borderRadius:'12px', fontSize:'14px', fontWeight:700, cursor:'pointer', textAlign:'center',
+      background: active ? '#211D17' : '#fff', color: active ? '#F3EEE3' : '#6E665B',
+      border: active ? '1px solid #211D17' : '1px solid #E6DFD1' };
+  }
+  optCard(active){
+    return { display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px', background:'#fff',
+      border: active ? '2px solid #211D17' : '1px solid #E6DFD1', borderRadius:'15px', padding:'15px 16px', marginBottom:'10px', cursor:'pointer' };
+  }
+  optRow(active){
+    return { display:'flex', alignItems:'center', gap:'12px', background:'#fff',
+      border: active ? '2px solid #211D17' : '1px solid #E6DFD1', borderRadius:'14px', padding:'12px 14px', marginBottom:'10px', cursor:'pointer' };
+  }
+  radio(active){
+    return { width:'22px', height:'22px', borderRadius:'50%', flexShrink:0,
+      border: active ? '7px solid #211D17' : '2px solid #CFC6B5', background:'#fff', boxSizing:'border-box' };
+  }
+  tipoChip(tipo){
+    const isServ = tipo === 'Servicio';
+    return { fontSize:'11px', fontWeight:700, padding:'2px 8px', borderRadius:'999px',
+      background: isServ ? '#EAE3F2' : '#E7EEF2', color: isServ ? '#5B4A86' : '#2E5A78' };
+  }
+  resTag(kind){
+    const ok = kind === 'ok';
+    return { width:'34px', height:'34px', borderRadius:'10px', display:'flex', alignItems:'center', justifyContent:'center',
+      fontSize:'12px', fontWeight:800, flexShrink:0, background: ok ? '#211D17' : '#EFEAE0', color: ok ? '#F3EEE3' : '#6E665B' };
+  }
+
+  // ---- navigation ----
+  go(tab){ this.setState({ tab, sub:null }); }
+  openSub(name, extra){ this.setState(Object.assign({ sub:name }, extra||{})); }
+  back(){ this.setState({ sub:null }); }
+
+  startNuevaVenta(){
+    this.setState({ sub:'nuevaVenta', nv:{ step:1, tipo:'Boleta', serie:'B001', cliente:'Cliente varios', items:[], pago:'Efectivo' } });
+  }
+
+  nvTotalCalc(items){ return items.reduce((s,it)=> s + it.precio*it.qty, 0); }
+
+  renderVals() {
+    const S = this.state;
+    const authed = S.authed;
+    const sub = S.sub;
+    const inTab = authed && !sub;
+
+    // ---- period KPIs ----
+    const pmap = {
+      hoy:   { label:'Hoy',         vendido:1314.90, comp:14,  ticket:93.92,  delta:'8%',  vs:'vs. ayer' },
+      semana:{ label:'Esta semana', vendido:7825.40, comp:86,  ticket:91.00,  delta:'12%', vs:'vs. semana pasada' },
+      mes:   { label:'Este mes',    vendido:38420.00,comp:312, ticket:123.10, delta:'5%',  vs:'vs. mayo' },
+    };
+    const pk = pmap[S.period];
+
+    // ---- chart ----
+    const dias = [['J',520],['V',980],['S',1340],['D',610],['L',1150],['M',870],['M',1315]];
+    const maxD = Math.max(...dias.map(d=>d[1]));
+    const chartBars = dias.map((d,i)=>({
+      label:d[0],
+      fillStyle:{ width:'100%', height:(Math.round(d[1]/maxD*100))+'%', minHeight:'6px',
+        background: i===dias.length-1 ? '#211D17' : '#CFC6B5', borderRadius:'5px' }
+    }));
+
+    const tops = [['Polo algodón pima',84],['Mochila urbana 20L',39],['Gorra trucker bordada',28],['Servicio de estampado',22]];
+    const maxT = tops[0][1];
+    const topProds = tops.map((t,i)=>({ rank:i+1, name:t[0], units:t[1],
+      barStyle:{ height:'100%', width:Math.round(t[1]/maxT*100)+'%', background:'#211D17', borderRadius:'999px' } }));
+
+    // ---- ventas list ----
+    const vf = S.vfilter;
+    const ventasView = this.ventas.filter(v=>{
+      if(vf==='todos') return true;
+      if(vf==='boletas') return v.tipo==='B';
+      if(vf==='facturas') return v.tipo==='F';
+      if(vf==='notas') return v.tipo==='N';
+      return true;
+    }).map(v=>({
+      ...v, total:this.money(v.total), badge:v.tipo, badgeStyle:this.badge(v.tipo),
+      chipStyle:this.chip(v.estado), open:()=>this.setState({ sub:'detalleVenta', det:v })
+    }));
+
+    // ---- compras ----
+    const comprasView = this.compras.map(c=>({
+      ...c, total:this.money(c.total), open:()=>this.setState({ sub:'detalleCompra', dc:c })
+    }));
+
+    // ---- productos ----
+    const pc = S.pcat;
+    const productosView = this.catalog.filter(p=>{
+      if(pc==='todos') return true;
+      if(pc==='prod') return p.tipo==='Producto';
+      if(pc==='serv') return p.tipo==='Servicio';
+      return true;
+    }).map(p=>({
+      ...p, precio:this.money(p.precio), ini:p.nombre.slice(0,2).toUpperCase(),
+      tipoStyle:this.tipoChip(p.tipo),
+      stockTxt: p.tipo==='Servicio' ? 'Servicio' : (p.stock===0 ? 'Agotado' : (p.stock<=10 ? 'Stock bajo: '+p.stock : 'Stock '+p.stock)),
+      open:()=>this.setState({ sub:'productoForm', pf:p })
+    }));
+
+    // ---- detalle venta ----
+    let det = null;
+    if(S.det){
+      const d=S.det; const neto=d.total/1.18; const igv=d.total-neto;
+      det={ ...d, total:this.money(d.total), neto:this.money(neto), igv:this.money(igv), chipStyle:this.chip(d.estado),
+        items:d.items.map(it=>({ nombre:it.nombre, qty:it.qty, precio:this.money(it.precio), total:this.money(it.precio*it.qty) })) };
+    }
+
+    // ---- detalle compra ----
+    let dc=null;
+    if(S.dc){ const c=S.dc; dc={ ...c, total:this.money(c.total),
+      items:c.items.map(it=>({ nombre:it.nombre, qty:it.qty, precio:this.money(it.precio), total:this.money(it.precio*it.qty) })) }; }
+
+    // ---- producto form ----
+    let pf=null;
+    if(S.pf!==null){
+      const p=S.pf||{};
+      pf={ title: S.pf && S.pf.id ? 'Editar producto' : 'Nuevo producto',
+        nombre: p.nombre || 'Nombre del producto',
+        precio: p.precio!=null ? Number(p.precio).toFixed(2) : '0.00',
+        stock: p.stock!=null ? String(p.stock) : '0',
+        cat: p.cat || 'General',
+        tipo: p.tipo || 'Producto' };
+    }
+    const pfTipo = (this._pfTipo) || (pf && pf.tipo) || 'Producto';
+
+    // ---- nueva venta ----
+    const nv = S.nv;
+    let nvVals = {};
+    if(nv){
+      const total = this.nvTotalCalc(nv.items);
+      const neto = total/1.18; const igv = total-neto;
+      const stepLabels = { 1:'Paso 1 de 4 · Comprobante', 2:'Paso 2 de 4 · Cliente', 3:'Paso 3 de 4 · Productos', 4:'Paso 4 de 4 · Pago' };
+      const primaryLabels = { 1:'Continuar', 2:'Continuar', 3:'Continuar', 4:'Emitir comprobante' };
+      const barOn = { height:'4px', borderRadius:'999px', flex:1, background:'#211D17' };
+      const barOff = { height:'4px', borderRadius:'999px', flex:1, background:'#E0D8C8' };
+      nvVals = {
+        nvStepLabel: stepLabels[nv.step],
+        nvS1: nv.step===1, nvS2: nv.step===2, nvS3: nv.step===3, nvS4: nv.step===4,
+        nvBar1: nv.step>=1?barOn:barOff, nvBar2: nv.step>=2?barOn:barOff, nvBar3: nv.step>=3?barOn:barOff, nvBar4: nv.step>=4?barOn:barOff,
+        nvTipo: nv.tipo, nvSerie: nv.serie, nvCorrelativo: nv.tipo==='Factura'?'F001-000246': nv.tipo==='Nota de venta'?'NV01-000059':'B001-001122',
+        nvTipoBoletaStyle:this.optCard(nv.tipo==='Boleta'), nvTipoFacturaStyle:this.optCard(nv.tipo==='Factura'), nvTipoNotaStyle:this.optCard(nv.tipo==='Nota de venta'),
+        nvRadioBoleta:this.radio(nv.tipo==='Boleta'), nvRadioFactura:this.radio(nv.tipo==='Factura'), nvRadioNota:this.radio(nv.tipo==='Nota de venta'),
+        nvTipoBoleta:()=>this.setNvTipo('Boleta','B001'), nvTipoFactura:()=>this.setNvTipo('Factura','F001'), nvTipoNota:()=>this.setNvTipo('Nota de venta','NV01'),
+        nvClienteVarios:()=>this.setNv({cliente:'Cliente varios'}), nvClienteA:()=>this.setNv({cliente:'María Quispe Flores · DNI 45128876'}), nvClienteB:()=>this.setNv({cliente:'Comercial Andina S.A.C. · RUC 20512345678'}),
+        nvCVStyle:this.optRow(nv.cliente==='Cliente varios'), nvCAStyle:this.optRow(nv.cliente.indexOf('María')===0), nvCBStyle:this.optRow(nv.cliente.indexOf('Comercial')===0),
+        nvRadioCV:this.radio(nv.cliente==='Cliente varios'), nvRadioCA:this.radio(nv.cliente.indexOf('María')===0), nvRadioCB:this.radio(nv.cliente.indexOf('Comercial')===0),
+        nvHasItems: nv.items.length>0, nvCount: nv.items.length,
+        nvItems: nv.items.map(it=>({ nombre:it.nombre, precio:this.money(it.precio), qty:it.qty,
+          inc:()=>this.nvInc(it.id,1), dec:()=>this.nvInc(it.id,-1) })),
+        catalogView: this.catalog.map(cp=>({ nombre:cp.nombre, precio:this.money(cp.precio), add:()=>this.nvAdd(cp) })),
+        nvTotal:this.money(total), nvNeto:this.money(neto), nvIgv:this.money(igv),
+        nvClienteName: nv.cliente,
+        nvPagoEfectivoStyle:this.seg(nv.pago==='Efectivo'), nvPagoTarjetaStyle:this.seg(nv.pago==='Tarjeta'), nvPagoTransferStyle:this.seg(nv.pago==='Transferencia'), nvPagoYapeStyle:this.seg(nv.pago==='Yape / Plin'),
+        nvPagoEfectivo:()=>this.setNv({pago:'Efectivo'}), nvPagoTarjeta:()=>this.setNv({pago:'Tarjeta'}), nvPagoTransfer:()=>this.setNv({pago:'Transferencia'}), nvPagoYape:()=>this.setNv({pago:'Yape / Plin'}),
+        nvPrimaryLabel: primaryLabels[nv.step],
+        nvPrimary:()=>this.nvPrimary(),
+        nvBack:()=>this.nvBack(),
+      };
+    }
+
+    // ---- venta emitida result ----
+    const r = S.nvResult || {};
+
+    const seg = this.seg.bind(this);
+    const pill = this.pill.bind(this);
+
+    return {
+      // visibility
+      isLogin: !authed,
+      showTabbar: authed && !sub,
+      tabDashboard: inTab && S.tab==='dashboard',
+      tabVentas: inTab && S.tab==='ventas',
+      tabCompras: inTab && S.tab==='compras',
+      tabProductos: inTab && S.tab==='productos',
+      subDetalleVenta: sub==='detalleVenta',
+      subResumenes: sub==='resumenes',
+      subNuevaVenta: sub==='nuevaVenta',
+      subVentaEmitida: sub==='ventaEmitida',
+      subNuevaCompra: sub==='nuevaCompra',
+      subDetalleCompra: sub==='detalleCompra',
+      subProductoForm: sub==='productoForm',
+
+      // login
+      doLogin:()=>this.setState({ authed:true, tab:'dashboard', sub:null }),
+      logout:()=>this.setState({ authed:false }),
+
+      // nav
+      goDashboard:()=>this.go('dashboard'),
+      goVentas:()=>this.go('ventas'),
+      goCompras:()=>this.go('compras'),
+      goProductos:()=>this.go('productos'),
+      back:()=>this.back(),
+      openNuevaVenta:()=>this.startNuevaVenta(),
+      openNuevaCompra:()=>this.openSub('nuevaCompra'),
+      openNuevoProducto:()=>this.setState({ sub:'productoForm', pf:{} }),
+      openResumenes:()=>this.openSub('resumenes'),
+
+      navDash:this.navStyle(S.tab==='dashboard'), navVent:this.navStyle(S.tab==='ventas'),
+      navComp:this.navStyle(S.tab==='compras'), navProd:this.navStyle(S.tab==='productos'),
+
+      // dashboard
+      periodLabel: pk.label, kpiVendido:this.money(pk.vendido), kpiComp:String(pk.comp),
+      kpiTicket:this.money(pk.ticket), kpiDelta:pk.delta, kpiVsLabel:pk.vs,
+      pHoy:()=>this.setState({period:'hoy'}), pSemana:()=>this.setState({period:'semana'}), pMes:()=>this.setState({period:'mes'}),
+      pHoyStyle:seg(S.period==='hoy'), pSemanaStyle:seg(S.period==='semana'), pMesStyle:seg(S.period==='mes'),
+      chartBars, topProds,
+
+      // ventas filters
+      fTodos:()=>this.setState({vfilter:'todos'}), fBoletas:()=>this.setState({vfilter:'boletas'}), fFacturas:()=>this.setState({vfilter:'facturas'}), fNotas:()=>this.setState({vfilter:'notas'}),
+      fTodosStyle:seg(vf==='todos'), fBoletasStyle:seg(vf==='boletas'), fFacturasStyle:seg(vf==='facturas'), fNotasStyle:seg(vf==='notas'),
+      ventasView,
+
+      // compras
+      comprasView, dc,
+
+      // productos
+      cTodos:()=>this.setState({pcat:'todos'}), cProd:()=>this.setState({pcat:'prod'}), cServ:()=>this.setState({pcat:'serv'}),
+      cTodosStyle:pill(pc==='todos'), cProdStyle:pill(pc==='prod'), cServStyle:pill(pc==='serv'),
+      productosView,
+
+      // detalle venta
+      det,
+      toastCorreo:()=>this.showToast('Comprobante enviado por correo'),
+      toastPdf:()=>this.showToast('PDF descargado'),
+      toastQr:()=>this.showToast('Mostrando QR del comprobante'),
+
+      // resumenes
+      resumenPending: !S.resumenSent,
+      resumenSentFlag: S.resumenSent,
+      enviarResumen:()=>{ this.setState({ resumenSent:true }); this.showToast('Resumen enviado a SUNAT'); },
+      toastEstado:()=>this.showToast('Estado actualizado: Aceptado'),
+      resumenes: this.resumenes.map(r=>({ ...r, tagStyle:this.resTag(r.kind), chipStyle:this.chip(r.estado) })),
+
+      // producto form
+      pfTitle: pf?pf.title:'', pfNombre: pf?pf.nombre:'', pfPrecio: pf?pf.precio:'', pfStock: pf?pf.stock:'', pfCat: pf?pf.cat:'',
+      pfTipoProdStyle:pill(pfTipo==='Producto'), pfTipoServStyle:pill(pfTipo==='Servicio'),
+      pfTipoProd:()=>{ this._pfTipo='Producto'; this.forceUpdate(); }, pfTipoServ:()=>{ this._pfTipo='Servicio'; this.forceUpdate(); },
+      guardarProducto:()=>{ this.back(); this.showToast('Producto guardado'); },
+
+      // nueva compra
+      registrarCompra:()=>{ this.back(); this.go('compras'); this.showToast('Compra registrada'); },
+
+      // venta emitida
+      nvResultTipo: r.tipo||'', nvResultNum: r.num||'', nvResultTotal: r.total||'',
+      emitirDetalle:()=>{ if(this._lastVenta) this.setState({ sub:'detalleVenta', det:this._lastVenta }); },
+
+      // toast
+      toastShow: !!S.toast, toastMsg: S.toast||'',
+
+      ...nvVals,
+    };
+  }
+
+  navStyle(active){
+    return { flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:'4px', cursor:'pointer',
+      color: active ? '#211D17' : '#A89F8F', fontWeight: active ? 700 : 600, paddingTop:'2px' };
+  }
+
+  setNvTipo(tipo, serie){ this.setState(s=>({ nv:Object.assign({}, s.nv, { tipo, serie }) })); }
+  setNv(patch){ this.setState(s=>({ nv:Object.assign({}, s.nv, patch) })); }
+  nvAdd(cp){
+    this.setState(s=>{
+      const items = s.nv.items.slice();
+      const ex = items.find(i=>i.id===cp.id);
+      if(ex){ ex.qty++; } else { items.push({ id:cp.id, nombre:cp.nombre, precio:cp.precio, qty:1 }); }
+      return { nv:Object.assign({}, s.nv, { items }) };
+    });
+  }
+  nvInc(id, d){
+    this.setState(s=>{
+      let items = s.nv.items.map(i=> i.id===id ? Object.assign({},i,{qty:i.qty+d}) : i).filter(i=>i.qty>0);
+      return { nv:Object.assign({}, s.nv, { items }) };
+    });
+  }
+  nvBack(){
+    const nv=this.state.nv;
+    if(!nv || nv.step===1){ this.setState({ sub:null, nv:null }); return; }
+    this.setState(s=>({ nv:Object.assign({}, s.nv, { step:s.nv.step-1 }) }));
+  }
+  nvPrimary(){
+    const nv=this.state.nv;
+    if(nv.step<4){
+      if(nv.step===3 && nv.items.length===0){ this.showToast('Agrega al menos un producto'); return; }
+      this.setState(s=>({ nv:Object.assign({}, s.nv, { step:s.nv.step+1 }) }));
+      return;
+    }
+    // emit
+    const total = this.nvTotalCalc(nv.items);
+    const serieNum = { 'Boleta':'B001-001122', 'Factura':'F001-000246', 'Nota de venta':'NV01-000059' }[nv.tipo];
+    const venta = {
+      id:'new', tipo: nv.tipo[0], tipoFull: nv.tipo==='Boleta'?'Boleta de venta':nv.tipo==='Factura'?'Factura electrónica':'Nota de venta',
+      numero: serieNum, cliente: nv.cliente.split(' · ')[0], docLabel:'Pago', docNum:nv.pago,
+      total: total, estado: nv.tipo==='Nota de venta'?'Interno':'Aceptado', fecha:'25 jun', fechaFull:'25 jun 2026, 15:10',
+      items: nv.items.map(i=>({ nombre:i.nombre, qty:i.qty, precio:i.precio })),
+    };
+    this._lastVenta = venta;
+    this.setState({ sub:'ventaEmitida', nvResult:{ tipo:venta.tipoFull, num:venta.numero, total:this.money(total) } });
+  }
+}
+</script>
+</body>
+</html>
