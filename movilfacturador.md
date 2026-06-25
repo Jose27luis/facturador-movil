@@ -60,6 +60,18 @@ El corazón de la app.
   - **Medio de pago** (efectivo, tarjeta, transferencia, etc.).
   - Botón **Emitir** → genera el comprobante en SUNAT y muestra el resultado (número + QR).
 
+#### Resúmenes a SUNAT (dentro de Ventas)
+En Perú, las **boletas no se envían una por una**: se reportan a SUNAT en un **resumen diario**. Las **anulaciones** se comunican con una **baja**. La app debe permitir:
+
+- **Resumen diario de boletas:**
+  - Ver las boletas del día **pendientes de resumir**.
+  - Botón **"Enviar resumen a SUNAT"** → genera y envía el resumen del día.
+  - **Estado del resumen** (enviado / aceptado / observado) con su ticket.
+- **Comunicación de baja (anulaciones):**
+  - Seleccionar comprobantes a anular → **enviar la baja a SUNAT**.
+  - Ver el **estado** de cada baja.
+- Una pantalla **"Resúmenes"** lista los resúmenes y bajas con su estado, y permite **consultar/actualizar estado** (porque SUNAT responde de forma asíncrona con un ticket).
+
 ### 3.3. Compras
 Registro de las compras del negocio.
 
@@ -139,6 +151,14 @@ Todos bajo `https://<empresa>/api/` con header `Authorization: Bearer <token>`.
 | Emitir nota de venta | POST | `/api/sale-note` |
 | Series de nota de venta | GET | `/api/sale-note/series` |
 | Convertir nota a CPE | POST | `/api/sale-note/{id}/generate-cpe` |
+
+### Resúmenes y bajas (SUNAT)
+| Acción | Método | Endpoint |
+|---|---|---|
+| Enviar resumen diario de boletas | POST | `/api/summaries` |
+| Consultar estado del resumen | POST | `/api/summaries/status` |
+| Enviar comunicación de baja (anulación) | POST | `/api/voided` |
+| Consultar estado de la baja | POST | `/api/voided/status` |
 
 ### Clientes (para emitir ventas)
 | Acción | Método | Endpoint |
@@ -270,6 +290,23 @@ sequenceDiagram
   P-->>A: KPIs y resumen
 ```
 
+### 7.6. Secuencia: enviar resumen diario a SUNAT
+
+```mermaid
+sequenceDiagram
+  participant A as App Movil
+  participant P as API pro8
+  participant S as SUNAT
+  A->>P: POST /summaries (boletas del dia)
+  P->>S: Enviar resumen
+  S-->>P: Ticket (procesamiento asincrono)
+  P-->>A: Ticket / estado inicial
+  A->>P: POST /summaries/status (consultar)
+  P->>S: Consultar ticket
+  S-->>P: Aceptado / observado
+  P-->>A: Estado final
+```
+
 ---
 
 ## 8. MVP (primera versión)
@@ -277,8 +314,9 @@ sequenceDiagram
 1. **Login** (empresa + usuario + contraseña) + guardar token seguro.
 2. **Dashboard** con KPIs y resumen del periodo.
 3. **Ventas:** listado + detalle + **emitir** (boleta/nota de venta, cliente, productos, pago, envío a SUNAT).
-4. **Productos/Servicios:** listado + buscar + crear/editar.
-5. **Compras:** listado + detalle (creación completa según el gap de la sección 6).
+4. **Resúmenes a SUNAT:** enviar **resumen diario de boletas** y **comunicaciones de baja**, con consulta de estado (ticket asíncrono).
+5. **Productos/Servicios:** listado + buscar + crear/editar.
+6. **Compras:** listado + detalle (creación completa según el gap de la sección 6).
 
 Fases siguientes: factura, multi-serie, reportes avanzados, modo offline para zonas sin internet, impresión de ticket.
 
