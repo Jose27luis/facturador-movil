@@ -138,6 +138,48 @@ La app se desarrolla con **React Native + Expo + TypeScript**.
 
 **Reglas de código (igual que los demás proyectos):** tipado estricto, sin `any`, sin comentarios decorativos, sin placeholders en inputs (usar labels visibles), commits granulares en español (conventional).
 
+### Arquitectura del código (estable y escalable)
+
+**Prioridad: solidez y escalabilidad por encima de la velocidad.** El proyecto puede crecer (más módulos, más empresas, más volumen), así que se construye con una **arquitectura modular por features**, capas separadas y bajo acoplamiento, para que agregar algo nuevo **no rompa** lo existente.
+
+**Principios:**
+- **Modular por feature** (no por tipo de archivo): cada módulo (auth, dashboard, ventas, compras, productos) es autocontenido.
+- **Capas separadas:** UI (componentes "tontos") → hooks/lógica → servicios de API → cliente HTTP. La UI no llama a la API directamente.
+- **Una sola fuente de verdad de datos remotos:** React Query (cacheo, invalidación, reintentos). Nada de fetch suelto en componentes.
+- **Cliente HTTP centralizado** con interceptores (token, tenant, manejo de 401/errores) — un solo lugar que tocar.
+- **Tipos/DTOs explícitos** por módulo; el contrato con pro8 vive tipado.
+- **Core/compartido** reutilizable (tema, navegación, almacenamiento seguro, componentes base).
+- **Configuración por entorno** (dev/prod) sin hardcodear URLs.
+
+**Estructura de carpetas propuesta:**
+
+```
+src/
+  core/
+    api/            cliente axios + interceptores (token, tenant, errores)
+    auth/           sesión, tenant, login, guard
+    config/         entornos (dev/prod), constantes
+    theme/          colores, tipografía, claro/oscuro
+    storage/        SecureStore (token), cache ligera
+    ui/             componentes base reutilizables (Boton, Input, Card, Tag...)
+  features/
+    dashboard/      pantallas + hooks + servicio + tipos
+    ventas/
+      screens/      lista, detalle, nueva-venta, resumenes
+      hooks/        useVentas, useEmitirDocumento (React Query)
+      services/     ventas.api.ts (llamadas a pro8)
+      types.ts
+    compras/
+    productos/
+  navigation/       Expo Router (tabs + stacks por feature)
+  shared/           utilidades, formato de moneda/fecha, validaciones
+app/                rutas Expo Router (entrypoints que montan las features)
+```
+
+**Cómo se agrega un módulo nuevo** (escalabilidad real): se crea una carpeta en `features/`, su servicio de API (que reusa el cliente HTTP central), sus hooks de React Query, sus pantallas y, si aplica, una pestaña/ruta. **No se toca** el resto de la app.
+
+**Calidad como base (desde el día 1):** TypeScript estricto, ESLint + Prettier, y separación clara de responsabilidades. Se prioriza un código **legible y mantenible** antes que entregar rápido.
+
 ---
 
 ## 6. Contrato de API (endpoints reales de pro8)
