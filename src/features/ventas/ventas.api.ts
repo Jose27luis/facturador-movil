@@ -1,5 +1,5 @@
 import { api } from '@/core/api/client';
-import { Comprobante } from './ventas.types';
+import { Comprobante, ComprobanteDetalle, LineaComprobante } from './ventas.types';
 
 interface ListsResponse {
   data?: unknown[];
@@ -46,4 +46,38 @@ export async function listarComprobantes(): Promise<Comprobante[]> {
   const { data } = await api.get<ListsResponse>('/documents/lists');
   const filas = Array.isArray(data.data) ? data.data : [];
   return filas.filter((f): f is Fila => typeof f === 'object' && f !== null).map(mapComprobante);
+}
+
+interface DetalleResponse {
+  data?: Fila;
+}
+
+export async function obtenerComprobanteDetalle(id: number): Promise<ComprobanteDetalle> {
+  const { data } = await api.get<DetalleResponse>(`/mobile/documents/${id}`);
+  const d = data.data ?? {};
+  const filas = Array.isArray(d.items) ? d.items : [];
+  const items: LineaComprobante[] = filas
+    .filter((f): f is Fila => typeof f === 'object' && f !== null)
+    .map((f) => ({
+      descripcion: leerTexto(f, 'description'),
+      cantidad: leerMonto(f, 'quantity'),
+      precioUnitario: leerMonto(f, 'unit_price'),
+      total: leerMonto(f, 'total'),
+    }));
+  return {
+    id: leerMonto(d, 'id'),
+    numero: leerTexto(d, 'number'),
+    tipo: leerTexto(d, 'document_type_description'),
+    estadoId: leerTexto(d, 'state_type_id'),
+    estado: leerTexto(d, 'state_type_description'),
+    cliente: leerTexto(d, 'customer_name'),
+    clienteDoc: leerTexto(d, 'customer_number'),
+    fecha: leerTexto(d, 'date_of_issue'),
+    moneda: leerTexto(d, 'currency_type_id') || 'PEN',
+    totalGravado: leerMonto(d, 'total_taxed'),
+    totalExonerado: leerMonto(d, 'total_exonerated'),
+    totalIgv: leerMonto(d, 'total_igv'),
+    total: leerMonto(d, 'total'),
+    items,
+  };
 }
