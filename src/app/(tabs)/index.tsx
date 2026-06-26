@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
@@ -14,8 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSession } from '@/core/auth/session';
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
-import { fmtMoneda, fmtNumero } from '@/shared/format';
-import { PERIODOS, Periodo } from '@/features/dashboard/dashboard.types';
+import { fmtMoneda } from '@/shared/format';
+import { BarraDia } from '@/features/dashboard/dashboard.types';
 import { useDashboard } from '@/features/dashboard/use-dashboard';
 
 const c = paletaClara;
@@ -24,10 +23,8 @@ export default function InicioScreen() {
   const router = useRouter();
   const usuario = useSession((s) => s.usuario);
   const cerrar = useSession((s) => s.cerrar);
-  const [periodo, setPeriodo] = useState<Periodo>('today');
   const { data, isLoading, isError, refetch, isRefetching } = useDashboard();
 
-  const etiquetaPeriodo = PERIODOS.find((p) => p.id === periodo)?.etiqueta ?? '';
   const iniciales = (usuario?.nombre || 'MF')
     .trim()
     .split(/\s+/)
@@ -54,21 +51,6 @@ export default function InicioScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={c.brand} />
         }
       >
-        <View style={styles.tabs}>
-          {PERIODOS.map((p) => {
-            const activo = periodo === p.id;
-            return (
-              <Pressable
-                key={p.id}
-                style={[styles.tab, activo && styles.tabActivo]}
-                onPress={() => setPeriodo(p.id)}
-              >
-                <Text style={[styles.tabText, activo && styles.tabTextActivo]}>{p.etiqueta}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
         {isLoading ? (
           <View style={styles.estado}>
             <ActivityIndicator color={c.brand} />
@@ -80,20 +62,22 @@ export default function InicioScreen() {
         ) : (
           <>
             <View style={styles.hero}>
-              <Text style={styles.heroLabel}>Vendido · {etiquetaPeriodo}</Text>
+              <Text style={styles.heroLabel}>Vendido · Este mes</Text>
               <Text style={styles.heroMonto}>{fmtMoneda(data?.vendido ?? 0)}</Text>
             </View>
 
             <View style={styles.fila}>
               <View style={styles.kpi}>
                 <Text style={styles.kpiLabel}>Comprobantes</Text>
-                <Text style={styles.kpiValor}>{fmtNumero(data?.comprobantes ?? 0)}</Text>
+                <Text style={styles.kpiValor}>{fmtMoneda(data?.comprobantes ?? 0)}</Text>
               </View>
               <View style={styles.kpi}>
-                <Text style={styles.kpiLabel}>Ticket prom.</Text>
-                <Text style={styles.kpiValor}>{fmtMoneda(data?.ticketPromedio ?? 0)}</Text>
+                <Text style={styles.kpiLabel}>Notas de venta</Text>
+                <Text style={styles.kpiValor}>{fmtMoneda(data?.notasVenta ?? 0)}</Text>
               </View>
             </View>
+
+            <Grafico barras={data?.barras ?? []} />
           </>
         )}
 
@@ -113,6 +97,37 @@ export default function InicioScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Grafico({ barras }: { barras: BarraDia[] }) {
+  const max = Math.max(1, ...barras.map((b) => b.valor));
+  const conValor = barras.filter((b) => b.valor > 0).length;
+  return (
+    <View style={styles.grafico}>
+      <View style={styles.graficoHead}>
+        <Text style={styles.graficoTitulo}>Ventas por día</Text>
+        <Text style={styles.graficoSub}>Este mes</Text>
+      </View>
+      {conValor === 0 ? (
+        <Text style={styles.graficoVacio}>Sin ventas registradas este mes.</Text>
+      ) : (
+        <View style={styles.barras}>
+          {barras.map((b, i) => (
+            <View key={i} style={styles.barraCol}>
+              <View style={styles.barraTrack}>
+                <View
+                  style={[
+                    styles.barraFill,
+                    { height: `${Math.max(2, (b.valor / max) * 100)}%`, opacity: b.valor > 0 ? 1 : 0.25 },
+                  ]}
+                />
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -155,24 +170,9 @@ const styles = StyleSheet.create({
   },
   avatarText: { color: c.onBrand, fontWeight: '700', fontSize: 15 },
   content: { padding: 20, gap: 12 },
-  tabs: { flexDirection: 'row', gap: 8 },
-  tab: {
-    flex: 1,
-    paddingVertical: 9,
-    borderRadius: 999,
-    alignItems: 'center',
-    backgroundColor: c.surfaceAlt,
-  },
-  tabActivo: { backgroundColor: c.brand },
-  tabText: { fontSize: 14, fontWeight: '700', color: c.muted },
-  tabTextActivo: { color: c.onBrand },
   estado: { paddingVertical: 40, alignItems: 'center' },
   estadoText: { color: c.muted, fontSize: 14 },
-  hero: {
-    backgroundColor: c.brand,
-    borderRadius: radios.xl,
-    padding: 20,
-  },
+  hero: { backgroundColor: c.brand, borderRadius: radios.xl, padding: 20 },
   heroLabel: {
     fontSize: 12.5,
     color: '#B8AF9C',
@@ -203,7 +203,27 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  kpiValor: { fontFamily: fuentes.monoSemi, fontSize: 22, color: c.text, marginTop: 6 },
+  kpiValor: { fontFamily: fuentes.monoSemi, fontSize: 18, color: c.text, marginTop: 6 },
+  grafico: {
+    backgroundColor: c.surface,
+    borderRadius: radios.lg,
+    borderWidth: 1,
+    borderColor: c.border,
+    padding: 16,
+  },
+  graficoHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  graficoTitulo: { fontSize: 14.5, fontWeight: '700', color: c.text },
+  graficoSub: { fontSize: 12, color: c.muted },
+  graficoVacio: { fontSize: 13, color: c.faint, paddingVertical: 20, textAlign: 'center' },
+  barras: { flexDirection: 'row', alignItems: 'flex-end', height: 90, gap: 3 },
+  barraCol: { flex: 1, height: '100%', justifyContent: 'flex-end' },
+  barraTrack: { height: '100%', justifyContent: 'flex-end' },
+  barraFill: { width: '100%', backgroundColor: c.brand, borderRadius: 3, minHeight: 2 },
   seccion: {
     fontSize: 13,
     fontWeight: '700',
