@@ -37,6 +37,9 @@ function tipoBadge(tipoId: string): { letra: string; bg: string; color: string }
   if (tipoId === '07' || tipoId === '08') {
     return { letra: tipoId === '07' ? 'NC' : 'ND', bg: '#F3DDDD', color: c.danger };
   }
+  if (tipoId === '80') {
+    return { letra: 'NV', bg: '#E3EFE6', color: c.ok };
+  }
   return { letra: 'B', bg: c.surfaceAlt, color: c.muted };
 }
 
@@ -50,7 +53,7 @@ function coincideFiltro(tipoId: string, filtro: Filtro): boolean {
   if (filtro === 'facturas') {
     return tipoId === '01';
   }
-  return tipoId === '07' || tipoId === '08';
+  return tipoId === '07' || tipoId === '08' || tipoId === '80';
 }
 
 export default function VentasScreen() {
@@ -131,7 +134,17 @@ export default function VentasScreen() {
               <Text style={styles.estadoText}>Sin comprobantes.</Text>
             </View>
           }
-          renderItem={({ item }) => <Fila item={item} onPress={() => router.push(`/comprobante/${item.id}`)} />}
+          renderItem={({ item }) => (
+            <Fila
+              item={item}
+              onPress={() =>
+                router.push({
+                  pathname: '/comprobante/[id]',
+                  params: { id: String(item.id), nv: item.esNotaVenta ? '1' : '0' },
+                })
+              }
+            />
+          )}
         />
       )}
     </SafeAreaView>
@@ -148,7 +161,9 @@ function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
       <View style={styles.filaInfo}>
         <View style={styles.filaTop}>
           <Text style={styles.numero}>{item.numero}</Text>
-          <BadgeEstado tono={tonoEstado(item.estadoId)} etiqueta={item.estado} />
+          {item.estado ? (
+            <BadgeEstado tono={tonoEstado(item.estadoId)} etiqueta={item.estado} />
+          ) : null}
         </View>
         <Text style={styles.cliente} numberOfLines={1}>
           {item.cliente || 'Sin cliente'}
