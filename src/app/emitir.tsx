@@ -27,6 +27,7 @@ import {
 import {
   useBuscarClientes,
   useBuscarItems,
+  useConsultarCliente,
   useEmitir,
   useSeries,
 } from '@/features/emitir/use-emitir';
@@ -77,13 +78,13 @@ export default function EmitirScreen() {
   }
 
   function confirmarEmision() {
-    if (!serieSel || !cliente || lineas.length === 0) {
+    if (!serieSel || lineas.length === 0) {
       return;
     }
     emitir.mutate(
       {
         series_id: serieSel.id,
-        customer_id: cliente.id,
+        customer_id: cliente?.id,
         currency_type_id: moneda,
         items: lineas.map((l) => ({ item_id: l.item.id, quantity: l.cantidad })),
       },
@@ -100,7 +101,7 @@ export default function EmitirScreen() {
     );
   }
 
-  const puedeEmitir = !!serieSel && !!cliente && lineas.length > 0 && !emitir.isPending;
+  const puedeEmitir = !!serieSel && lineas.length > 0 && !emitir.isPending;
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -137,8 +138,8 @@ export default function EmitirScreen() {
 
         <Text style={styles.seccion}>Cliente</Text>
         <Pressable style={styles.selector} onPress={() => setModalCliente(true)}>
-          <Text style={cliente ? styles.selectorValor : styles.selectorVacio} numberOfLines={1}>
-            {cliente ? cliente.descripcion : 'Seleccionar cliente'}
+          <Text style={styles.selectorValor} numberOfLines={1}>
+            {cliente ? cliente.descripcion : 'Cliente varios'}
           </Text>
           <Ionicons name="chevron-forward" size={20} color={c.faint} />
         </Pressable>
@@ -204,6 +205,10 @@ export default function EmitirScreen() {
           setCliente(cl);
           setModalCliente(false);
         }}
+        onVarios={() => {
+          setCliente(null);
+          setModalCliente(false);
+        }}
       />
       <ModalBuscarItem
         visible={modalItem}
@@ -219,20 +224,47 @@ function ModalBuscarCliente({
   tipoId,
   onCerrar,
   onElegir,
+  onVarios,
 }: {
   visible: boolean;
   tipoId: string;
   onCerrar: () => void;
   onElegir: (cl: ClienteBusqueda) => void;
+  onVarios: () => void;
 }) {
   const [texto, setTexto] = useState('');
+  const [nombreManual, setNombreManual] = useState('');
+  const [pedirNombre, setPedirNombre] = useState(false);
   const { data, isFetching } = useBuscarClientes(texto, tipoId);
+  const consulta = useConsultarCliente();
+
+  const numero = texto.trim();
+  const esDocumento = /^\d{8}$/.test(numero) || /^\d{11}$/.test(numero);
+
+  function consultar(conNombre?: string) {
+    consulta.mutate(
+      { numero, nombre: conNombre },
+      {
+        onSuccess: (res) => {
+          if (res.ok) {
+            onElegir(res.cliente);
+          } else if (res.needsName) {
+            setPedirNombre(true);
+          } else {
+            Alert.alert('No se pudo consultar', res.message);
+          }
+        },
+        onError: (err) =>
+          Alert.alert('Error', err instanceof Error ? err.message : 'No se pudo consultar.'),
+      },
+    );
+  }
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onCerrar}>
       <SafeAreaView style={styles.root} edges={['top']}>
         <View style={styles.modalHeader}>
-          <Text style={styles.headerTitulo}>Buscar cliente</Text>
+          <Text style={styles.headerTitulo}>Cliente</Text>
           <Pressable onPress={onCerrar} accessibilityLabel="Cerrar">
             <Ionicons name="close" size={24} color={c.text} />
           </Pressable>
@@ -240,10 +272,59 @@ function ModalBuscarCliente({
         <TextInput
           style={styles.input}
           value={texto}
-          onChangeText={setTexto}
+          onChangeText={(t) => {
+            setTexto(t);
+            setPedirNombre(false);
+          }}
           autoFocus
-          accessibilityLabel="Nombre o número de documento"
+          keyboardType="default"
+          accessibilityLabel="Nombre, DNI o RUC"
         />
+
+        <Pressable style={styles.varios} onPress={onVarios}>
+          <Ionicons name="people-outline" size={20} color={c.text} />
+          <View style={styles.variosInfo}>
+            <Text style={styles.variosTitulo}>Cliente varios</Text>
+            <Text style={styles.variosSub}>Venta rápida sin datos</Text>
+          </View>
+        </Pressable>
+
+        {esDocumento ? (
+          <View style={styles.consultaCard}>
+            <Pressable
+              style={[styles.consultaBtn, consulta.isPending && styles.consultaBtnOff]}
+              onPress={() => consultar()}
+              disabled={consulta.isPending}
+            >
+              {consulta.isPending ? (
+                <ActivityIndicator color={c.onBrand} />
+              ) : (
+                <Text style={styles.consultaText}>
+                  Consultar {numero.length === 11 ? 'RUC' : 'DNI'} {numero}
+                </Text>
+              )}
+            </Pressable>
+            {pedirNombre ? (
+              <View style={styles.manualBox}>
+                <Text style={styles.manualLabel}>No se encontró. Ingresa el nombre y regístralo:</Text>
+                <TextInput
+                  style={styles.inputManual}
+                  value={nombreManual}
+                  onChangeText={setNombreManual}
+                  accessibilityLabel="Nombre del cliente"
+                />
+                <Pressable
+                  style={[styles.consultaBtn, nombreManual.trim() === '' && styles.consultaBtnOff]}
+                  onPress={() => consultar(nombreManual.trim())}
+                  disabled={nombreManual.trim() === '' || consulta.isPending}
+                >
+                  <Text style={styles.consultaText}>Registrar cliente</Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
         {isFetching ? (
           <ActivityIndicator color={c.brand} style={styles.modalCarga} />
         ) : (
@@ -280,18 +361,20 @@ function ModalBuscarItem({
     <Modal visible={visible} animationType="slide" onRequestClose={onCerrar}>
       <SafeAreaView style={styles.root} edges={['top']}>
         <View style={styles.modalHeader}>
-          <Text style={styles.headerTitulo}>Buscar producto</Text>
+          <Text style={styles.headerTitulo}>Productos</Text>
           <Pressable onPress={onCerrar} accessibilityLabel="Cerrar">
             <Ionicons name="close" size={24} color={c.text} />
           </Pressable>
         </View>
-        <TextInput
-          style={styles.input}
-          value={texto}
-          onChangeText={setTexto}
-          autoFocus
-          accessibilityLabel="Nombre o código del producto"
-        />
+        <View style={styles.buscadorModal}>
+          <Ionicons name="search" size={17} color={c.faint} />
+          <TextInput
+            style={styles.inputBuscador}
+            value={texto}
+            onChangeText={setTexto}
+            accessibilityLabel="Nombre o código del producto"
+          />
+        </View>
         {isFetching ? (
           <ActivityIndicator color={c.brand} style={styles.modalCarga} />
         ) : (
@@ -420,6 +503,53 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
+    color: c.text,
+  },
+  buscadorModal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: '#E0D8C8',
+    borderRadius: radios.md,
+    marginHorizontal: 20,
+    paddingHorizontal: 13,
+    height: 46,
+  },
+  inputBuscador: { flex: 1, fontSize: 15, color: c.text },
+  varios: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginHorizontal: 20,
+    marginTop: 12,
+    backgroundColor: c.surfaceAlt,
+    borderRadius: radios.md,
+    padding: 14,
+  },
+  variosInfo: { flex: 1 },
+  variosTitulo: { fontSize: 15, fontWeight: '700', color: c.text },
+  variosSub: { fontSize: 12.5, color: c.muted, marginTop: 1 },
+  consultaCard: { marginHorizontal: 20, marginTop: 12, gap: 10 },
+  consultaBtn: {
+    backgroundColor: c.brand,
+    borderRadius: radios.md,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  consultaBtnOff: { opacity: 0.5 },
+  consultaText: { color: c.onBrand, fontSize: 15, fontWeight: '700' },
+  manualBox: { gap: 10 },
+  manualLabel: { fontSize: 13, color: c.muted },
+  inputManual: {
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: '#E0D8C8',
+    borderRadius: radios.md,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
     color: c.text,
   },
   modalCarga: { marginTop: 24 },
