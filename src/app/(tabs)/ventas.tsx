@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
@@ -26,6 +27,10 @@ export default function VentasScreen() {
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.titulo}>Ventas</Text>
+        <Pressable style={styles.emitir} onPress={() => router.push('/emitir')}>
+          <Ionicons name="add" size={20} color={c.onBrand} />
+          <Text style={styles.emitirText}>Emitir</Text>
+        </Pressable>
       </View>
 
       {isLoading ? (
@@ -79,8 +84,25 @@ function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
+  emitir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: c.brand,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  emitirText: { color: c.onBrand, fontWeight: '700', fontSize: 14 },
   estado: { paddingVertical: 60, alignItems: 'center' },
   estadoText: { color: c.muted, fontSize: 14 },
   lista: { paddingHorizontal: 20, paddingBottom: 24 },
