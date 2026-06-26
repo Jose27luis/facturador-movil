@@ -27,10 +27,19 @@ export default function VentasScreen() {
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.titulo}>Ventas</Text>
-        <Pressable style={styles.emitir} onPress={() => router.push('/emitir')}>
-          <Ionicons name="add" size={20} color={c.onBrand} />
-          <Text style={styles.emitirText}>Emitir</Text>
-        </Pressable>
+        <View style={styles.acciones}>
+          <Pressable
+            style={styles.resumenes}
+            onPress={() => router.push('/resumenes')}
+            accessibilityLabel="Resúmenes a SUNAT"
+          >
+            <Ionicons name="cloud-upload-outline" size={20} color={c.brand} />
+          </Pressable>
+          <Pressable style={styles.emitir} onPress={() => router.push('/emitir')}>
+            <Ionicons name="add" size={20} color={c.onBrand} />
+            <Text style={styles.emitirText}>Emitir</Text>
+          </Pressable>
+        </View>
       </View>
 
       {isLoading ? (
@@ -93,6 +102,17 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
+  acciones: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  resumenes: {
+    width: 40,
+    height: 40,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: c.border,
+    backgroundColor: c.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   emitir: {
     flexDirection: 'row',
     alignItems: 'center',
