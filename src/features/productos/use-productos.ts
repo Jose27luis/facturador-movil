@@ -3,6 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import {
   actualizarProducto,
   crearProducto,
+  desactivarProducto,
   EditarProducto,
   listarProductos,
   NuevoProducto,
@@ -31,6 +32,16 @@ export function useActualizarProducto() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: EditarProducto }) =>
       actualizarProducto(id, payload),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: ['productos'] });
+    },
+  });
+}
+
+export function useDesactivarProducto() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => desactivarProducto(id),
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['productos'] });
     },
