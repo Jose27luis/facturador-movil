@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto, fmtNumero } from '@/shared/format';
 import { Producto } from '@/features/productos/productos.types';
 import { useProductos } from '@/features/productos/use-productos';
@@ -26,12 +27,15 @@ export default function ProductosScreen() {
       <View style={styles.header}>
         <Text style={styles.titulo}>Productos</Text>
       </View>
-      <TextInput
-        style={styles.input}
-        value={texto}
-        onChangeText={setTexto}
-        accessibilityLabel="Buscar producto por nombre o código"
-      />
+      <View style={styles.busqueda}>
+        <Ionicons name="search" size={17} color={c.faint} />
+        <TextInput
+          style={styles.input}
+          value={texto}
+          onChangeText={setTexto}
+          accessibilityLabel="Buscar en el catálogo"
+        />
+      </View>
 
       {isLoading ? (
         <View style={styles.estado}>
@@ -87,18 +91,20 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8 },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
-  input: {
+  busqueda: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
     backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: c.border,
+    borderColor: '#E0D8C8',
     borderRadius: radios.md,
     marginHorizontal: 20,
     marginBottom: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: c.text,
+    paddingHorizontal: 13,
+    height: 46,
   },
+  input: { flex: 1, fontSize: 15, color: c.text },
   estado: { paddingVertical: 60, alignItems: 'center' },
   estadoText: { color: c.muted, fontSize: 14 },
   lista: { paddingHorizontal: 20, paddingVertical: 12 },
@@ -119,6 +125,6 @@ const styles = StyleSheet.create({
   nombre: { fontSize: 15, fontWeight: '700', color: c.text },
   codigo: { fontSize: 12, color: c.faint },
   metaFila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  precio: { fontSize: 15, fontWeight: '800', color: c.text },
+  precio: { fontFamily: fuentes.monoSemi, fontSize: 14, color: c.text },
   stock: { fontSize: 13, color: c.muted },
 });
