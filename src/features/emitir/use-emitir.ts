@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   buscarClientes,
   buscarItems,
+  consultarCliente,
   emitirDocumento,
   obtenerSeries,
 } from './emitir.api';
@@ -20,7 +21,13 @@ export function useBuscarItems(input: string) {
   return useQuery({
     queryKey: ['emitir', 'items', input],
     queryFn: () => buscarItems(input),
-    enabled: input.trim().length >= 2,
+  });
+}
+
+export function useConsultarCliente() {
+  return useMutation({
+    mutationFn: ({ numero, nombre }: { numero: string; nombre?: string }) =>
+      consultarCliente(numero, nombre),
   });
 }
 
