@@ -12,18 +12,18 @@ export function useComprobantes() {
   });
 }
 
-export function useComprobante(id: number) {
+export function useComprobante(id: number, esNotaVenta: boolean) {
   return useQuery<Comprobante[], Error, Comprobante | undefined>({
     queryKey: claveLista,
     queryFn: listarComprobantes,
-    select: (lista) => lista.find((c) => c.id === id),
+    select: (lista) => lista.find((c) => c.id === id && c.esNotaVenta === esNotaVenta),
   });
 }
 
-export function useComprobanteDetalle(id: number) {
+export function useComprobanteDetalle(id: number, esNotaVenta: boolean) {
   return useQuery({
-    queryKey: ['ventas', 'detalle', id],
-    queryFn: () => obtenerComprobanteDetalle(id),
+    queryKey: ['ventas', 'detalle', esNotaVenta ? 'nv' : 'doc', id],
+    queryFn: () => obtenerComprobanteDetalle(id, esNotaVenta),
     enabled: id > 0,
   });
 }
