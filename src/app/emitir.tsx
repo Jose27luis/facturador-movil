@@ -17,7 +17,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
-import { abrirPdf, enviarWhatsApp } from '@/shared/compartir';
+import { VisorPdf } from '@/shared/ui/visor-pdf';
+import { EmitirResultado } from '@/features/emitir/emitir.types';
 import {
   ClienteBusqueda,
   ItemBusqueda,
@@ -46,6 +47,7 @@ export default function EmitirScreen() {
   const [lineas, setLineas] = useState<LineaCarrito[]>([]);
   const [modalCliente, setModalCliente] = useState(false);
   const [modalItem, setModalItem] = useState(false);
+  const [resultado, setResultado] = useState<EmitirResultado | null>(null);
 
   const serieSel = useMemo<Serie | undefined>(() => {
     if (!series || series.length === 0) {
@@ -96,14 +98,13 @@ export default function EmitirScreen() {
       },
       {
         onSuccess: (res) => {
-          const acciones = [{ text: 'Listo', onPress: () => router.back() }];
           if (res.pdfUrl) {
-            acciones.unshift(
-              { text: 'WhatsApp', onPress: () => void enviarWhatsApp(res.pdfUrl, `Tu comprobante ${res.numero}:`) },
-              { text: 'Ver PDF', onPress: () => void abrirPdf(res.pdfUrl) },
-            );
+            setResultado(res);
+          } else {
+            Alert.alert('Comprobante emitido', res.numero, [
+              { text: 'Listo', onPress: () => router.back() },
+            ]);
           }
-          Alert.alert('Comprobante emitido', res.numero, acciones);
         },
         onError: (err) => {
           Alert.alert('No se pudo emitir', err instanceof Error ? err.message : 'Error desconocido');
@@ -226,6 +227,18 @@ export default function EmitirScreen() {
         onCerrar={() => setModalItem(false)}
         onElegir={agregarItem}
       />
+      {resultado ? (
+        <VisorPdf
+          visible
+          numero={resultado.numero}
+          a4Url={resultado.pdfUrl}
+          ticketUrl={resultado.pdfTicket}
+          onCerrar={() => {
+            setResultado(null);
+            router.back();
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
