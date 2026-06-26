@@ -33,6 +33,7 @@ export interface ComprobanteDetalle {
   totalExonerado: number;
   totalIgv: number;
   total: number;
+  pdfUrl: string;
   items: LineaComprobante[];
 }
 

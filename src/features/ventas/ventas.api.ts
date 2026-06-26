@@ -78,6 +78,7 @@ export async function obtenerComprobanteDetalle(id: number): Promise<Comprobante
     totalExonerado: leerMonto(d, 'total_exonerated'),
     totalIgv: leerMonto(d, 'total_igv'),
     total: leerMonto(d, 'total'),
+    pdfUrl: leerTexto(d, 'pdf_url'),
     items,
   };
 }
