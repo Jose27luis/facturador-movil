@@ -16,12 +16,13 @@ const c = paletaClara;
 
 export default function ComprobanteScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, nv } = useLocalSearchParams<{ id: string; nv?: string }>();
   const insets = useSafeAreaInsets();
   const idNum = Number(id);
+  const esNotaVenta = nv === '1';
   const [verPdf, setVerPdf] = useState(false);
-  const { data: base } = useComprobante(idNum);
-  const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum);
+  const { data: base } = useComprobante(idNum, esNotaVenta);
+  const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum, esNotaVenta);
 
   const tipo = detalle?.tipo ?? base?.tipo ?? '';
   const numero = detalle?.numero ?? base?.numero ?? '';
