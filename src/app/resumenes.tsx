@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
+import { SelectorFecha } from '@/shared/ui/selector-fecha';
 import { PreviewResumen, ResumenEnviado } from '@/features/resumenes/resumenes.types';
 import {
   useConsultarPreview,
@@ -15,20 +16,34 @@ import {
 
 const c = paletaClara;
 
-function fechaISO(offsetDias: number): string {
+function pad(n: number): string {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+function hoyISO(): string {
   const d = new Date();
-  d.setDate(d.getDate() + offsetDias);
-  return d.toISOString().slice(0, 10);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function sumarDias(iso: string, dias: number): string {
+  const [a, m, d] = iso.split('-').map(Number);
+  const dt = new Date(a, m - 1, d);
+  dt.setDate(dt.getDate() + dias);
+  return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
 }
 
 function fechaLegible(iso: string): string {
-  const [a, m, dia] = iso.split('-');
-  return `${dia}/${m}/${a}`;
+  const [a, m, d] = iso.split('-');
+  return `${d}/${m}/${a}`;
 }
 
 export default function ResumenesScreen() {
   const router = useRouter();
-  const [offset, setOffset] = useState(0);
+  const insets = useSafeAreaInsets();
+  const hoy = hoyISO();
+
+  const [fecha, setFecha] = useState(hoy);
+  const [calOpen, setCalOpen] = useState(false);
   const [preview, setPreview] = useState<PreviewResumen | null>(null);
   const [resumen, setResumen] = useState<ResumenEnviado | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
@@ -38,14 +53,22 @@ export default function ResumenesScreen() {
   const enviar = useEnviarResumen();
   const consultarEstado = useConsultarResumen();
 
-  const fecha = useMemo(() => fechaISO(offset), [offset]);
+  const esHoy = fecha === hoy;
 
-  function cambiarFecha(delta: number) {
-    setOffset((o) => Math.min(0, o + delta));
+  function setFechaReset(nueva: string) {
+    setFecha(nueva);
     setPreview(null);
     setResumen(null);
     setEstado(null);
     setError(null);
+  }
+
+  function cambiarDia(delta: number) {
+    const nueva = sumarDias(fecha, delta);
+    if (nueva > hoy) {
+      return;
+    }
+    setFechaReset(nueva);
   }
 
   function onConsultar() {
@@ -87,23 +110,26 @@ export default function ResumenesScreen() {
         <View style={styles.iconoBtn} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}>
         <Text style={styles.seccion}>Fecha de emisión</Text>
         <View style={styles.fechaCard}>
-          <Pressable style={styles.fechaBtn} onPress={() => cambiarFecha(-1)} accessibilityLabel="Día anterior">
+          <Pressable style={styles.fechaBtn} onPress={() => cambiarDia(-1)} accessibilityLabel="Día anterior">
             <Ionicons name="chevron-back" size={22} color={c.text} />
           </Pressable>
-          <View style={styles.fechaCentro}>
+          <Pressable style={styles.fechaCentro} onPress={() => setCalOpen(true)}>
             <Text style={styles.fechaValor}>{fechaLegible(fecha)}</Text>
-            {offset === 0 ? <Text style={styles.fechaHoy}>Hoy</Text> : null}
-          </View>
+            <View style={styles.fechaHint}>
+              <Ionicons name="calendar-outline" size={13} color={c.accent} />
+              <Text style={styles.fechaHintText}>{esHoy ? 'Hoy · tocar para cambiar' : 'Tocar para cambiar'}</Text>
+            </View>
+          </Pressable>
           <Pressable
-            style={[styles.fechaBtn, offset >= 0 && styles.fechaBtnOff]}
-            onPress={() => cambiarFecha(1)}
-            disabled={offset >= 0}
+            style={[styles.fechaBtn, esHoy && styles.fechaBtnOff]}
+            onPress={() => cambiarDia(1)}
+            disabled={esHoy}
             accessibilityLabel="Día siguiente"
           >
-            <Ionicons name="chevron-forward" size={22} color={offset >= 0 ? c.faint : c.text} />
+            <Ionicons name="chevron-forward" size={22} color={esHoy ? c.faint : c.text} />
           </Pressable>
         </View>
 
@@ -192,6 +218,19 @@ export default function ResumenesScreen() {
           </View>
         ) : null}
       </ScrollView>
+
+      {calOpen ? (
+        <SelectorFecha
+          visible
+          valor={fecha}
+          maxima={hoy}
+          onCerrar={() => setCalOpen(false)}
+          onElegir={(iso) => {
+            setFechaReset(iso);
+            setCalOpen(false);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -228,9 +267,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fechaBtnOff: { backgroundColor: c.bg },
-  fechaCentro: { alignItems: 'center' },
+  fechaCentro: { alignItems: 'center', flex: 1 },
   fechaValor: { fontFamily: fuentes.monoSemi, fontSize: 18, color: c.text },
-  fechaHoy: { fontSize: 12, color: c.accent, fontWeight: '700', marginTop: 2 },
+  fechaHint: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
+  fechaHintText: { fontSize: 11.5, color: c.accent, fontWeight: '600' },
   consultar: {
     borderWidth: 1,
     borderColor: c.brand,
