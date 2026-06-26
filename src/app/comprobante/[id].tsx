@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
 import { tonoEstado } from '@/features/ventas/ventas.types';
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   tipo: { fontSize: 13, color: c.muted, fontWeight: '600' },
-  numero: { fontSize: 20, fontWeight: '800', color: c.text },
-  total: { fontSize: 30, fontWeight: '800', color: c.text, marginVertical: 4, letterSpacing: -0.5 },
+  numero: { fontFamily: fuentes.monoSemi, fontSize: 20, color: c.text },
+  total: { fontFamily: fuentes.monoSemi, fontSize: 30, color: c.text, marginVertical: 4, letterSpacing: -0.5 },
   card: {
     backgroundColor: c.surface,
     borderRadius: radios.lg,
