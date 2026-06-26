@@ -13,9 +13,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSession } from '@/core/auth/session';
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
-import { fmtMoneda } from '@/shared/format';
+import { fmtMoneda, fmtNumero } from '@/shared/format';
 import { BarraDia } from '@/features/dashboard/dashboard.types';
 import { useDashboard } from '@/features/dashboard/use-dashboard';
+import { useOverview } from '@/features/dashboard/use-overview';
 
 const c = paletaClara;
 
@@ -24,6 +25,8 @@ export default function InicioScreen() {
   const usuario = useSession((s) => s.usuario);
   const cerrar = useSession((s) => s.cerrar);
   const { data, isLoading, isError, refetch, isRefetching } = useDashboard();
+  const { data: overview } = useOverview();
+  const alertas = overview?.alertas.length ?? 0;
 
   const iniciales = (usuario?.nombre || 'MF')
     .trim()
@@ -40,9 +43,23 @@ export default function InicioScreen() {
           <Text style={styles.hola}>Hola, {usuario?.nombre || 'tu empresa'}</Text>
           <Text style={styles.titulo}>Resumen</Text>
         </View>
-        <Pressable style={styles.avatar} onPress={() => void cerrar()}>
-          <Text style={styles.avatarText}>{iniciales}</Text>
-        </Pressable>
+        <View style={styles.acciones}>
+          <Pressable
+            style={styles.campana}
+            onPress={() => router.push('/notificaciones')}
+            accessibilityLabel="Notificaciones"
+          >
+            <Ionicons name="notifications-outline" size={22} color={c.text} />
+            {alertas > 0 ? (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{alertas > 9 ? '9+' : alertas}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable style={styles.avatar} onPress={() => void cerrar()}>
+            <Text style={styles.avatarText}>{iniciales}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <ScrollView
@@ -75,6 +92,13 @@ export default function InicioScreen() {
                 <Text style={styles.kpiLabel}>Notas de venta</Text>
                 <Text style={styles.kpiValor}>{fmtMoneda(data?.notasVenta ?? 0)}</Text>
               </View>
+            </View>
+
+            <Text style={styles.seccion}>Emitidos este mes</Text>
+            <View style={styles.fila}>
+              <Conteo etiqueta="Boletas" valor={overview?.conteos.boletas ?? 0} />
+              <Conteo etiqueta="Facturas" valor={overview?.conteos.facturas ?? 0} />
+              <Conteo etiqueta="Notas venta" valor={overview?.conteos.notasVenta ?? 0} />
             </View>
 
             <Grafico barras={data?.barras ?? []} />
@@ -131,6 +155,15 @@ function Grafico({ barras }: { barras: BarraDia[] }) {
   );
 }
 
+function Conteo({ etiqueta, valor }: { etiqueta: string; valor: number }) {
+  return (
+    <View style={styles.conteo}>
+      <Text style={styles.conteoValor}>{fmtNumero(valor)}</Text>
+      <Text style={styles.conteoLabel}>{etiqueta}</Text>
+    </View>
+  );
+}
+
 function Acceso({
   icono,
   texto,
@@ -169,6 +202,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarText: { color: c.onBrand, fontWeight: '700', fontSize: 15 },
+  acciones: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  campana: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    borderRadius: 9,
+    backgroundColor: c.danger,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: c.bg,
+  },
+  badgeText: { color: '#FFFFFF', fontSize: 10, fontWeight: '800' },
+  conteo: {
+    flex: 1,
+    backgroundColor: c.surface,
+    borderRadius: radios.lg,
+    borderWidth: 1,
+    borderColor: c.border,
+    padding: 14,
+    alignItems: 'center',
+  },
+  conteoValor: { fontFamily: fuentes.monoSemi, fontSize: 22, color: c.text },
+  conteoLabel: { fontSize: 11.5, color: c.muted, fontWeight: '600', marginTop: 3 },
   content: { padding: 20, gap: 12 },
   estado: { paddingVertical: 40, alignItems: 'center' },
   estadoText: { color: c.muted, fontSize: 14 },
