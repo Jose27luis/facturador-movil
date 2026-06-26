@@ -16,10 +16,10 @@ function GuardiaAuth() {
       return;
     }
     const enLogin = segments[0] === 'login';
-    const enTabs = segments[0] === '(tabs)';
+    const enRaiz = segments[0] === undefined;
     if (!autenticado && !enLogin) {
       router.replace('/login');
-    } else if (autenticado && !enTabs) {
+    } else if (autenticado && (enLogin || enRaiz)) {
       router.replace('/(tabs)');
     }
   }, [hidratado, autenticado, segments, router]);
@@ -40,6 +40,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="comprobante/[id]" />
       </Stack>
     </QueryClientProvider>
   );
