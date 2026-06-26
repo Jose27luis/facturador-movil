@@ -130,7 +130,13 @@ export async function buscarItems(input: string): Promise<ItemBusqueda[]> {
 interface EmitirResponse {
   success?: boolean;
   message?: string;
-  data?: { id?: number; number?: string; state_type_id?: string; pdf_url?: string };
+  data?: {
+    id?: number;
+    number?: string;
+    state_type_id?: string;
+    pdf_url?: string;
+    pdf_ticket?: string;
+  };
 }
 
 export async function emitirDocumento(
@@ -147,5 +153,6 @@ export async function emitirDocumento(
     numero: data.data.number ?? '',
     estadoId: data.data.state_type_id ?? '',
     pdfUrl: data.data.pdf_url ?? '',
+    pdfTicket: data.data.pdf_ticket ?? '',
   };
 }

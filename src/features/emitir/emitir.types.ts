@@ -39,6 +39,7 @@ export interface EmitirResultado {
   numero: string;
   estadoId: string;
   pdfUrl: string;
+  pdfTicket: string;
 }
 
 export function etiquetaTipo(tipoId: string): string {
