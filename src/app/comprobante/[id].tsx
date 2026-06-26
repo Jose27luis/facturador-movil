@@ -3,9 +3,11 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useState } from 'react';
+
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
-import { abrirPdf, enviarWhatsApp } from '@/shared/compartir';
+import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
 import { LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
 import { useComprobante, useComprobanteDetalle } from '@/features/ventas/use-ventas';
@@ -17,6 +19,7 @@ export default function ComprobanteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const idNum = Number(id);
+  const [verPdf, setVerPdf] = useState(false);
   const { data: base } = useComprobante(idNum);
   const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum);
 
@@ -81,21 +84,22 @@ export default function ComprobanteScreen() {
         </View>
 
         {detalle?.pdfUrl ? (
-          <View style={styles.acciones}>
-            <Pressable style={styles.accionBtn} onPress={() => void abrirPdf(detalle.pdfUrl)}>
-              <Ionicons name="document-text-outline" size={20} color={c.text} />
-              <Text style={styles.accionText}>Ver PDF</Text>
-            </Pressable>
-            <Pressable
-              style={styles.accionBtn}
-              onPress={() => void enviarWhatsApp(detalle.pdfUrl, `Comprobante ${detalle.numero}:`)}
-            >
-              <Ionicons name="logo-whatsapp" size={20} color="#1FA855" />
-              <Text style={styles.accionText}>WhatsApp</Text>
-            </Pressable>
-          </View>
+          <Pressable style={styles.verPdf} onPress={() => setVerPdf(true)}>
+            <Ionicons name="document-text-outline" size={20} color={c.onBrand} />
+            <Text style={styles.verPdfText}>Ver / Enviar PDF</Text>
+          </Pressable>
         ) : null}
       </ScrollView>
+
+      {detalle && verPdf ? (
+        <VisorPdf
+          visible
+          numero={detalle.numero}
+          a4Url={detalle.pdfUrl}
+          ticketUrl={detalle.pdfTicket}
+          onCerrar={() => setVerPdf(false)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -203,19 +207,15 @@ const styles = StyleSheet.create({
   datoUltimo: { borderBottomWidth: 0 },
   datoEtiqueta: { fontSize: 14, color: c.muted },
   datoValor: { fontSize: 14, fontWeight: '600', color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
-  acciones: { flexDirection: 'row', gap: 12 },
-  accionBtn: {
-    flex: 1,
+  verPdf: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: c.surface,
-    borderWidth: 1,
-    borderColor: c.border,
+    backgroundColor: c.brand,
     borderRadius: radios.md,
-    paddingVertical: 14,
+    paddingVertical: 15,
   },
-  accionText: { fontSize: 14, fontWeight: '700', color: c.text },
+  verPdfText: { fontSize: 15, fontWeight: '700', color: c.onBrand },
 });
 
