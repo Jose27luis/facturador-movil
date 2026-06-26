@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
@@ -14,6 +14,7 @@ const c = paletaClara;
 export default function ComprobanteScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const insets = useSafeAreaInsets();
   const idNum = Number(id);
   const { data: base } = useComprobante(idNum);
   const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum);
@@ -35,7 +36,7 @@ export default function ComprobanteScreen() {
         <View style={styles.volver} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}>
         <View style={styles.hero}>
           <Text style={styles.tipo}>{tipo}</Text>
           <Text style={styles.numero}>{numero}</Text>
