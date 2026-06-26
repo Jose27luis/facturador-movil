@@ -16,7 +16,11 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { paletaClara, radios } from '@/core/theme/tokens';
-import { useActualizarProducto, useCrearProducto } from '@/features/productos/use-productos';
+import {
+  useActualizarProducto,
+  useCrearProducto,
+  useDesactivarProducto,
+} from '@/features/productos/use-productos';
 
 const c = paletaClara;
 
@@ -40,7 +44,8 @@ export default function ProductoFormScreen() {
 
   const crear = useCrearProducto();
   const actualizar = useActualizarProducto();
-  const guardando = crear.isPending || actualizar.isPending;
+  const desactivar = useDesactivarProducto();
+  const guardando = crear.isPending || actualizar.isPending || desactivar.isPending;
 
   const puedeGuardar = nombre.trim() !== '' && aNumero(precio) > 0 && !guardando;
 
@@ -75,6 +80,29 @@ export default function ProductoFormScreen() {
     }
   }
 
+  function onDesactivar() {
+    Alert.alert(
+      'Desactivar producto',
+      `${nombre.trim()} dejará de aparecer en el catálogo y no se podrá vender. El historial se conserva. Puedes reactivarlo desde el panel web.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Desactivar',
+          style: 'destructive',
+          onPress: () =>
+            desactivar.mutate(idNum, {
+              onSuccess: () =>
+                Alert.alert('Producto desactivado', nombre.trim(), [
+                  { text: 'Aceptar', onPress: () => router.back() },
+                ]),
+              onError: (err) =>
+                Alert.alert('No se pudo desactivar', err instanceof Error ? err.message : 'Error desconocido'),
+            }),
+        },
+      ],
+    );
+  }
+
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
@@ -105,9 +133,15 @@ export default function ProductoFormScreen() {
           />
 
           {edicion ? (
-            <Text style={styles.nota}>
-              El stock y la afectación de IGV se administran desde el panel web de pro8.
-            </Text>
+            <>
+              <Text style={styles.nota}>
+                El stock y la afectación de IGV se administran desde el panel web de pro8.
+              </Text>
+              <Pressable style={styles.desactivar} onPress={onDesactivar} disabled={guardando}>
+                <Ionicons name="archive-outline" size={18} color={c.danger} />
+                <Text style={styles.desactivarText}>Desactivar producto</Text>
+              </Pressable>
+            </>
           ) : (
             <>
               <Text style={styles.label}>Stock inicial</Text>
@@ -193,6 +227,19 @@ const styles = StyleSheet.create({
     color: c.text,
   },
   nota: { fontSize: 12.5, color: c.muted, marginTop: 18, lineHeight: 18 },
+  desactivar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderColor: '#E6C9C9',
+    backgroundColor: '#F9EEEE',
+    borderRadius: radios.md,
+    paddingVertical: 14,
+    marginTop: 22,
+  },
+  desactivarText: { color: c.danger, fontSize: 15, fontWeight: '700' },
   opciones: { flexDirection: 'row', gap: 10 },
   opcion: {
     flex: 1,
