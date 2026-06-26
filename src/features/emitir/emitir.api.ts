@@ -32,18 +32,24 @@ function esFila(v: unknown): v is Fila {
   return typeof v === 'object' && v !== null;
 }
 
+function mapSeries(filas: unknown): Serie[] {
+  const arr = Array.isArray(filas) ? filas : [];
+  return arr.filter(esFila).map((f) => ({
+    id: numero(f, 'id'),
+    tipoId: texto(f, 'document_type_id'),
+    numero: texto(f, 'number'),
+    esDefault: Boolean(f.is_default),
+  }));
+}
+
 export async function obtenerSeries(): Promise<Serie[]> {
-  const { data } = await api.get<unknown>('/document/series');
-  const filas = Array.isArray(data) ? data : [];
-  return filas
-    .filter(esFila)
-    .map((f) => ({
-      id: numero(f, 'id'),
-      tipoId: texto(f, 'document_type_id'),
-      numero: texto(f, 'number'),
-      esDefault: Boolean(f.is_default),
-    }))
-    .filter((s) => s.tipoId === '01' || s.tipoId === '03');
+  const [docs, nvs] = await Promise.all([
+    api.get<unknown>('/document/series'),
+    api.get<unknown>('/sale-note/series').catch(() => ({ data: [] })),
+  ]);
+  const documentos = mapSeries(docs.data).filter((s) => s.tipoId === '01' || s.tipoId === '03');
+  const notas = mapSeries(nvs.data).filter((s) => s.tipoId === '80');
+  return [...documentos, ...notas];
 }
 
 export type ResultadoLookup =
@@ -124,11 +130,15 @@ export async function buscarItems(input: string): Promise<ItemBusqueda[]> {
 interface EmitirResponse {
   success?: boolean;
   message?: string;
-  data?: { id?: number; number?: string; state_type_id?: string };
+  data?: { id?: number; number?: string; state_type_id?: string; pdf_url?: string };
 }
 
-export async function emitirDocumento(payload: EmitirPayload): Promise<EmitirResultado> {
-  const { data } = await api.post<EmitirResponse>('/mobile/documents', payload);
+export async function emitirDocumento(
+  payload: EmitirPayload,
+  esNotaVenta: boolean,
+): Promise<EmitirResultado> {
+  const ruta = esNotaVenta ? '/mobile/sale-notes' : '/mobile/documents';
+  const { data } = await api.post<EmitirResponse>(ruta, payload);
   if (!data.success || !data.data) {
     throw new Error(data.message || 'No se pudo emitir el comprobante.');
   }
@@ -136,5 +146,6 @@ export async function emitirDocumento(payload: EmitirPayload): Promise<EmitirRes
     id: data.data.id ?? 0,
     numero: data.data.number ?? '',
     estadoId: data.data.state_type_id ?? '',
+    pdfUrl: data.data.pdf_url ?? '',
   };
 }
