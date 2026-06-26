@@ -46,3 +46,35 @@ export async function listarProductos(input: string): Promise<Producto[]> {
     imagen: texto(f, 'image'),
   }));
 }
+
+export interface NuevoProducto {
+  description: string;
+  sale_unit_price: number;
+  stock: number;
+  sale_affectation_igv_type_id: string;
+}
+
+export interface EditarProducto {
+  description: string;
+  sale_unit_price: number;
+}
+
+interface GuardarResponse {
+  success?: boolean;
+  msg?: string;
+  message?: string;
+}
+
+export async function crearProducto(payload: NuevoProducto): Promise<void> {
+  const { data } = await api.post<GuardarResponse>('/mobile/items', payload);
+  if (!data.success) {
+    throw new Error(data.msg || data.message || 'No se pudo registrar el producto.');
+  }
+}
+
+export async function actualizarProducto(id: number, payload: EditarProducto): Promise<void> {
+  const { data } = await api.post<GuardarResponse>(`/mobile/items/${id}`, payload);
+  if (!data.success) {
+    throw new Error(data.msg || data.message || 'No se pudo actualizar el producto.');
+  }
+}
