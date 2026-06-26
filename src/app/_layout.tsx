@@ -59,6 +59,7 @@ export default function RootLayout() {
         <Stack.Screen name="emitir" />
         <Stack.Screen name="resumenes" />
         <Stack.Screen name="notificaciones" />
+        <Stack.Screen name="producto-form" />
       </Stack>
     </QueryClientProvider>
   );
