@@ -34,6 +34,7 @@ export interface ComprobanteDetalle {
   totalIgv: number;
   total: number;
   pdfUrl: string;
+  pdfTicket: string;
   items: LineaComprobante[];
 }
 

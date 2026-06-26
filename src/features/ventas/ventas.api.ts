@@ -79,6 +79,7 @@ export async function obtenerComprobanteDetalle(id: number): Promise<Comprobante
     totalIgv: leerMonto(d, 'total_igv'),
     total: leerMonto(d, 'total'),
     pdfUrl: leerTexto(d, 'pdf_url'),
+    pdfTicket: leerTexto(d, 'pdf_ticket'),
     items,
   };
 }
