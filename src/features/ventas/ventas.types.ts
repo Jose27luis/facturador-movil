@@ -10,6 +10,7 @@ export interface Comprobante {
   estado: string;
   tipoId: string;
   tipo: string;
+  esNotaVenta: boolean;
 }
 
 export interface LineaComprobante {
