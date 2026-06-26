@@ -41,6 +41,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="comprobante/[id]" />
+        <Stack.Screen name="emitir" />
       </Stack>
     </QueryClientProvider>
   );
