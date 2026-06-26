@@ -1,17 +1,11 @@
-export type Periodo = 'today' | 'week' | 'month';
-
-export interface ReporteGeneral {
-  [key: string]: unknown;
+export interface BarraDia {
+  etiqueta: string;
+  valor: number;
 }
 
 export interface ResumenDashboard {
   vendido: number;
   comprobantes: number;
-  ticketPromedio: number;
+  notasVenta: number;
+  barras: BarraDia[];
 }
-
-export const PERIODOS: { id: Periodo; etiqueta: string }[] = [
-  { id: 'today', etiqueta: 'Hoy' },
-  { id: 'week', etiqueta: 'Semana' },
-  { id: 'month', etiqueta: 'Mes' },
-];
