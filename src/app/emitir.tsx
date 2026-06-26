@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
 import {
   ClienteBusqueda,
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepCant: { fontSize: 16, fontWeight: '700', color: c.text, minWidth: 20, textAlign: 'center' },
+  stepCant: { fontFamily: fuentes.monoSemi, fontSize: 16, color: c.text, minWidth: 20, textAlign: 'center' },
   footer: {
     borderTopWidth: 1,
     borderTopColor: c.border,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
   },
   totalFila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   totalLabel: { fontSize: 15, color: c.muted, fontWeight: '600' },
-  totalValor: { fontSize: 24, fontWeight: '800', color: c.text },
+  totalValor: { fontFamily: fuentes.monoSemi, fontSize: 24, color: c.text },
   emitirBtn: {
     backgroundColor: c.brand,
     borderRadius: radios.md,
