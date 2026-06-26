@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { ResumenEnviado } from '@/features/resumenes/resumenes.types';
 import { useConsultarResumen, useEnviarResumen } from '@/features/resumenes/use-resumenes';
 
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   cardTitulo: { fontSize: 15, fontWeight: '800', color: c.text },
   dato: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   datoEtiqueta: { fontSize: 14, color: c.muted },
-  datoValor: { fontSize: 14, fontWeight: '600', color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
+  datoValor: { fontFamily: fuentes.mono, fontSize: 13.5, color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
   consultar: {
     borderWidth: 1,
     borderColor: c.brand,
