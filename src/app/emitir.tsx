@@ -13,10 +13,11 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
+import { abrirPdf, enviarWhatsApp } from '@/shared/compartir';
 import {
   ClienteBusqueda,
   ItemBusqueda,
@@ -36,6 +37,7 @@ const c = paletaClara;
 
 export default function EmitirScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: series, isLoading: cargandoSeries } = useSeries();
   const emitir = useEmitir();
 
@@ -81,18 +83,27 @@ export default function EmitirScreen() {
     if (!serieSel || lineas.length === 0) {
       return;
     }
+    const esNotaVenta = serieSel.tipoId === '80';
     emitir.mutate(
       {
-        series_id: serieSel.id,
-        customer_id: cliente?.id,
-        currency_type_id: moneda,
-        items: lineas.map((l) => ({ item_id: l.item.id, quantity: l.cantidad })),
+        payload: {
+          series_id: serieSel.id,
+          customer_id: cliente?.id,
+          currency_type_id: moneda,
+          items: lineas.map((l) => ({ item_id: l.item.id, quantity: l.cantidad })),
+        },
+        esNotaVenta,
       },
       {
         onSuccess: (res) => {
-          Alert.alert('Comprobante emitido', res.numero, [
-            { text: 'Aceptar', onPress: () => router.back() },
-          ]);
+          const acciones = [{ text: 'Listo', onPress: () => router.back() }];
+          if (res.pdfUrl) {
+            acciones.unshift(
+              { text: 'WhatsApp', onPress: () => void enviarWhatsApp(res.pdfUrl, `Tu comprobante ${res.numero}:`) },
+              { text: 'Ver PDF', onPress: () => void abrirPdf(res.pdfUrl) },
+            );
+          }
+          Alert.alert('Comprobante emitido', res.numero, acciones);
         },
         onError: (err) => {
           Alert.alert('No se pudo emitir', err instanceof Error ? err.message : 'Error desconocido');
@@ -179,7 +190,7 @@ export default function EmitirScreen() {
         )}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
         <View style={styles.totalFila}>
           <Text style={styles.totalLabel}>Total</Text>
           <Text style={styles.totalValor}>{fmtMonto(total, moneda)}</Text>
