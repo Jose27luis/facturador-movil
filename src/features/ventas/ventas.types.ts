@@ -12,6 +12,30 @@ export interface Comprobante {
   tipo: string;
 }
 
+export interface LineaComprobante {
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  total: number;
+}
+
+export interface ComprobanteDetalle {
+  id: number;
+  numero: string;
+  tipo: string;
+  estadoId: string;
+  estado: string;
+  cliente: string;
+  clienteDoc: string;
+  fecha: string;
+  moneda: string;
+  totalGravado: number;
+  totalExonerado: number;
+  totalIgv: number;
+  total: number;
+  items: LineaComprobante[];
+}
+
 export type TonoEstado = 'ok' | 'warn' | 'danger' | 'muted';
 
 export function tonoEstado(estadoId: string): TonoEstado {
