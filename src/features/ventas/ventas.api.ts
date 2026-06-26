@@ -39,11 +39,12 @@ function mapComprobante(fila: Fila): Comprobante {
     estado: leerTexto(fila, 'state_type_description'),
     tipoId: leerTexto(fila, 'document_type_id'),
     tipo: leerTexto(fila, 'document_type_description'),
+    esNotaVenta: Boolean(fila.es_nota_venta),
   };
 }
 
 export async function listarComprobantes(): Promise<Comprobante[]> {
-  const { data } = await api.get<ListsResponse>('/documents/lists');
+  const { data } = await api.get<ListsResponse>('/mobile/ventas');
   const filas = Array.isArray(data.data) ? data.data : [];
   return filas.filter((f): f is Fila => typeof f === 'object' && f !== null).map(mapComprobante);
 }
@@ -52,8 +53,12 @@ interface DetalleResponse {
   data?: Fila;
 }
 
-export async function obtenerComprobanteDetalle(id: number): Promise<ComprobanteDetalle> {
-  const { data } = await api.get<DetalleResponse>(`/mobile/documents/${id}`);
+export async function obtenerComprobanteDetalle(
+  id: number,
+  esNotaVenta: boolean,
+): Promise<ComprobanteDetalle> {
+  const ruta = esNotaVenta ? `/mobile/sale-notes/${id}` : `/mobile/documents/${id}`;
+  const { data } = await api.get<DetalleResponse>(ruta);
   const d = data.data ?? {};
   const filas = Array.isArray(d.items) ? d.items : [];
   const items: LineaComprobante[] = filas
