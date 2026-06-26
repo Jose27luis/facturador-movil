@@ -42,10 +42,11 @@ export function useBuscarClientes(input: string, tipoId: string) {
 export function useEmitir() {
   const cliente = useQueryClient();
   return useMutation({
-    mutationFn: (payload: EmitirPayload) => emitirDocumento(payload),
+    mutationFn: ({ payload, esNotaVenta }: { payload: EmitirPayload; esNotaVenta: boolean }) =>
+      emitirDocumento(payload, esNotaVenta),
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['ventas', 'lista'] });
-      void cliente.invalidateQueries({ queryKey: ['dashboard', 'report'] });
+      void cliente.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
