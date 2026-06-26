@@ -6,15 +6,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
-import { tonoEstado } from '@/features/ventas/ventas.types';
-import { useComprobante } from '@/features/ventas/use-ventas';
+import { LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
+import { useComprobante, useComprobanteDetalle } from '@/features/ventas/use-ventas';
 
 const c = paletaClara;
 
 export default function ComprobanteScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { data: comprobante, isLoading } = useComprobante(Number(id));
+  const idNum = Number(id);
+  const { data: base } = useComprobante(idNum);
+  const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum);
+
+  const tipo = detalle?.tipo ?? base?.tipo ?? '';
+  const numero = detalle?.numero ?? base?.numero ?? '';
+  const estadoId = detalle?.estadoId ?? base?.estadoId ?? '';
+  const estado = detalle?.estado ?? base?.estado ?? '';
+  const moneda = detalle?.moneda ?? base?.moneda ?? 'PEN';
+  const total = detalle?.total ?? base?.total ?? 0;
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -26,32 +35,73 @@ export default function ComprobanteScreen() {
         <View style={styles.volver} />
       </View>
 
-      {isLoading ? (
-        <View style={styles.estado}>
-          <ActivityIndicator color={c.brand} />
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.hero}>
+          <Text style={styles.tipo}>{tipo}</Text>
+          <Text style={styles.numero}>{numero}</Text>
+          <Text style={styles.total}>{fmtMonto(total, moneda)}</Text>
+          {estado ? <BadgeEstado tono={tonoEstado(estadoId)} etiqueta={estado} /> : null}
         </View>
-      ) : !comprobante ? (
-        <View style={styles.estado}>
-          <Text style={styles.estadoText}>No se encontró el comprobante.</Text>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.hero}>
-            <Text style={styles.tipo}>{comprobante.tipo}</Text>
-            <Text style={styles.numero}>{comprobante.numero}</Text>
-            <Text style={styles.total}>{fmtMonto(comprobante.total, comprobante.moneda)}</Text>
-            <BadgeEstado tono={tonoEstado(comprobante.estadoId)} etiqueta={comprobante.estado} />
-          </View>
 
-          <View style={styles.card}>
-            <Dato etiqueta="Cliente" valor={comprobante.cliente || '—'} />
-            <Dato etiqueta="Documento" valor={comprobante.clienteDoc || '—'} />
-            <Dato etiqueta="Fecha de emisión" valor={comprobante.fecha} />
-            <Dato etiqueta="Moneda" valor={comprobante.moneda} ultimo />
-          </View>
-        </ScrollView>
-      )}
+        <View style={styles.card}>
+          <Dato etiqueta="Cliente" valor={detalle?.cliente || base?.cliente || '—'} />
+          <Dato etiqueta="Documento" valor={detalle?.clienteDoc || base?.clienteDoc || '—'} />
+          <Dato etiqueta="Fecha de emisión" valor={detalle?.fecha || base?.fecha || '—'} ultimo />
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.seccion}>Items</Text>
+          {isLoading ? (
+            <ActivityIndicator color={c.brand} style={styles.carga} />
+          ) : isError ? (
+            <Text style={styles.vacio}>No se pudo cargar el detalle.</Text>
+          ) : (detalle?.items.length ?? 0) === 0 ? (
+            <Text style={styles.vacio}>Sin items.</Text>
+          ) : (
+            <>
+              {detalle?.items.map((it, i) => <Linea key={i} item={it} moneda={moneda} />)}
+              <View style={styles.divisor} />
+              {detalle && detalle.totalGravado > 0 ? (
+                <Resumen etiqueta="Op. gravada" valor={fmtMonto(detalle.totalGravado, moneda)} />
+              ) : null}
+              {detalle && detalle.totalExonerado > 0 ? (
+                <Resumen etiqueta="Op. exonerada" valor={fmtMonto(detalle.totalExonerado, moneda)} />
+              ) : null}
+              {detalle && detalle.totalIgv > 0 ? (
+                <Resumen etiqueta="IGV (18%)" valor={fmtMonto(detalle.totalIgv, moneda)} />
+              ) : null}
+              <View style={styles.totalFila}>
+                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalMonto}>{fmtMonto(total, moneda)}</Text>
+              </View>
+            </>
+          )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Linea({ item, moneda }: { item: LineaComprobante; moneda: string }) {
+  return (
+    <View style={styles.linea}>
+      <View style={styles.lineaInfo}>
+        <Text style={styles.lineaNombre}>{item.descripcion}</Text>
+        <Text style={styles.lineaSub}>
+          {item.cantidad} × {fmtMonto(item.precioUnitario, moneda)}
+        </Text>
+      </View>
+      <Text style={styles.lineaTotal}>{fmtMonto(item.total, moneda)}</Text>
+    </View>
+  );
+}
+
+function Resumen({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <View style={styles.resumen}>
+      <Text style={styles.resumenLabel}>{etiqueta}</Text>
+      <Text style={styles.resumenValor}>{valor}</Text>
+    </View>
   );
 }
 
@@ -75,8 +125,6 @@ const styles = StyleSheet.create({
   },
   volver: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitulo: { fontSize: 16, fontWeight: '700', color: c.text },
-  estado: { paddingVertical: 60, alignItems: 'center' },
-  estadoText: { color: c.muted, fontSize: 14 },
   content: { padding: 20, gap: 16 },
   hero: {
     backgroundColor: c.surface,
@@ -96,7 +144,36 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: c.border,
     paddingHorizontal: 16,
+    paddingVertical: 4,
   },
+  seccion: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: c.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 14,
+    marginBottom: 6,
+  },
+  carga: { marginVertical: 20 },
+  vacio: { fontSize: 13, color: c.faint, paddingVertical: 16 },
+  linea: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 8 },
+  lineaInfo: { flex: 1, paddingRight: 12 },
+  lineaNombre: { fontSize: 13.5, fontWeight: '600', color: c.text },
+  lineaSub: { fontFamily: fuentes.mono, fontSize: 12, color: c.muted, marginTop: 2 },
+  lineaTotal: { fontFamily: fuentes.monoSemi, fontSize: 13.5, color: c.text },
+  divisor: { height: 1, backgroundColor: c.surfaceAlt, marginVertical: 10 },
+  resumen: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
+  resumenLabel: { fontSize: 13, color: c.muted },
+  resumenValor: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
+  totalFila: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  totalLabel: { fontSize: 15, fontWeight: '700', color: c.text },
+  totalMonto: { fontFamily: fuentes.monoSemi, fontSize: 20, color: c.text },
   dato: {
     flexDirection: 'row',
     justifyContent: 'space-between',
