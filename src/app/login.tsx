@@ -1,18 +1,22 @@
 import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { login } from '@/core/auth/auth.api';
 import { useSession } from '@/core/auth/session';
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { env } from '@/core/config/env';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 
 const c = paletaClara;
 
@@ -23,10 +27,12 @@ export default function LoginScreen() {
   const [empresa, setEmpresa] = useState(tenantGuardado);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [verPass, setVerPass] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const puedeEntrar = empresa.trim() !== '' && email.trim() !== '' && password !== '';
+  const sufijo = empresa.includes('.') ? '' : `.${env.baseDomain}`;
 
   const entrar = async () => {
     if (!puedeEntrar || cargando) {
@@ -44,141 +50,130 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={styles.card}>
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>MF</Text>
-        </View>
-        <Text style={styles.title}>Móvil Facturador</Text>
-        <Text style={styles.subtitle}>Ingresa a tu empresa para empezar.</Text>
+    <SafeAreaView style={styles.root}>
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>mf</Text>
+          </View>
+          <Text style={styles.title}>Móvil Facturador</Text>
+          <Text style={styles.subtitle}>Tu facturación electrónica, en el bolsillo</Text>
 
-        <Text style={styles.label}>Empresa</Text>
-        <TextInput
-          style={styles.input}
-          value={empresa}
-          onChangeText={setEmpresa}
-          autoCapitalize="none"
-          autoCorrect={false}
-          accessibilityLabel="Empresa o subdominio"
-        />
+          <Text style={styles.label}>Empresa</Text>
+          <View style={styles.campo}>
+            <TextInput
+              style={[styles.input, styles.mono]}
+              value={empresa}
+              onChangeText={setEmpresa}
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Empresa o subdominio"
+            />
+            {sufijo ? <Text style={styles.sufijo}>{sufijo}</Text> : null}
+          </View>
 
-        <Text style={styles.label}>Usuario</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          accessibilityLabel="Usuario"
-        />
+          <Text style={styles.label}>Usuario</Text>
+          <View style={styles.campo}>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              accessibilityLabel="Usuario"
+            />
+          </View>
 
-        <Text style={styles.label}>Contraseña</Text>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          accessibilityLabel="Contraseña"
-        />
+          <Text style={styles.label}>Contraseña</Text>
+          <View style={styles.campo}>
+            <TextInput
+              style={styles.input}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!verPass}
+              accessibilityLabel="Contraseña"
+            />
+            <Pressable onPress={() => setVerPass((v) => !v)}>
+              <Text style={styles.mostrar}>{verPass ? 'Ocultar' : 'Mostrar'}</Text>
+            </Pressable>
+          </View>
 
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={styles.error}>{error}</Text> : null}
 
-        <Pressable
-          style={[styles.button, !puedeEntrar && styles.buttonDisabled]}
-          onPress={entrar}
-          disabled={!puedeEntrar || cargando}
-        >
-          {cargando ? (
-            <ActivityIndicator color={c.onBrand} />
-          ) : (
-            <Text style={styles.buttonText}>Ingresar</Text>
-          )}
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+          <Pressable
+            style={[styles.button, !puedeEntrar && styles.buttonDisabled]}
+            onPress={entrar}
+            disabled={!puedeEntrar || cargando}
+          >
+            {cargando ? (
+              <ActivityIndicator color={c.onBrand} />
+            ) : (
+              <>
+                <Text style={styles.buttonText}>Ingresar</Text>
+                <Ionicons name="arrow-forward" size={17} color={c.onBrand} />
+              </>
+            )}
+          </Pressable>
+
+          <Text style={styles.footer}>Conecta con tu facturador electrónico pro8 · SUNAT</Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: c.bg,
-    justifyContent: 'center',
-    padding: 24,
-  },
-  card: {
-    backgroundColor: c.surface,
-    borderRadius: radios.xl,
-    borderWidth: 1,
-    borderColor: c.border,
-    padding: 24,
-  },
+  root: { flex: 1, backgroundColor: c.bg },
+  flex: { flex: 1 },
+  content: { padding: 28, paddingTop: 60, flexGrow: 1, justifyContent: 'center' },
   logo: {
-    width: 52,
-    height: 52,
-    borderRadius: radios.md,
+    width: 54,
+    height: 54,
+    borderRadius: 15,
     backgroundColor: c.brand,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
   },
-  logoText: {
-    color: c.onBrand,
-    fontWeight: '800',
-    fontSize: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: c.text,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: c.muted,
-    marginTop: 4,
-    marginBottom: 20,
-  },
+  logoText: { color: c.onBrand, fontWeight: '800', fontSize: 24, letterSpacing: -1 },
+  title: { fontSize: 27, fontWeight: '800', color: c.text, letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, color: '#7A7163', fontWeight: '500', marginTop: 4, marginBottom: 28 },
   label: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
-    color: c.muted,
-    marginBottom: 6,
-    marginTop: 12,
+    color: '#7A7163',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 7,
+    marginTop: 16,
   },
-  input: {
-    height: 48,
+  campo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: c.surface,
     borderWidth: 1,
-    borderColor: c.border,
-    borderRadius: radios.md,
+    borderColor: '#E0D8C8',
+    borderRadius: 13,
     paddingHorizontal: 14,
-    fontSize: 15,
-    color: c.text,
-    backgroundColor: c.bg,
+    height: 52,
   },
-  error: {
-    color: c.danger,
-    fontSize: 13,
-    fontWeight: '600',
-    marginTop: 14,
-  },
+  input: { flex: 1, fontSize: 15, color: c.text },
+  mono: { fontFamily: fuentes.mono },
+  sufijo: { fontFamily: fuentes.mono, fontSize: 15, color: c.faint },
+  mostrar: { fontSize: 13, color: '#7A7163', fontWeight: '600' },
+  error: { color: c.danger, fontSize: 13, fontWeight: '600', marginTop: 14 },
   button: {
-    height: 50,
-    borderRadius: radios.md,
+    flexDirection: 'row',
+    height: 54,
+    borderRadius: 14,
     backgroundColor: c.brand,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
+    gap: 8,
+    marginTop: 28,
   },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: c.onBrand,
-    fontSize: 16,
-    fontWeight: '700',
-  },
+  buttonDisabled: { opacity: 0.5 },
+  buttonText: { color: c.onBrand, fontSize: 16, fontWeight: '700' },
+  footer: { textAlign: 'center', marginTop: 18, fontSize: 12.5, color: '#9A9183' },
 });
