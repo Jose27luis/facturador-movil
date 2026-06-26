@@ -38,6 +38,7 @@ export interface EmitirResultado {
   id: number;
   numero: string;
   estadoId: string;
+  pdfUrl: string;
 }
 
 export function etiquetaTipo(tipoId: string): string {
@@ -46,6 +47,9 @@ export function etiquetaTipo(tipoId: string): string {
   }
   if (tipoId === '03') {
     return 'Boleta';
+  }
+  if (tipoId === '80') {
+    return 'Nota de venta';
   }
   return tipoId;
 }
