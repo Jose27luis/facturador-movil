@@ -5,8 +5,13 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
-import { ResumenEnviado } from '@/features/resumenes/resumenes.types';
-import { useConsultarResumen, useEnviarResumen } from '@/features/resumenes/use-resumenes';
+import { fmtMonto } from '@/shared/format';
+import { PreviewResumen, ResumenEnviado } from '@/features/resumenes/resumenes.types';
+import {
+  useConsultarPreview,
+  useConsultarResumen,
+  useEnviarResumen,
+} from '@/features/resumenes/use-resumenes';
 
 const c = paletaClara;
 
@@ -24,31 +29,49 @@ function fechaLegible(iso: string): string {
 export default function ResumenesScreen() {
   const router = useRouter();
   const [offset, setOffset] = useState(0);
+  const [preview, setPreview] = useState<PreviewResumen | null>(null);
   const [resumen, setResumen] = useState<ResumenEnviado | null>(null);
   const [estado, setEstado] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const consultar = useConsultarPreview();
   const enviar = useEnviarResumen();
-  const consultar = useConsultarResumen();
+  const consultarEstado = useConsultarResumen();
 
   const fecha = useMemo(() => fechaISO(offset), [offset]);
 
+  function cambiarFecha(delta: number) {
+    setOffset((o) => Math.min(0, o + delta));
+    setPreview(null);
+    setResumen(null);
+    setEstado(null);
+    setError(null);
+  }
+
+  function onConsultar() {
+    setError(null);
+    setResumen(null);
+    setEstado(null);
+    consultar.mutate(fecha, {
+      onSuccess: (res) => setPreview(res),
+      onError: (err) => setError(err instanceof Error ? err.message : 'Error desconocido'),
+    });
+  }
+
   function onEnviar() {
     setError(null);
-    setEstado(null);
-    setResumen(null);
     enviar.mutate(fecha, {
       onSuccess: (res) => setResumen(res),
       onError: (err) => setError(err instanceof Error ? err.message : 'Error desconocido'),
     });
   }
 
-  function onConsultar() {
+  function onConsultarEstado() {
     if (!resumen) {
       return;
     }
     setError(null);
-    consultar.mutate(resumen.ticket, {
+    consultarEstado.mutate(resumen.ticket, {
       onSuccess: (res) => setEstado(res.descripcion),
       onError: (err) => setError(err instanceof Error ? err.message : 'Error desconocido'),
     });
@@ -67,11 +90,7 @@ export default function ResumenesScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.seccion}>Fecha de emisión</Text>
         <View style={styles.fechaCard}>
-          <Pressable
-            style={styles.fechaBtn}
-            onPress={() => setOffset((o) => o - 1)}
-            accessibilityLabel="Día anterior"
-          >
+          <Pressable style={styles.fechaBtn} onPress={() => cambiarFecha(-1)} accessibilityLabel="Día anterior">
             <Ionicons name="chevron-back" size={22} color={c.text} />
           </Pressable>
           <View style={styles.fechaCentro}>
@@ -80,7 +99,7 @@ export default function ResumenesScreen() {
           </View>
           <Pressable
             style={[styles.fechaBtn, offset >= 0 && styles.fechaBtnOff]}
-            onPress={() => setOffset((o) => Math.min(0, o + 1))}
+            onPress={() => cambiarFecha(1)}
             disabled={offset >= 0}
             accessibilityLabel="Día siguiente"
           >
@@ -88,19 +107,15 @@ export default function ResumenesScreen() {
           </Pressable>
         </View>
 
-        <Text style={styles.ayuda}>
-          Se enviará a SUNAT el resumen de todas las boletas registradas en la fecha seleccionada.
-        </Text>
-
         <Pressable
-          style={[styles.accion, enviar.isPending && styles.accionOff]}
-          onPress={onEnviar}
-          disabled={enviar.isPending}
+          style={[styles.consultar, consultar.isPending && styles.botonOff]}
+          onPress={onConsultar}
+          disabled={consultar.isPending}
         >
-          {enviar.isPending ? (
-            <ActivityIndicator color={c.onBrand} />
+          {consultar.isPending ? (
+            <ActivityIndicator color={c.brand} />
           ) : (
-            <Text style={styles.accionText}>Enviar resumen</Text>
+            <Text style={styles.consultarText}>Consultar boletas</Text>
           )}
         </Pressable>
 
@@ -110,9 +125,49 @@ export default function ResumenesScreen() {
           </View>
         ) : null}
 
+        {preview ? (
+          preview.cantidad === 0 ? (
+            <View style={styles.card}>
+              <Text style={styles.vacio}>No hay boletas por resumir en esta fecha.</Text>
+            </View>
+          ) : (
+            <View style={styles.card}>
+              <Text style={styles.cardTitulo}>
+                {preview.cantidad} boleta{preview.cantidad === 1 ? '' : 's'} por enviar
+              </Text>
+              {preview.boletas.slice(0, 8).map((b, i) => (
+                <View key={i} style={styles.boleta}>
+                  <Text style={styles.boletaNum}>{b.numero}</Text>
+                  <Text style={styles.boletaTotal}>{fmtMonto(b.total, b.moneda)}</Text>
+                </View>
+              ))}
+              {preview.cantidad > 8 ? (
+                <Text style={styles.boletaMas}>y {preview.cantidad - 8} más…</Text>
+              ) : null}
+
+              {resumen ? null : (
+                <Pressable
+                  style={[styles.enviar, enviar.isPending && styles.botonOff]}
+                  onPress={onEnviar}
+                  disabled={enviar.isPending}
+                >
+                  {enviar.isPending ? (
+                    <ActivityIndicator color={c.onBrand} />
+                  ) : (
+                    <Text style={styles.enviarText}>Enviar resumen a SUNAT</Text>
+                  )}
+                </Pressable>
+              )}
+            </View>
+          )
+        ) : null}
+
         {resumen ? (
           <View style={styles.card}>
-            <Text style={styles.cardTitulo}>Resumen enviado</Text>
+            <View style={styles.okFila}>
+              <Ionicons name="checkmark-circle" size={22} color={c.ok} />
+              <Text style={styles.okText}>Resumen enviado</Text>
+            </View>
             <View style={styles.dato}>
               <Text style={styles.datoEtiqueta}>Ticket</Text>
               <Text style={styles.datoValor}>{resumen.ticket}</Text>
@@ -124,11 +179,11 @@ export default function ResumenesScreen() {
               </View>
             ) : null}
             <Pressable
-              style={[styles.consultar, consultar.isPending && styles.accionOff]}
-              onPress={onConsultar}
-              disabled={consultar.isPending}
+              style={[styles.consultar, consultarEstado.isPending && styles.botonOff]}
+              onPress={onConsultarEstado}
+              disabled={consultarEstado.isPending}
             >
-              {consultar.isPending ? (
+              {consultarEstado.isPending ? (
                 <ActivityIndicator color={c.brand} />
               ) : (
                 <Text style={styles.consultarText}>Consultar estado</Text>
@@ -174,23 +229,19 @@ const styles = StyleSheet.create({
   },
   fechaBtnOff: { backgroundColor: c.bg },
   fechaCentro: { alignItems: 'center' },
-  fechaValor: { fontSize: 18, fontWeight: '800', color: c.text },
-  fechaHoy: { fontSize: 12, color: c.brand, fontWeight: '700', marginTop: 2 },
-  ayuda: { fontSize: 13, color: c.muted, lineHeight: 18 },
-  accion: {
-    backgroundColor: c.brand,
+  fechaValor: { fontFamily: fuentes.monoSemi, fontSize: 18, color: c.text },
+  fechaHoy: { fontSize: 12, color: c.accent, fontWeight: '700', marginTop: 2 },
+  consultar: {
+    borderWidth: 1,
+    borderColor: c.brand,
     borderRadius: radios.md,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: 'center',
     marginTop: 4,
   },
-  accionOff: { opacity: 0.7 },
-  accionText: { color: c.onBrand, fontSize: 16, fontWeight: '700' },
-  aviso: {
-    backgroundColor: '#F3DDDD',
-    borderRadius: radios.md,
-    padding: 14,
-  },
+  consultarText: { color: c.brand, fontSize: 15, fontWeight: '700' },
+  botonOff: { opacity: 0.6 },
+  aviso: { backgroundColor: '#F3DDDD', borderRadius: radios.md, padding: 14 },
   avisoText: { color: c.danger, fontSize: 14 },
   card: {
     backgroundColor: c.surface,
@@ -198,20 +249,32 @@ const styles = StyleSheet.create({
     borderColor: c.border,
     borderRadius: radios.lg,
     padding: 16,
-    gap: 10,
-    marginTop: 4,
+    gap: 8,
   },
-  cardTitulo: { fontSize: 15, fontWeight: '800', color: c.text },
-  dato: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  cardTitulo: { fontSize: 15, fontWeight: '800', color: c.text, marginBottom: 2 },
+  vacio: { fontSize: 14, color: c.muted, paddingVertical: 6 },
+  boleta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: c.surfaceAlt,
+  },
+  boletaNum: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
+  boletaTotal: { fontFamily: fuentes.monoSemi, fontSize: 13, color: c.text },
+  boletaMas: { fontSize: 12.5, color: c.muted, marginTop: 4 },
+  enviar: {
+    backgroundColor: c.brand,
+    borderRadius: radios.md,
+    paddingVertical: 15,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  enviarText: { color: c.onBrand, fontSize: 15, fontWeight: '700' },
+  okFila: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  okText: { fontSize: 15, fontWeight: '800', color: c.ok },
+  dato: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 2 },
   datoEtiqueta: { fontSize: 14, color: c.muted },
   datoValor: { fontFamily: fuentes.mono, fontSize: 13.5, color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
-  consultar: {
-    borderWidth: 1,
-    borderColor: c.brand,
-    borderRadius: radios.md,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  consultarText: { color: c.brand, fontSize: 15, fontWeight: '700' },
 });
