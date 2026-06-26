@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
@@ -31,6 +31,11 @@ export default function LoginScreen() {
   const [verPass, setVerPass] = useState(false);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+
+  const subirAlFoco = () => {
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  };
 
   const puedeEntrar = empresa.trim() !== '' && email.trim() !== '' && password !== '';
   const sufijo = empresa.includes('.') ? '' : `.${env.baseDomain}`;
@@ -52,17 +57,23 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <View style={styles.logo}>
-            <Image
-              source={require('../../assets/images/amantix-logo.png')}
-              style={styles.logoImg}
-              resizeMode="contain"
-            />
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <View style={styles.logo}>
+              <Image
+                source={require('../../assets/images/amantix-logo.png')}
+                style={styles.logoImg}
+                resizeMode="contain"
+              />
+            </View>
+            <Text style={styles.title}>Amantix</Text>
+            <Text style={styles.subtitle}>Tu facturación electrónica, en el bolsillo</Text>
           </View>
-          <Text style={styles.title}>Amantix</Text>
-          <Text style={styles.subtitle}>Tu facturación electrónica, en el bolsillo</Text>
 
           <Text style={styles.label}>Empresa</Text>
           <View style={styles.campo}>
@@ -86,6 +97,7 @@ export default function LoginScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
+              onFocus={subirAlFoco}
               accessibilityLabel="Usuario"
             />
           </View>
@@ -97,6 +109,7 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!verPass}
+              onFocus={subirAlFoco}
               accessibilityLabel="Contraseña"
             />
             <Pressable onPress={() => setVerPass((v) => !v)}>
@@ -131,7 +144,8 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   flex: { flex: 1 },
-  content: { padding: 28, paddingTop: 60, flexGrow: 1, justifyContent: 'center' },
+  content: { padding: 28, paddingTop: 60, paddingBottom: 40, flexGrow: 1, justifyContent: 'center' },
+  header: { alignItems: 'center', marginBottom: 28 },
   logo: {
     width: 96,
     height: 96,
@@ -141,12 +155,18 @@ const styles = StyleSheet.create({
     borderColor: c.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 16,
     overflow: 'hidden',
   },
   logoImg: { width: 80, height: 80 },
-  title: { fontSize: 27, fontWeight: '800', color: c.text, letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: '#7A7163', fontWeight: '500', marginTop: 4, marginBottom: 28 },
+  title: { fontSize: 27, fontWeight: '800', color: c.text, letterSpacing: -0.5, textAlign: 'center' },
+  subtitle: {
+    fontSize: 14,
+    color: '#7A7163',
+    fontWeight: '500',
+    marginTop: 4,
+    textAlign: 'center',
+  },
   label: {
     fontSize: 12,
     fontWeight: '600',
