@@ -46,6 +46,44 @@ export async function obtenerSeries(): Promise<Serie[]> {
     .filter((s) => s.tipoId === '01' || s.tipoId === '03');
 }
 
+export type ResultadoLookup =
+  | { ok: true; cliente: ClienteBusqueda }
+  | { ok: false; needsName: boolean; message: string };
+
+interface LookupResponse {
+  success?: boolean;
+  needs_name?: boolean;
+  message?: string;
+  data?: { id?: number; name?: string; number?: string; descripcion?: string };
+}
+
+export async function consultarCliente(numero: string, nombre?: string): Promise<ResultadoLookup> {
+  const { data } = await api.post<LookupResponse>('/mobile/customers/lookup', {
+    number: numero,
+    name: nombre,
+  });
+  if (data.success && data.data) {
+    return {
+      ok: true,
+      cliente: {
+        id: numero2(data.data.id),
+        nombre: data.data.name ?? '',
+        numero: data.data.number ?? '',
+        descripcion: data.data.descripcion ?? `${data.data.number ?? ''} - ${data.data.name ?? ''}`,
+      },
+    };
+  }
+  return {
+    ok: false,
+    needsName: Boolean(data.needs_name),
+    message: data.message ?? 'No se pudo consultar el documento.',
+  };
+}
+
+function numero2(v: number | undefined): number {
+  return typeof v === 'number' ? v : 0;
+}
+
 interface ClientesResponse {
   data?: { customers?: unknown[] };
 }
