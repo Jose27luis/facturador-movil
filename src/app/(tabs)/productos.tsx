@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   FlatList,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -19,6 +21,7 @@ import { useProductos } from '@/features/productos/use-productos';
 const c = paletaClara;
 
 export default function ProductosScreen() {
+  const router = useRouter();
   const [texto, setTexto] = useState('');
   const { data, isLoading, isError } = useProductos(texto);
 
@@ -26,6 +29,10 @@ export default function ProductosScreen() {
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.titulo}>Productos</Text>
+        <Pressable style={styles.nuevo} onPress={() => router.push('/producto-form')}>
+          <Ionicons name="add" size={20} color={c.onBrand} />
+          <Text style={styles.nuevoText}>Nuevo</Text>
+        </Pressable>
       </View>
       <View style={styles.busqueda}>
         <Ionicons name="search" size={17} color={c.faint} />
@@ -56,16 +63,26 @@ export default function ProductosScreen() {
               <Text style={styles.estadoText}>Sin resultados.</Text>
             </View>
           }
-          renderItem={({ item }) => <Fila item={item} />}
+          renderItem={({ item }) => (
+            <Fila
+              item={item}
+              onPress={() =>
+                router.push({
+                  pathname: '/producto-form',
+                  params: { id: String(item.id), nombre: item.nombre, precio: String(item.precio) },
+                })
+              }
+            />
+          )}
         />
       )}
     </SafeAreaView>
   );
 }
 
-function Fila({ item }: { item: Producto }) {
+function Fila({ item, onPress }: { item: Producto; onPress: () => void }) {
   return (
-    <View style={styles.fila}>
+    <Pressable style={styles.fila} onPress={onPress}>
       {item.imagen ? (
         <Image source={{ uri: item.imagen }} style={styles.imagen} />
       ) : (
@@ -83,14 +100,32 @@ function Fila({ item }: { item: Producto }) {
           <Text style={styles.stock}>Stock {fmtNumero(item.stock)}</Text>
         </View>
       </View>
-    </View>
+      <Ionicons name="chevron-forward" size={18} color={c.faint} />
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
+  nuevo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: c.brand,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+  },
+  nuevoText: { color: c.onBrand, fontWeight: '700', fontSize: 14 },
   busqueda: {
     flexDirection: 'row',
     alignItems: 'center',
