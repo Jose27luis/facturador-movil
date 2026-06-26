@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   Pressable,
@@ -11,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSession } from '@/core/auth/session';
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMoneda, fmtNumero } from '@/shared/format';
 import { PERIODOS, Periodo } from '@/features/dashboard/dashboard.types';
 import { useDashboard } from '@/features/dashboard/use-dashboard';
@@ -19,11 +21,13 @@ import { useDashboard } from '@/features/dashboard/use-dashboard';
 const c = paletaClara;
 
 export default function InicioScreen() {
+  const router = useRouter();
   const usuario = useSession((s) => s.usuario);
   const cerrar = useSession((s) => s.cerrar);
   const [periodo, setPeriodo] = useState<Periodo>('today');
   const { data, isLoading, isError, refetch, isRefetching } = useDashboard();
 
+  const etiquetaPeriodo = PERIODOS.find((p) => p.id === periodo)?.etiqueta ?? '';
   const iniciales = (usuario?.nombre || 'MF')
     .trim()
     .split(/\s+/)
@@ -33,33 +37,36 @@ export default function InicioScreen() {
     .toUpperCase();
 
   return (
-    <SafeAreaView style={styles.root}>
+    <SafeAreaView style={styles.root} edges={['top']}>
+      <View style={styles.top}>
+        <View>
+          <Text style={styles.hola}>Hola, {usuario?.nombre || 'tu empresa'}</Text>
+          <Text style={styles.titulo}>Resumen</Text>
+        </View>
+        <Pressable style={styles.avatar} onPress={() => void cerrar()}>
+          <Text style={styles.avatarText}>{iniciales}</Text>
+        </Pressable>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.content}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={c.brand} />
         }
       >
-        <View style={styles.top}>
-          <View>
-            <Text style={styles.hola}>Hola,</Text>
-            <Text style={styles.empresa}>{usuario?.nombre || 'tu empresa'}</Text>
-          </View>
-          <Pressable style={styles.avatar} onPress={() => void cerrar()}>
-            <Text style={styles.avatarText}>{iniciales}</Text>
-          </Pressable>
-        </View>
-
         <View style={styles.tabs}>
-          {PERIODOS.map((p) => (
-            <Pressable
-              key={p.id}
-              style={[styles.tab, periodo === p.id && styles.tabActivo]}
-              onPress={() => setPeriodo(p.id)}
-            >
-              <Text style={[styles.tabText, periodo === p.id && styles.tabTextActivo]}>{p.etiqueta}</Text>
-            </Pressable>
-          ))}
+          {PERIODOS.map((p) => {
+            const activo = periodo === p.id;
+            return (
+              <Pressable
+                key={p.id}
+                style={[styles.tab, activo && styles.tabActivo]}
+                onPress={() => setPeriodo(p.id)}
+              >
+                <Text style={[styles.tabText, activo && styles.tabTextActivo]}>{p.etiqueta}</Text>
+              </Pressable>
+            );
+          })}
         </View>
 
         {isLoading ? (
@@ -72,10 +79,11 @@ export default function InicioScreen() {
           </View>
         ) : (
           <>
-            <View style={styles.kpiGrande}>
-              <Text style={styles.kpiLabel}>Vendido</Text>
-              <Text style={styles.kpiMonto}>{fmtMoneda(data?.vendido ?? 0)}</Text>
+            <View style={styles.hero}>
+              <Text style={styles.heroLabel}>Vendido · {etiquetaPeriodo}</Text>
+              <Text style={styles.heroMonto}>{fmtMoneda(data?.vendido ?? 0)}</Text>
             </View>
+
             <View style={styles.fila}>
               <View style={styles.kpi}>
                 <Text style={styles.kpiLabel}>Comprobantes</Text>
@@ -88,48 +96,97 @@ export default function InicioScreen() {
             </View>
           </>
         )}
+
+        <Text style={styles.seccion}>Accesos rápidos</Text>
+        <View style={styles.accesos}>
+          <Acceso icono="add" texto="Nueva venta" onPress={() => router.push('/emitir')} />
+          <Acceso
+            icono="cart-outline"
+            texto="Compras"
+            onPress={() => router.push('/(tabs)/compras')}
+          />
+          <Acceso
+            icono="cube-outline"
+            texto="Productos"
+            onPress={() => router.push('/(tabs)/productos')}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+function Acceso({
+  icono,
+  texto,
+  onPress,
+}: {
+  icono: keyof typeof Ionicons.glyphMap;
+  texto: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable style={styles.acceso} onPress={onPress}>
+      <Ionicons name={icono} size={22} color={c.text} />
+      <Text style={styles.accesoText}>{texto}</Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
-  content: { padding: 20, gap: 16 },
-  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  hola: { fontSize: 14, color: c.muted },
-  empresa: { fontSize: 22, fontWeight: '800', color: c.text, letterSpacing: -0.3 },
+  top: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+  },
+  hola: { fontSize: 13, color: c.muted, fontWeight: '600' },
+  titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.6, marginTop: 2 },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: c.surfaceAlt,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: c.brand,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { color: c.brand, fontWeight: '800', fontSize: 14 },
-  tabs: {
-    flexDirection: 'row',
+  avatarText: { color: c.onBrand, fontWeight: '700', fontSize: 15 },
+  content: { padding: 20, gap: 12 },
+  tabs: { flexDirection: 'row', gap: 8 },
+  tab: {
+    flex: 1,
+    paddingVertical: 9,
+    borderRadius: 999,
+    alignItems: 'center',
     backgroundColor: c.surfaceAlt,
-    borderRadius: radios.md,
-    padding: 4,
-    gap: 4,
   },
-  tab: { flex: 1, paddingVertical: 8, borderRadius: radios.sm, alignItems: 'center' },
-  tabActivo: { backgroundColor: c.surface },
-  tabText: { fontSize: 14, fontWeight: '600', color: c.muted },
-  tabTextActivo: { color: c.text },
-  estado: { paddingVertical: 50, alignItems: 'center' },
+  tabActivo: { backgroundColor: c.brand },
+  tabText: { fontSize: 14, fontWeight: '700', color: c.muted },
+  tabTextActivo: { color: c.onBrand },
+  estado: { paddingVertical: 40, alignItems: 'center' },
   estadoText: { color: c.muted, fontSize: 14 },
-  kpiGrande: {
-    backgroundColor: c.surface,
-    borderRadius: radios.lg,
-    borderWidth: 1,
-    borderColor: c.border,
+  hero: {
+    backgroundColor: c.brand,
+    borderRadius: radios.xl,
     padding: 20,
   },
-  kpiLabel: { fontSize: 13, color: c.muted, fontWeight: '600' },
-  kpiMonto: { fontSize: 34, fontWeight: '800', color: c.text, marginTop: 6, letterSpacing: -0.5 },
+  heroLabel: {
+    fontSize: 12.5,
+    color: '#B8AF9C',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  heroMonto: {
+    fontFamily: fuentes.monoSemi,
+    fontSize: 34,
+    color: c.onBrand,
+    letterSpacing: -1,
+    marginTop: 8,
+  },
   fila: { flexDirection: 'row', gap: 12 },
   kpi: {
     flex: 1,
@@ -139,5 +196,32 @@ const styles = StyleSheet.create({
     borderColor: c.border,
     padding: 16,
   },
-  kpiValor: { fontSize: 22, fontWeight: '800', color: c.text, marginTop: 6 },
+  kpiLabel: {
+    fontSize: 11.5,
+    color: c.muted,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  kpiValor: { fontFamily: fuentes.monoSemi, fontSize: 22, color: c.text, marginTop: 6 },
+  seccion: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: c.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 8,
+  },
+  accesos: { flexDirection: 'row', gap: 10 },
+  acceso: {
+    flex: 1,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: 15,
+    paddingVertical: 16,
+    alignItems: 'center',
+    gap: 8,
+  },
+  accesoText: { fontSize: 12, fontWeight: '600', color: c.text },
 });
