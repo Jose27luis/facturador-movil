@@ -78,3 +78,10 @@ export async function actualizarProducto(id: number, payload: EditarProducto): P
     throw new Error(data.msg || data.message || 'No se pudo actualizar el producto.');
   }
 }
+
+export async function desactivarProducto(id: number): Promise<void> {
+  const { data } = await api.post<GuardarResponse>(`/mobile/items/${id}/disable`, {});
+  if (!data.success) {
+    throw new Error(data.msg || data.message || 'No se pudo desactivar el producto.');
+  }
+}
