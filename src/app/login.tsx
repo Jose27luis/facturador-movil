@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -54,9 +55,13 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.logo}>
-            <Text style={styles.logoText}>mf</Text>
+            <Image
+              source={require('../../assets/images/amantix-logo.png')}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
           </View>
-          <Text style={styles.title}>Móvil Facturador</Text>
+          <Text style={styles.title}>Amantix</Text>
           <Text style={styles.subtitle}>Tu facturación electrónica, en el bolsillo</Text>
 
           <Text style={styles.label}>Empresa</Text>
@@ -128,15 +133,18 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { padding: 28, paddingTop: 60, flexGrow: 1, justifyContent: 'center' },
   logo: {
-    width: 54,
-    height: 54,
-    borderRadius: 15,
-    backgroundColor: c.brand,
+    width: 96,
+    height: 96,
+    borderRadius: 22,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 18,
+    overflow: 'hidden',
   },
-  logoText: { color: c.onBrand, fontWeight: '800', fontSize: 24, letterSpacing: -1 },
+  logoImg: { width: 80, height: 80 },
   title: { fontSize: 27, fontWeight: '800', color: c.text, letterSpacing: -0.5 },
   subtitle: { fontSize: 14, color: '#7A7163', fontWeight: '500', marginTop: 4, marginBottom: 28 },
   label: {
