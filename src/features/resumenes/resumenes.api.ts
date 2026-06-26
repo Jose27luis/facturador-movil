@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios';
 
 import { api } from '@/core/api/client';
-import { EstadoResumen, ResumenEnviado } from './resumenes.types';
+import { BoletaPendiente, EstadoResumen, PreviewResumen, ResumenEnviado } from './resumenes.types';
 
 function mensajeError(error: unknown, porDefecto: string): string {
   if (isAxiosError(error)) {
@@ -14,6 +14,29 @@ function mensajeError(error: unknown, porDefecto: string): string {
     return error.message;
   }
   return porDefecto;
+}
+
+interface PreviewResponse {
+  data?: {
+    date?: string;
+    count?: number;
+    documents?: { number?: string; total?: number; currency_type_id?: string }[];
+  };
+}
+
+export async function consultarPreview(fecha: string): Promise<PreviewResumen> {
+  try {
+    const { data } = await api.get<PreviewResponse>(`/mobile/summary-preview/${fecha}`);
+    const d = data.data ?? {};
+    const boletas: BoletaPendiente[] = (d.documents ?? []).map((b) => ({
+      numero: b.number ?? '',
+      total: typeof b.total === 'number' ? b.total : 0,
+      moneda: b.currency_type_id ?? 'PEN',
+    }));
+    return { fecha: d.date ?? fecha, cantidad: d.count ?? boletas.length, boletas };
+  } catch (error) {
+    throw new Error(mensajeError(error, 'No se pudieron consultar las boletas.'));
+  }
 }
 
 interface EnviarResponse {
