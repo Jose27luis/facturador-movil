@@ -1,6 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { consultarResumen, enviarResumenDiario } from './resumenes.api';
+import { consultarPreview, consultarResumen, enviarResumenDiario } from './resumenes.api';
+
+export function useConsultarPreview() {
+  return useMutation({
+    mutationFn: (fecha: string) => consultarPreview(fecha),
+  });
+}
 
 export function useEnviarResumen() {
   return useMutation({
