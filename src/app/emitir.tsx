@@ -15,9 +15,12 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useSession } from '@/core/auth/session';
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
+import { usePrinter } from '@/core/printer/printer-store';
+import { imprimirTicket } from '@/core/printer/printer';
 import { EmitirResultado } from '@/features/emitir/emitir.types';
 import {
   ClienteBusqueda,
@@ -39,6 +42,9 @@ const c = paletaClara;
 export default function EmitirScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const usuario = useSession((s) => s.usuario);
+  const impresoraActiva = usePrinter((s) => s.activa);
+  const autoImprimir = usePrinter((s) => s.autoImprimir);
   const { data: series, isLoading: cargandoSeries } = useSeries();
   const emitir = useEmitir();
 
@@ -86,6 +92,33 @@ export default function EmitirScreen() {
       return;
     }
     const esNotaVenta = serieSel.tipoId === '80';
+
+    const imprimir = async (numero: string) => {
+      if (!impresoraActiva || !autoImprimir || !serieSel) {
+        return;
+      }
+      try {
+        await imprimirTicket(impresoraActiva, {
+          empresa: usuario?.nombre || 'Amantix',
+          ruc: usuario?.ruc,
+          tipo: etiquetaTipo(serieSel.tipoId),
+          numero,
+          fecha: new Date().toLocaleDateString('es-PE'),
+          cliente: cliente?.descripcion || 'Cliente varios',
+          items: lineas.map((l) => ({
+            nombre: l.item.nombre,
+            cantidad: l.cantidad,
+            precio: l.item.precio,
+            total: l.item.precio * l.cantidad,
+          })),
+          total,
+          moneda,
+        });
+      } catch {
+        // si la impresion falla no se interrumpe la emision
+      }
+    };
+
     emitir.mutate(
       {
         payload: {
@@ -98,6 +131,7 @@ export default function EmitirScreen() {
       },
       {
         onSuccess: (res) => {
+          void imprimir(res.numero);
           if (res.pdfUrl) {
             setResultado(res);
           } else {
