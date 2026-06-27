@@ -1,13 +1,45 @@
 import { PermissionsAndroid, Platform } from 'react-native';
-import {
-  BluetoothEscposPrinter,
-  BluetoothManager,
-} from '@brooons/react-native-bluetooth-escpos-printer';
 
 import { fmtMonto } from '@/shared/format';
 import { Impresora } from './printer-store';
 
 const ANCHO = 32;
+
+interface LibImpresion {
+  BluetoothManager: {
+    checkBluetoothEnabled(): Promise<boolean>;
+    enableBluetooth(): Promise<string[] | null>;
+    connect(direccion: string): Promise<void>;
+  };
+  BluetoothEscposPrinter: {
+    printerInit(): Promise<void>;
+    printerAlign(align: number): Promise<void>;
+    printText(texto: string, opciones: object): Promise<void>;
+    printColumn(anchos: number[], alineaciones: number[], textos: string[], opciones: object): Promise<void>;
+    printAndFeed(lineas: number): Promise<void>;
+    ALIGN: { LEFT: number; CENTER: number; RIGHT: number };
+  };
+}
+
+function lib(): LibImpresion | null {
+  try {
+    return require('@brooons/react-native-bluetooth-escpos-printer') as LibImpresion;
+  } catch {
+    return null;
+  }
+}
+
+function requerirLib(): LibImpresion {
+  const m = lib();
+  if (!m) {
+    throw new Error('La impresión Bluetooth solo funciona en la app instalada (no en Expo Go).');
+  }
+  return m;
+}
+
+export function impresionDisponible(): boolean {
+  return lib() !== null;
+}
 
 export async function pedirPermisos(): Promise<boolean> {
   if (Platform.OS !== 'android') {
@@ -25,20 +57,12 @@ export async function pedirPermisos(): Promise<boolean> {
   return Object.values(res).every((v) => v !== PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN || true);
 }
 
-export async function bluetoothActivo(): Promise<boolean> {
-  try {
-    return Boolean(await BluetoothManager.checkBluetoothEnabled());
-  } catch {
-    return false;
-  }
-}
-
 export async function activarBluetooth(): Promise<void> {
-  await BluetoothManager.enableBluetooth();
+  await requerirLib().BluetoothManager.enableBluetooth();
 }
 
 export async function listarEmparejadas(): Promise<Impresora[]> {
-  const lista = await BluetoothManager.enableBluetooth();
+  const lista = await requerirLib().BluetoothManager.enableBluetooth();
   const arr = Array.isArray(lista) ? lista : [];
   const impresoras: Impresora[] = [];
   for (const fila of arr) {
@@ -78,6 +102,7 @@ export interface DatosTicket {
 }
 
 export async function imprimirTicket(direccion: string, datos: DatosTicket): Promise<void> {
+  const { BluetoothManager, BluetoothEscposPrinter } = requerirLib();
   await BluetoothManager.connect(direccion);
   await BluetoothEscposPrinter.printerInit();
 
@@ -119,6 +144,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 }
 
 export async function imprimirPrueba(direccion: string): Promise<void> {
+  const { BluetoothManager, BluetoothEscposPrinter } = requerirLib();
   await BluetoothManager.connect(direccion);
   await BluetoothEscposPrinter.printerInit();
   await BluetoothEscposPrinter.printerAlign(BluetoothEscposPrinter.ALIGN.CENTER);
