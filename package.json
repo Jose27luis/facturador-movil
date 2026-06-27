@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
+    "@brooons/react-native-bluetooth-escpos-printer": "^1.2.0",
     "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
     "@expo/ui": "~56.0.18",
     "@expo/vector-icons": "^15.1.1",

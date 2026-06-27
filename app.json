@@ -2,7 +2,8 @@
   "expo": {
     "name": "Amantix",
     "slug": "mfapp",
-    "version": "1.0.1",
+    "version": "1.0.2",
+    "newArchEnabled": false,
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mfapp",
@@ -12,6 +13,13 @@
     },
     "android": {
       "package": "cloud.insoft.movilfacturador",
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

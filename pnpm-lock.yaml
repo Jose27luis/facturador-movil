@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@brooons/react-native-bluetooth-escpos-printer':
+        specifier: ^1.2.0
+        version: 1.2.0(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))
       '@expo-google-fonts/ibm-plex-mono':
         specifier: ^0.4.1
         version: 0.4.1
@@ -501,6 +504,11 @@ packages:
   '@babel/types@7.29.7':
     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
     engines: {node: '>=6.9.0'}
+
+  '@brooons/react-native-bluetooth-escpos-printer@1.2.0':
+    resolution: {integrity: sha512-QVXqxI11qUirwpIMeMfwgAtHI++YaNs3M2BI4tLQP/alNngQzGtuuKsASNY6FAOkN5RaCjUDfZv5yUSXRSUJOw==}
+    peerDependencies:
+      react-native: '>=0.55.4'
 
   '@egjs/hammerjs@2.0.17':
     resolution: {integrity: sha512-XQsZgjm2EcVUiZQf11UBJQfmZeEmOW8DpI1gsFeln6w0ae0ii4dMQEQ0kjl6DspdWX1aGY1/loyXnP0JS06e/A==}
@@ -3531,6 +3539,10 @@ snapshots:
     dependencies:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
+
+  '@brooons/react-native-bluetooth-escpos-printer@1.2.0(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))':
+    dependencies:
+      react-native: 0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3)
 
   '@egjs/hammerjs@2.0.17':
     dependencies:
