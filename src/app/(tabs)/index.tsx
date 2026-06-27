@@ -46,6 +46,13 @@ export default function InicioScreen() {
         <View style={styles.acciones}>
           <Pressable
             style={styles.campana}
+            onPress={() => router.push('/configuracion')}
+            accessibilityLabel="Configuración de impresora"
+          >
+            <Ionicons name="settings-outline" size={20} color={c.text} />
+          </Pressable>
+          <Pressable
+            style={styles.campana}
             onPress={() => router.push('/notificaciones')}
             accessibilityLabel="Notificaciones"
           >
