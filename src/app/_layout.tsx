@@ -10,6 +10,7 @@ import {
 
 import { queryClient } from '@/core/api/query-client';
 import { useSession } from '@/core/auth/session';
+import { usePrinter } from '@/core/printer/printer-store';
 
 function GuardiaAuth() {
   const router = useRouter();
@@ -35,6 +36,7 @@ function GuardiaAuth() {
 
 export default function RootLayout() {
   const hidratar = useSession((s) => s.hidratar);
+  const hidratarImpresora = usePrinter((s) => s.hidratar);
   const [fuentesListas] = useFonts({
     IBMPlexMono_400Regular,
     IBMPlexMono_500Medium,
@@ -43,7 +45,8 @@ export default function RootLayout() {
 
   useEffect(() => {
     void hidratar();
-  }, [hidratar]);
+    void hidratarImpresora();
+  }, [hidratar, hidratarImpresora]);
 
   if (!fuentesListas) {
     return null;
@@ -60,6 +63,7 @@ export default function RootLayout() {
         <Stack.Screen name="resumenes" />
         <Stack.Screen name="notificaciones" />
         <Stack.Screen name="producto-form" />
+        <Stack.Screen name="configuracion" />
       </Stack>
     </QueryClientProvider>
   );
