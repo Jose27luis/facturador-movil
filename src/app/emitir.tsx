@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { volver } from '@/shared/navegar';
 
 import { useSession } from '@/core/auth/session';
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
@@ -136,7 +137,7 @@ export default function EmitirScreen() {
             setResultado(res);
           } else {
             Alert.alert('Comprobante emitido', res.numero, [
-              { text: 'Listo', onPress: () => router.back() },
+              { text: 'Listo', onPress: () => volver() },
             ]);
           }
         },
@@ -152,7 +153,7 @@ export default function EmitirScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.iconoBtn} onPress={() => router.back()} accessibilityLabel="Volver">
+        <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
         <Text style={styles.headerTitulo}>Emitir comprobante</Text>
@@ -269,7 +270,7 @@ export default function EmitirScreen() {
           ticketUrl={resultado.pdfTicket}
           onCerrar={() => {
             setResultado(null);
-            router.back();
+            volver();
           }}
         />
       ) : null}

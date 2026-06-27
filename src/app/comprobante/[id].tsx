@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { volver } from '@/shared/navegar';
 
 import { useState } from 'react';
 
@@ -34,7 +35,7 @@ export default function ComprobanteScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.volver} onPress={() => router.back()} accessibilityLabel="Volver">
+        <Pressable style={styles.volver} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
         <Text style={styles.headerTitulo}>Comprobante</Text>

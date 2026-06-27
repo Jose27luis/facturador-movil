@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { volver } from '@/shared/navegar';
 
 import { paletaClara, radios } from '@/core/theme/tokens';
 import {
@@ -55,7 +56,7 @@ export default function ProductoFormScreen() {
     }
     const ok = () => {
       Alert.alert(edicion ? 'Producto actualizado' : 'Producto registrado', nombre.trim(), [
-        { text: 'Aceptar', onPress: () => router.back() },
+        { text: 'Aceptar', onPress: () => volver() },
       ]);
     };
     const fail = (err: unknown) => {
@@ -93,7 +94,7 @@ export default function ProductoFormScreen() {
             desactivar.mutate(idNum, {
               onSuccess: () =>
                 Alert.alert('Producto desactivado', nombre.trim(), [
-                  { text: 'Aceptar', onPress: () => router.back() },
+                  { text: 'Aceptar', onPress: () => volver() },
                 ]),
               onError: (err) =>
                 Alert.alert('No se pudo desactivar', err instanceof Error ? err.message : 'Error desconocido'),
@@ -106,7 +107,7 @@ export default function ProductoFormScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.iconoBtn} onPress={() => router.back()} accessibilityLabel="Volver">
+        <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
         <Text style={styles.headerTitulo}>{edicion ? 'Editar producto' : 'Nuevo producto'}</Text>

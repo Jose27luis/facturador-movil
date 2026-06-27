@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { volver } from '@/shared/navegar';
 
 import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
 import { fmtMonto } from '@/shared/format';
@@ -103,7 +104,7 @@ export default function ResumenesScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.iconoBtn} onPress={() => router.back()} accessibilityLabel="Volver">
+        <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
         <Text style={styles.headerTitulo}>Resumen diario de boletas</Text>

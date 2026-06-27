@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { volver } from '@/shared/navegar';
 
 import { paletaClara, radios } from '@/core/theme/tokens';
 import { Alerta, SeveridadAlerta } from '@/features/dashboard/overview.types';
@@ -25,7 +26,7 @@ export default function NotificacionesScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.iconoBtn} onPress={() => router.back()} accessibilityLabel="Volver">
+        <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
         <Text style={styles.headerTitulo}>Notificaciones</Text>
