@@ -4,13 +4,16 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@brooons/react-native-bluetooth-escpos-printer': a11a4970bb599e6e49735ed598374bf3142584412e95c17b7658368ab1c54396
+
 importers:
 
   .:
     dependencies:
       '@brooons/react-native-bluetooth-escpos-printer':
         specifier: ^1.2.0
-        version: 1.2.0(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))
+        version: 1.2.0(patch_hash=a11a4970bb599e6e49735ed598374bf3142584412e95c17b7658368ab1c54396)(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))
       '@expo-google-fonts/ibm-plex-mono':
         specifier: ^0.4.1
         version: 0.4.1
@@ -3540,7 +3543,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@brooons/react-native-bluetooth-escpos-printer@1.2.0(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))':
+  '@brooons/react-native-bluetooth-escpos-printer@1.2.0(patch_hash=a11a4970bb599e6e49735ed598374bf3142584412e95c17b7658368ab1c54396)(react-native@0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3))':
     dependencies:
       react-native: 0.85.3(@babel/core@7.29.7)(@react-native/metro-config@0.85.3(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.2.3)
 
