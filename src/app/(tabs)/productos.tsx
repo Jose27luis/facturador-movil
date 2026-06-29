@@ -13,14 +13,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto, fmtNumero } from '@/shared/format';
 import { Producto } from '@/features/productos/productos.types';
 import { useProductos } from '@/features/productos/use-productos';
 
-const c = paletaClara;
-
 export default function ProductosScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const [texto, setTexto] = useState('');
   const { data, isLoading, isError } = useProductos(texto);
@@ -81,6 +82,8 @@ export default function ProductosScreen() {
 }
 
 function Fila({ item, onPress }: { item: Producto; onPress: () => void }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <Pressable style={styles.fila} onPress={onPress}>
       {item.imagen ? (
@@ -105,7 +108,8 @@ function Fila({ item, onPress }: { item: Producto; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
@@ -160,6 +164,6 @@ const styles = StyleSheet.create({
   nombre: { fontSize: 15, fontWeight: '700', color: c.text },
   codigo: { fontSize: 12, color: c.faint },
   metaFila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 },
-  precio: { fontFamily: fuentes.monoSemi, fontSize: 14, color: c.text },
+  precio: { fontFamily: c.monoSemi, fontSize: 14, color: c.text },
   stock: { fontSize: 13, color: c.muted },
 });
