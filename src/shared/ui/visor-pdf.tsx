@@ -6,7 +6,7 @@ import { WebView } from 'react-native-webview';
 
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
-import { enviarWhatsApp } from '@/shared/compartir';
+import { compartirPdf, enviarWhatsApp } from '@/shared/compartir';
 
 type Formato = 'a4' | 'ticket';
 
@@ -89,6 +89,13 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
             <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" />
             <Text style={styles.whatsappText}>Enviar por WhatsApp</Text>
           </Pressable>
+          <Pressable
+            style={styles.compartir}
+            onPress={() => void compartirPdf(url, `Comprobante ${numero}`)}
+          >
+            <Ionicons name="share-social-outline" size={20} color={c.text} />
+            <Text style={styles.compartirText}>Compartir por otro medio</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     </Modal>
@@ -129,7 +136,13 @@ const crear = (c: Tema) =>
     justifyContent: 'center',
     backgroundColor: c.bg,
   },
-  footer: { padding: 16, borderTopWidth: 1, borderTopColor: c.border, backgroundColor: c.surface },
+  footer: {
+    padding: 16,
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: c.border,
+    backgroundColor: c.surface,
+  },
   whatsapp: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -140,4 +153,16 @@ const crear = (c: Tema) =>
     paddingVertical: 15,
   },
   whatsappText: { color: '#FFFFFF', fontSize: 15, fontWeight: '700' },
+  compartir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: c.surfaceAlt,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingVertical: 14,
+  },
+  compartirText: { color: c.text, fontSize: 15, fontWeight: '700' },
 });
