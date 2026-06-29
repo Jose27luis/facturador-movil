@@ -82,6 +82,7 @@ function RootStack() {
         <Stack.Screen name="emitir" />
         <Stack.Screen name="resumenes" />
         <Stack.Screen name="anular" />
+        <Stack.Screen name="caja" />
         <Stack.Screen name="notificaciones" />
         <Stack.Screen name="producto-form" />
         <Stack.Screen name="configuracion" />
