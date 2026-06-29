@@ -78,6 +78,7 @@ interface CajaResponse {
 export async function obtenerEstadoCaja(): Promise<EstadoCaja> {
   const { data } = await api.get<CajaResponse>('/mobile/caja');
   const d = data.data ?? {};
+  const rep: Fila = typeof d.reportes === 'object' && d.reportes !== null ? (d.reportes as Fila) : {};
   return {
     abierta: Boolean(d.abierta),
     cashId: numero(d, 'cash_id'),
@@ -90,6 +91,11 @@ export async function obtenerEstadoCaja(): Promise<EstadoCaja> {
     esperadoEfectivo: numero(d, 'esperado_efectivo'),
     esperadoTotal: numero(d, 'esperado_total'),
     mediosPago: mapMedios(d.medios_pago),
+    reportes: {
+      a4: texto(rep, 'a4'),
+      ticket: texto(rep, 'ticket'),
+      productos: texto(rep, 'productos'),
+    },
   };
 }
 
