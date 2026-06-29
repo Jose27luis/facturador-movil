@@ -31,7 +31,7 @@ export interface EmitirPayload {
   series_id: number;
   customer_id?: number;
   currency_type_id: string;
-  items: { item_id: number; quantity: number }[];
+  items: { item_id: number; quantity: number; unit_price?: number }[];
 }
 
 export interface EmitirResultado {
