@@ -5,9 +5,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,6 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { volver } from '@/shared/navegar';
+import { useAlturaTeclado } from '@/shared/usar-teclado';
 
 import { useSession } from '@/core/auth/session';
 import { radios } from '@/core/theme/tokens';
@@ -667,9 +666,9 @@ function ModalItemLibre({
   onCerrar: () => void;
   onAgregar: (nombre: string, precio: number, gravado: boolean) => void;
 }) {
-  const c = useTema();
   const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
+  const alturaTeclado = useAlturaTeclado();
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [gravado, setGravado] = useState(true);
@@ -689,16 +688,14 @@ function ModalItemLibre({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onCerrar}>
-      <KeyboardAvoidingView
-        style={styles.cobrarFondo}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={styles.libreScroll}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
+      <Pressable style={styles.cobrarFondo} onPress={onCerrar}>
+        <Pressable
+          style={[
+            styles.libreHoja,
+            { paddingBottom: insets.bottom + 20, marginBottom: alturaTeclado },
+          ]}
+          onPress={() => undefined}
         >
-        <View style={[styles.libreHoja, { paddingBottom: insets.bottom + 20 }]}>
           <View style={styles.cobrarBarra} />
           <Text style={styles.cobrarTitulo}>Ítem libre</Text>
           <Text style={styles.libreAyuda}>
@@ -754,9 +751,8 @@ function ModalItemLibre({
               <Text style={styles.cobrarEmitirText}>Agregar</Text>
             </Pressable>
           </View>
-        </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
@@ -809,7 +805,6 @@ const crear = (c: Tema) =>
   agregarAcciones: { flexDirection: 'row', gap: 16 },
   agregar: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   agregarText: { fontSize: 14, fontWeight: '700', color: c.brand },
-  libreScroll: { flexGrow: 1, justifyContent: 'flex-end' },
   libreHoja: {
     backgroundColor: c.bg,
     borderTopLeftRadius: radios.xl,
