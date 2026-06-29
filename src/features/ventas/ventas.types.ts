@@ -39,6 +39,12 @@ export interface ComprobanteDetalle {
   items: LineaComprobante[];
 }
 
+export interface ReenvioResultado {
+  estadoId: string;
+  estado: string;
+  mensaje: string;
+}
+
 export type TonoEstado = 'ok' | 'warn' | 'danger' | 'muted';
 
 export function tonoEstado(estadoId: string): TonoEstado {
