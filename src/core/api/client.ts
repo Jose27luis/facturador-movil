@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 import { env } from '@/core/config/env';
 import { useSession } from '@/core/auth/session';
+import { mensajeError } from '@/core/api/errores';
 
 export function resolverBaseUrl(tenant: string): string {
   const limpio = tenant.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -28,8 +29,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      void useSession.getState().cerrar();
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        void useSession.getState().cerrar();
+      }
+      error.message = mensajeError(error);
     }
     return Promise.reject(error);
   }
