@@ -126,6 +126,7 @@ export default function InicioScreen() {
             texto="Productos"
             onPress={() => router.push('/(tabs)/productos')}
           />
+          <Acceso icono="cash-outline" texto="Caja" onPress={() => router.push('/caja')} />
         </View>
       </ScrollView>
     </SafeAreaView>
