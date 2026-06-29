@@ -12,9 +12,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { volver } from '@/shared/navegar';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { volver } from '@/shared/navegar';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { Impresora, usePrinter } from '@/core/printer/printer-store';
 import {
   activarBluetooth,
@@ -23,10 +24,10 @@ import {
   pedirPermisos,
 } from '@/core/printer/printer';
 
-const c = paletaClara;
-
 export default function ConfiguracionScreen() {
   const router = useRouter();
+  const c = useTema();
+  const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
   const { activa, autoImprimir, hidratar, hidratado, guardar, setAuto } = usePrinter();
 
@@ -80,13 +81,26 @@ export default function ConfiguracionScreen() {
         <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
           <Ionicons name="chevron-back" size={24} color={c.text} />
         </Pressable>
-        <Text style={styles.headerTitulo}>Impresora</Text>
+        <Text style={styles.headerTitulo}>Configuración</Text>
         <View style={styles.iconoBtn} />
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
+        <Pressable style={styles.linkPerso} onPress={() => router.push('/personalizacion')}>
+          <View style={styles.linkIcono}>
+            <Ionicons name="color-palette-outline" size={20} color={c.brand} />
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.linkTitulo}>Personalización</Text>
+            <Text style={styles.linkSub}>Colores, fondo y fuente de la app.</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={c.faint} />
+        </Pressable>
+
+        <Text style={styles.bloque}>Impresora</Text>
+
         <View style={styles.cardAuto}>
-          <View style={styles.autoTexto}>
+          <View style={styles.flex}>
             <Text style={styles.autoTitulo}>Imprimir automático al emitir</Text>
             <Text style={styles.autoSub}>Imprime el ticket apenas se genera la venta.</Text>
           </View>
@@ -138,7 +152,7 @@ export default function ConfiguracionScreen() {
                   size={20}
                   color={seleccionada ? c.brand : c.faint}
                 />
-                <View style={styles.dispInfo}>
+                <View style={styles.flex}>
                   <Text style={styles.dispNombre}>{d.nombre}</Text>
                   <Text style={styles.dispDir}>{d.direccion}</Text>
                 </View>
@@ -162,61 +176,90 @@ export default function ConfiguracionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: c.bg },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  iconoBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitulo: { fontSize: 16, fontWeight: '700', color: c.text },
-  content: { padding: 20, gap: 14 },
-  cardAuto: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: c.surface,
-    borderWidth: 1,
-    borderColor: c.border,
-    borderRadius: radios.lg,
-    padding: 16,
-  },
-  autoTexto: { flex: 1 },
-  autoTitulo: { fontSize: 15, fontWeight: '700', color: c.text },
-  autoSub: { fontSize: 12.5, color: c.muted, marginTop: 2 },
-  seccionFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
-  seccion: { fontSize: 13, fontWeight: '700', color: c.muted, textTransform: 'uppercase', letterSpacing: 0.4 },
-  buscar: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  buscarText: { fontSize: 14, fontWeight: '700', color: c.brand },
-  ayuda: { fontSize: 12.5, color: c.muted, lineHeight: 18 },
-  aviso: { backgroundColor: '#F3DDDD', borderRadius: radios.md, padding: 14 },
-  avisoText: { color: c.danger, fontSize: 14 },
-  vacio: { fontSize: 13.5, color: c.faint, paddingVertical: 14 },
-  disp: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: c.surface,
-    borderWidth: 1,
-    borderColor: c.border,
-    borderRadius: radios.md,
-    padding: 14,
-  },
-  dispOn: { borderColor: c.brand },
-  dispInfo: { flex: 1 },
-  dispNombre: { fontSize: 15, fontWeight: '600', color: c.text },
-  dispDir: { fontSize: 12, color: c.faint, marginTop: 2 },
-  activaTag: { fontSize: 12, fontWeight: '700', color: c.brand },
-  prueba: {
-    backgroundColor: c.brand,
-    borderRadius: radios.md,
-    paddingVertical: 15,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  pruebaOff: { opacity: 0.6 },
-  pruebaText: { color: c.onBrand, fontSize: 15, fontWeight: '700' },
-});
+const crear = (c: Tema) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: c.bg },
+    flex: { flex: 1 },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+    },
+    iconoBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+    headerTitulo: { fontSize: 16, fontWeight: '700', color: c.text, fontFamily: c.sansBold },
+    content: { padding: 20, gap: 14 },
+    linkPerso: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radios.lg,
+      padding: 14,
+    },
+    linkIcono: {
+      width: 38,
+      height: 38,
+      borderRadius: 11,
+      backgroundColor: c.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    linkTitulo: { fontSize: 15, fontWeight: '700', color: c.text, fontFamily: c.sansBold },
+    linkSub: { fontSize: 12.5, color: c.muted, marginTop: 2, fontFamily: c.sans },
+    bloque: {
+      fontSize: 13,
+      fontWeight: '700',
+      color: c.muted,
+      textTransform: 'uppercase',
+      letterSpacing: 0.4,
+      marginTop: 8,
+      fontFamily: c.sansBold,
+    },
+    cardAuto: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radios.lg,
+      padding: 16,
+    },
+    autoTitulo: { fontSize: 15, fontWeight: '700', color: c.text, fontFamily: c.sansBold },
+    autoSub: { fontSize: 12.5, color: c.muted, marginTop: 2, fontFamily: c.sans },
+    seccionFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 },
+    seccion: { fontSize: 13, fontWeight: '700', color: c.muted, textTransform: 'uppercase', letterSpacing: 0.4, fontFamily: c.sansBold },
+    buscar: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    buscarText: { fontSize: 14, fontWeight: '700', color: c.brand, fontFamily: c.sansBold },
+    ayuda: { fontSize: 12.5, color: c.muted, lineHeight: 18, fontFamily: c.sans },
+    aviso: { backgroundColor: '#F3DDDD', borderRadius: radios.md, padding: 14 },
+    avisoText: { color: c.danger, fontSize: 14, fontFamily: c.sans },
+    vacio: { fontSize: 13.5, color: c.faint, paddingVertical: 14, fontFamily: c.sans },
+    disp: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radios.md,
+      padding: 14,
+    },
+    dispOn: { borderColor: c.brand },
+    dispNombre: { fontSize: 15, fontWeight: '600', color: c.text, fontFamily: c.sans },
+    dispDir: { fontSize: 12, color: c.faint, marginTop: 2, fontFamily: c.mono },
+    activaTag: { fontSize: 12, fontWeight: '700', color: c.brand, fontFamily: c.sansBold },
+    prueba: {
+      backgroundColor: c.brand,
+      borderRadius: radios.md,
+      paddingVertical: 15,
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    pruebaOff: { opacity: 0.6 },
+    pruebaText: { color: c.onBrand, fontSize: 15, fontWeight: '700', fontFamily: c.sansBold },
+  });
