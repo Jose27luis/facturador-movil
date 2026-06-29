@@ -126,7 +126,6 @@ export default function InicioScreen() {
             texto="Productos"
             onPress={() => router.push('/(tabs)/productos')}
           />
-          <Acceso icono="cash-outline" texto="Caja" onPress={() => router.push('/caja')} />
           <Acceso icono="people-outline" texto="Clientes" onPress={() => router.push('/clientes')} />
         </View>
       </ScrollView>
