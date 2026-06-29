@@ -3,9 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { paletaClara } from '@/core/theme/tokens';
-
-const c = paletaClara;
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 
 interface RutaTab {
   key: string;
@@ -25,6 +23,8 @@ const meta: Record<string, { icono: keyof typeof Ionicons.glyphMap; titulo: stri
 
 function BarraTabs({ state }: BarraProps) {
   const router = useRouter();
+  const c = useTema();
+  const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
   const rutas = state.routes;
 
@@ -64,31 +64,32 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  barra: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: c.tabBar,
-    borderTopWidth: 1,
-    borderTopColor: c.border,
-    paddingTop: 9,
-    paddingHorizontal: 8,
-  },
-  tab: { flex: 1, alignItems: 'center', gap: 3 },
-  tabText: { fontSize: 10.5, fontWeight: '600' },
-  centro: { flex: 1, alignItems: 'center' },
-  fab: {
-    width: 54,
-    height: 54,
-    borderRadius: 18,
-    backgroundColor: c.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: -22,
-    shadowColor: '#211D17',
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
-  },
-});
+const crear = (c: Tema) =>
+  StyleSheet.create({
+    barra: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: c.tabBar,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+      paddingTop: 9,
+      paddingHorizontal: 8,
+    },
+    tab: { flex: 1, alignItems: 'center', gap: 3 },
+    tabText: { fontSize: 10.5, fontWeight: '600', fontFamily: c.sans },
+    centro: { flex: 1, alignItems: 'center' },
+    fab: {
+      width: 54,
+      height: 54,
+      borderRadius: 18,
+      backgroundColor: c.brand,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: -22,
+      shadowColor: '#211D17',
+      shadowOpacity: 0.3,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
+    },
+  });

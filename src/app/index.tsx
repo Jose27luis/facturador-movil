@@ -1,20 +1,12 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
-import { paletaClara } from '@/core/theme/tokens';
+import { useTema } from '@/core/theme/use-tema';
 
 export default function IndexScreen() {
+  const c = useTema();
   return (
-    <View style={styles.root}>
-      <ActivityIndicator color={paletaClara.brand} />
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: c.bg }}>
+      <ActivityIndicator color={c.brand} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: paletaClara.bg,
-  },
-});

@@ -7,10 +7,14 @@ import {
   IBMPlexMono_600SemiBold,
   useFonts,
 } from '@expo-google-fonts/ibm-plex-mono';
+import { Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
+import { Poppins_400Regular, Poppins_500Medium, Poppins_700Bold } from '@expo-google-fonts/poppins';
 
 import { queryClient } from '@/core/api/query-client';
 import { useSession } from '@/core/auth/session';
 import { usePrinter } from '@/core/printer/printer-store';
+import { useTemaStore } from '@/core/theme/tema-store';
+import { useTema } from '@/core/theme/use-tema';
 
 function GuardiaAuth() {
   const router = useRouter();
@@ -37,16 +41,24 @@ function GuardiaAuth() {
 export default function RootLayout() {
   const hidratar = useSession((s) => s.hidratar);
   const hidratarImpresora = usePrinter((s) => s.hidratar);
+  const hidratarTema = useTemaStore((s) => s.hidratar);
   const [fuentesListas] = useFonts({
     IBMPlexMono_400Regular,
     IBMPlexMono_500Medium,
     IBMPlexMono_600SemiBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_700Bold,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_700Bold,
   });
 
   useEffect(() => {
     void hidratar();
     void hidratarImpresora();
-  }, [hidratar, hidratarImpresora]);
+    void hidratarTema();
+  }, [hidratar, hidratarImpresora, hidratarTema]);
 
   if (!fuentesListas) {
     return null;
@@ -55,7 +67,15 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GuardiaAuth />
-      <Stack screenOptions={{ headerShown: false }}>
+      <RootStack />
+    </QueryClientProvider>
+  );
+}
+
+function RootStack() {
+  const tema = useTema();
+  return (
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: tema.bg } }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="comprobante/[id]" />
@@ -65,7 +85,7 @@ export default function RootLayout() {
         <Stack.Screen name="notificaciones" />
         <Stack.Screen name="producto-form" />
         <Stack.Screen name="configuracion" />
+        <Stack.Screen name="personalizacion" />
       </Stack>
-    </QueryClientProvider>
   );
 }
