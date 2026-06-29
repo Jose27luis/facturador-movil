@@ -18,6 +18,7 @@ import { volver } from '@/shared/navegar';
 
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
+import { validarMonto } from '@/shared/validacion';
 import {
   useActualizarProducto,
   useCrearProducto,
@@ -49,7 +50,13 @@ export default function ProductoFormScreen() {
   const desactivar = useDesactivarProducto();
   const guardando = crearProd.isPending || actualizar.isPending || desactivar.isPending;
 
-  const puedeGuardar = nombre.trim() !== '' && aNumero(precio) > 0 && !guardando;
+  const precioVal = validarMonto(precio, { min: 0.01 });
+  const stockVal = validarMonto(stock, { min: 0, obligatorio: false });
+  const errorPrecio = precio.trim() !== '' && !precioVal.valido ? precioVal.error : null;
+  const errorStock = !edicion && stock.trim() !== '' && !stockVal.valido ? stockVal.error : null;
+
+  const puedeGuardar =
+    nombre.trim() !== '' && precioVal.valido && (edicion || stockVal.valido) && !guardando;
 
   function onGuardar() {
     if (!puedeGuardar) {
@@ -127,12 +134,13 @@ export default function ProductoFormScreen() {
 
           <Text style={styles.label}>Precio de venta (S/)</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, errorPrecio && styles.inputError]}
             value={precio}
             onChangeText={setPrecio}
             keyboardType="decimal-pad"
             accessibilityLabel="Precio de venta"
           />
+          {errorPrecio ? <Text style={styles.errorText}>{errorPrecio}</Text> : null}
 
           {edicion ? (
             <>
@@ -148,12 +156,13 @@ export default function ProductoFormScreen() {
             <>
               <Text style={styles.label}>Stock inicial</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errorStock && styles.inputError]}
                 value={stock}
                 onChangeText={setStock}
                 keyboardType="number-pad"
                 accessibilityLabel="Stock inicial"
               />
+              {errorStock ? <Text style={styles.errorText}>{errorStock}</Text> : null}
 
               <Text style={styles.label}>Afectación IGV</Text>
               <View style={styles.opciones}>
@@ -229,6 +238,8 @@ const crear = (c: Tema) =>
     fontSize: 15,
     color: c.text,
   },
+  inputError: { borderColor: c.danger },
+  errorText: { fontSize: 12.5, color: c.danger, fontWeight: '600', marginTop: 6 },
   nota: { fontSize: 12.5, color: c.muted, marginTop: 18, lineHeight: 18 },
   desactivar: {
     flexDirection: 'row',
