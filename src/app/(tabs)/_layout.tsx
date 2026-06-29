@@ -19,6 +19,7 @@ const meta: Record<string, { icono: keyof typeof Ionicons.glyphMap; titulo: stri
   ventas: { icono: 'receipt-outline', titulo: 'Ventas', ruta: '/(tabs)/ventas' },
   compras: { icono: 'cart-outline', titulo: 'Compras', ruta: '/(tabs)/compras' },
   productos: { icono: 'cube-outline', titulo: 'Productos', ruta: '/(tabs)/productos' },
+  caja: { icono: 'cash-outline', titulo: 'Caja', ruta: '/(tabs)/caja' },
 };
 
 function BarraTabs({ state }: BarraProps) {
@@ -60,6 +61,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="ventas" />
       <Tabs.Screen name="compras" />
       <Tabs.Screen name="productos" />
+      <Tabs.Screen name="caja" />
     </Tabs>
   );
 }
