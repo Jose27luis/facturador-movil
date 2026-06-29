@@ -4,22 +4,23 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from '
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { volver } from '@/shared/navegar';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { Alerta, SeveridadAlerta } from '@/features/dashboard/overview.types';
 import { useOverview } from '@/features/dashboard/use-overview';
-
-const c = paletaClara;
 
 const estilosSeveridad: Record<
   SeveridadAlerta,
   { bg: string; color: string; icono: keyof typeof Ionicons.glyphMap }
 > = {
-  danger: { bg: '#F3DDDD', color: c.danger, icono: 'alert-circle' },
-  warning: { bg: '#F4EAD4', color: c.warn, icono: 'warning' },
+  danger: { bg: '#F3DDDD', color: '#B23B3B', icono: 'alert-circle' },
+  warning: { bg: '#F4EAD4', color: '#B5791A', icono: 'warning' },
   info: { bg: '#E7EEF4', color: '#2A5E86', icono: 'information-circle' },
 };
 
 export default function NotificacionesScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const { data, isLoading, isError, refetch, isRefetching } = useOverview();
 
@@ -63,6 +64,8 @@ export default function NotificacionesScreen() {
 }
 
 function Fila({ alerta }: { alerta: Alerta }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const s = estilosSeveridad[alerta.severity];
   return (
     <View style={styles.fila}>
@@ -77,7 +80,8 @@ function Fila({ alerta }: { alerta: Alerta }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
