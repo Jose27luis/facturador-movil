@@ -1,18 +1,23 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { volver } from '@/shared/navegar';
 
 import { useState } from 'react';
 
+import { useSession } from '@/core/auth/session';
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
-import { LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
-import { useComprobante, useComprobanteDetalle } from '@/features/ventas/use-ventas';
+import { usePrinter } from '@/core/printer/printer-store';
+import { imprimirTicket } from '@/core/printer/printer';
+import { ComprobanteDetalle, LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
+import { useComprobante, useComprobanteDetalle, useReenviar } from '@/features/ventas/use-ventas';
+
+const ESTADOS_REENVIABLES = ['01', '03', '09'];
 
 export default function ComprobanteScreen() {
   const c = useTema();
@@ -23,8 +28,60 @@ export default function ComprobanteScreen() {
   const idNum = Number(id);
   const esNotaVenta = nv === '1';
   const [verPdf, setVerPdf] = useState(false);
+  const [imprimiendo, setImprimiendo] = useState(false);
+  const usuario = useSession((s) => s.usuario);
+  const impresoraActiva = usePrinter((s) => s.activa);
+  const reenvio = useReenviar();
   const { data: base } = useComprobante(idNum, esNotaVenta);
   const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum, esNotaVenta);
+
+  function confirmarReenvio() {
+    Alert.alert(
+      'Reenviar a SUNAT',
+      'Se volverá a enviar este comprobante a SUNAT. Hazlo solo si quedó rechazado o pendiente de envío.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Reenviar',
+          onPress: () =>
+            reenvio.mutate(idNum, {
+              onSuccess: (res) => Alert.alert('Reenviado', `${res.estado || 'Procesado'}. ${res.mensaje}`),
+              onError: (err) =>
+                Alert.alert('No se pudo reenviar', err instanceof Error ? err.message : 'Error desconocido'),
+            }),
+        },
+      ],
+    );
+  }
+
+  async function reimprimir(d: ComprobanteDetalle) {
+    if (!impresoraActiva || imprimiendo) {
+      return;
+    }
+    setImprimiendo(true);
+    try {
+      await imprimirTicket(impresoraActiva, {
+        empresa: usuario?.nombre || 'Amantix',
+        ruc: usuario?.ruc,
+        tipo: d.tipo,
+        numero: d.numero,
+        fecha: d.fecha,
+        cliente: d.cliente || 'Cliente varios',
+        items: d.items.map((it) => ({
+          nombre: it.descripcion,
+          cantidad: it.cantidad,
+          precio: it.precioUnitario,
+          total: it.total,
+        })),
+        total: d.total,
+        moneda: d.moneda,
+      });
+    } catch (err) {
+      Alert.alert('No se pudo imprimir', err instanceof Error ? err.message : 'Revisa la impresora.');
+    } finally {
+      setImprimiendo(false);
+    }
+  }
 
   const tipo = detalle?.tipo ?? base?.tipo ?? '';
   const numero = detalle?.numero ?? base?.numero ?? '';
@@ -90,6 +147,40 @@ export default function ComprobanteScreen() {
           <Pressable style={styles.verPdf} onPress={() => setVerPdf(true)}>
             <Ionicons name="document-text-outline" size={20} color={c.onBrand} />
             <Text style={styles.verPdfText}>Ver / Enviar PDF</Text>
+          </Pressable>
+        ) : null}
+
+        {!esNotaVenta && ESTADOS_REENVIABLES.includes(estadoId) ? (
+          <Pressable
+            style={[styles.reenviar, reenvio.isPending && styles.reimprimirOff]}
+            onPress={confirmarReenvio}
+            disabled={reenvio.isPending}
+          >
+            {reenvio.isPending ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons name="cloud-upload-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.reenviarText}>Reenviar a SUNAT</Text>
+              </>
+            )}
+          </Pressable>
+        ) : null}
+
+        {detalle && impresoraActiva && detalle.items.length > 0 ? (
+          <Pressable
+            style={[styles.reimprimir, imprimiendo && styles.reimprimirOff]}
+            onPress={() => void reimprimir(detalle)}
+            disabled={imprimiendo}
+          >
+            {imprimiendo ? (
+              <ActivityIndicator color={c.text} />
+            ) : (
+              <>
+                <Ionicons name="print-outline" size={20} color={c.text} />
+                <Text style={styles.reimprimirText}>Reimprimir ticket</Text>
+              </>
+            )}
           </Pressable>
         ) : null}
       </ScrollView>
@@ -227,5 +318,28 @@ const crear = (c: Tema) =>
     paddingVertical: 15,
   },
   verPdfText: { fontSize: 15, fontWeight: '700', color: c.onBrand },
+  reimprimir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingVertical: 15,
+  },
+  reimprimirOff: { opacity: 0.6 },
+  reimprimirText: { fontSize: 15, fontWeight: '700', color: c.text },
+  reenviar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: c.accent,
+    borderRadius: radios.md,
+    paddingVertical: 15,
+  },
+  reenviarText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
 });
 
