@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
@@ -75,6 +75,7 @@ export default function EmitirScreen() {
   const [descuento, setDescuento] = useState('');
   const [recibido, setRecibido] = useState('');
   const [medioPago, setMedioPago] = useState<MedioPago>('efectivo');
+  const enviando = useRef(false);
 
   const serieSel = useMemo<Serie | undefined>(() => {
     if (!series || series.length === 0) {
@@ -118,6 +119,10 @@ export default function EmitirScreen() {
     if (!serieSel || lineas.length === 0) {
       return;
     }
+    if (enviando.current || emitir.isPending) {
+      return;
+    }
+    enviando.current = true;
     const esNotaVenta = serieSel.tipoId === '80';
     const conDescuento = descuentoNum > 0;
     const precioFinal = (precio: number) => Math.round(precio * factor * 100) / 100;
@@ -176,6 +181,9 @@ export default function EmitirScreen() {
         },
         onError: (err) => {
           Alert.alert('No se pudo emitir', err instanceof Error ? err.message : 'Error desconocido');
+        },
+        onSettled: () => {
+          enviando.current = false;
         },
       },
     );
