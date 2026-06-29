@@ -1,23 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { paletaClara } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { TonoEstado } from '@/features/ventas/ventas.types';
-
-const c = paletaClara;
-
-const fondos: Record<TonoEstado, string> = {
-  ok: '#E3EFE6',
-  warn: '#F4EAD4',
-  danger: '#F3DDDD',
-  muted: c.surfaceAlt,
-};
-
-const textos: Record<TonoEstado, string> = {
-  ok: c.ok,
-  warn: c.warn,
-  danger: c.danger,
-  muted: c.muted,
-};
 
 interface Props {
   tono: TonoEstado;
@@ -25,6 +9,20 @@ interface Props {
 }
 
 export function BadgeEstado({ tono, etiqueta }: Props) {
+  const c = useTema();
+  const styles = useEstilos(crear);
+  const fondos: Record<TonoEstado, string> = {
+    ok: '#E3EFE6',
+    warn: '#F4EAD4',
+    danger: '#F3DDDD',
+    muted: c.surfaceAlt,
+  };
+  const textos: Record<TonoEstado, string> = {
+    ok: c.ok,
+    warn: c.warn,
+    danger: c.danger,
+    muted: c.muted,
+  };
   return (
     <View style={[styles.badge, { backgroundColor: fondos[tono] }]}>
       <Text style={[styles.texto, { color: textos[tono] }]}>{etiqueta}</Text>
@@ -32,7 +30,8 @@ export function BadgeEstado({ tono, etiqueta }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, alignSelf: 'flex-start' },
-  texto: { fontSize: 12, fontWeight: '700' },
-});
+const crear = (c: Tema) =>
+  StyleSheet.create({
+    badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, alignSelf: 'flex-start' },
+    texto: { fontSize: 12, fontWeight: '700', fontFamily: c.sansBold },
+  });
