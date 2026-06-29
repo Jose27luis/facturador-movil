@@ -20,6 +20,7 @@ export interface ItemBusqueda {
   moneda: string;
   stock: number;
   afectacionId: string;
+  libre?: boolean;
 }
 
 export interface LineaCarrito {
@@ -27,11 +28,20 @@ export interface LineaCarrito {
   cantidad: number;
 }
 
+export interface EmitirItemPayload {
+  item_id?: number;
+  quantity: number;
+  unit_price?: number;
+  libre?: boolean;
+  description?: string;
+  affectation_igv_type_id?: string;
+}
+
 export interface EmitirPayload {
   series_id: number;
   customer_id?: number;
   currency_type_id: string;
-  items: { item_id: number; quantity: number; unit_price?: number }[];
+  items: EmitirItemPayload[];
   payment?: { payment_method_type_id: string };
 }
 
