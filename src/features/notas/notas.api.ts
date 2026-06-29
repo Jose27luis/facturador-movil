@@ -1,5 +1,5 @@
 import { api } from '@/core/api/client';
-import { NotaCreditoResultado, TipoNotaCredito } from './notas.types';
+import { ItemDevolucion, NotaCreditoResultado, TipoNotaCredito } from './notas.types';
 
 interface NotaResponse {
   success?: boolean;
@@ -19,11 +19,13 @@ export async function crearNotaCredito(
   documentId: number,
   tipo: TipoNotaCredito,
   motivo: string,
+  items?: ItemDevolucion[],
 ): Promise<NotaCreditoResultado> {
   const { data } = await api.post<NotaResponse>('/mobile/notas-credito', {
     document_id: documentId,
     tipo,
     motivo,
+    ...(items && items.length > 0 ? { items } : {}),
   });
   if (!data.success || !data.data) {
     throw new Error(data.message || 'No se pudo emitir la nota de crédito.');
