@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
@@ -30,6 +39,7 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
   const styles = useEstilos(crear);
   const [formato, setFormato] = useState<Formato>('a4');
   const [cargando, setCargando] = useState(true);
+  const [telefono, setTelefono] = useState('');
   const url = formato === 'a4' ? a4Url : ticketUrl;
 
   function cambiar(f: Formato) {
@@ -82,12 +92,26 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
         </View>
 
         <View style={styles.footer}>
+          <Text style={styles.telLabel}>WhatsApp del cliente (opcional)</Text>
+          <View style={styles.telBox}>
+            <Text style={styles.telPrefijo}>+51</Text>
+            <TextInput
+              style={styles.telInput}
+              value={telefono}
+              onChangeText={setTelefono}
+              keyboardType="phone-pad"
+              maxLength={12}
+              accessibilityLabel="Número de WhatsApp del cliente"
+            />
+          </View>
           <Pressable
             style={styles.whatsapp}
-            onPress={() => void enviarWhatsApp(url, `Tu comprobante ${numero}:`)}
+            onPress={() => void enviarWhatsApp(url, `Tu comprobante ${numero}:`, telefono)}
           >
             <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" />
-            <Text style={styles.whatsappText}>Enviar por WhatsApp</Text>
+            <Text style={styles.whatsappText}>
+              {telefono.trim() ? 'Enviar al número' : 'Enviar por WhatsApp'}
+            </Text>
           </Pressable>
           <Pressable
             style={styles.compartir}
@@ -143,6 +167,20 @@ const crear = (c: Tema) =>
     borderTopColor: c.border,
     backgroundColor: c.surface,
   },
+  telLabel: { fontSize: 12.5, fontWeight: '600', color: c.muted },
+  telBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: c.bg,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingHorizontal: 14,
+    height: 50,
+  },
+  telPrefijo: { fontFamily: c.monoSemi, fontSize: 16, color: c.muted },
+  telInput: { flex: 1, fontFamily: c.monoSemi, fontSize: 17, color: c.text, letterSpacing: 1 },
   whatsapp: {
     flexDirection: 'row',
     alignItems: 'center',
