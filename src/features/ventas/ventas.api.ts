@@ -1,5 +1,5 @@
 import { api } from '@/core/api/client';
-import { Comprobante, ComprobanteDetalle, LineaComprobante } from './ventas.types';
+import { Comprobante, ComprobanteDetalle, LineaComprobante, ReenvioResultado } from './ventas.types';
 
 interface ListsResponse {
   data?: unknown[];
@@ -51,6 +51,28 @@ export async function listarComprobantes(): Promise<Comprobante[]> {
 
 interface DetalleResponse {
   data?: Fila;
+}
+
+interface ReenvioResponse {
+  success?: boolean;
+  message?: string;
+  data?: {
+    state_type_id?: string;
+    state_type_description?: string;
+    message?: string;
+  };
+}
+
+export async function reenviarDocumento(id: number): Promise<ReenvioResultado> {
+  const { data } = await api.post<ReenvioResponse>('/mobile/reenviar', { document_id: id });
+  if (!data.success || !data.data) {
+    throw new Error(data.message || 'No se pudo reenviar el comprobante.');
+  }
+  return {
+    estadoId: data.data.state_type_id ?? '',
+    estado: data.data.state_type_description ?? '',
+    mensaje: data.data.message ?? 'Reenviado a SUNAT.',
+  };
 }
 
 export async function obtenerComprobanteDetalle(
