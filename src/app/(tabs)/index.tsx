@@ -127,6 +127,7 @@ export default function InicioScreen() {
             onPress={() => router.push('/(tabs)/productos')}
           />
           <Acceso icono="cash-outline" texto="Caja" onPress={() => router.push('/caja')} />
+          <Acceso icono="people-outline" texto="Clientes" onPress={() => router.push('/clientes')} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -318,9 +319,10 @@ const crear = (c: Tema) =>
     letterSpacing: 0.4,
     marginTop: 8,
   },
-  accesos: { flexDirection: 'row', gap: 10 },
+  accesos: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   acceso: {
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     backgroundColor: c.surface,
     borderWidth: 1,
     borderColor: c.border,
