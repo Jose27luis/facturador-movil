@@ -86,6 +86,8 @@ export async function obtenerComprobanteDetalle(
   const items: LineaComprobante[] = filas
     .filter((f): f is Fila => typeof f === 'object' && f !== null)
     .map((f) => ({
+      id: leerMonto(f, 'id'),
+      itemId: leerMonto(f, 'item_id'),
       descripcion: leerTexto(f, 'description'),
       cantidad: leerMonto(f, 'quantity'),
       precioUnitario: leerMonto(f, 'unit_price'),
