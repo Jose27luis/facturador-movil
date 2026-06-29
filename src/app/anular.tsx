@@ -12,14 +12,13 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { volver } from '@/shared/navegar';
 import { SelectorFecha } from '@/shared/ui/selector-fecha';
 import { DocumentoAnulable } from '@/features/resumenes/resumenes.types';
 import { useAnular, useAnulables } from '@/features/resumenes/use-resumenes';
-
-const c = paletaClara;
 
 function pad(n: number): string {
   return n < 10 ? `0${n}` : `${n}`;
@@ -36,6 +35,8 @@ function fechaLegible(iso: string): string {
 }
 
 export default function AnularScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
   const hoy = hoyISO();
 
@@ -210,7 +211,8 @@ export default function AnularScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   flex: { flex: 1 },
   header: {
@@ -244,7 +246,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     height: 52,
   },
-  fechaValor: { fontFamily: fuentes.monoSemi, fontSize: 16, color: c.text },
+  fechaValor: { fontFamily: c.monoSemi, fontSize: 16, color: c.text },
   fechaHoy: { fontSize: 12, color: c.accent, fontWeight: '700' },
   consultar: {
     borderWidth: 1,
@@ -271,9 +273,9 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   filaInfo: { flex: 1, minWidth: 0 },
-  numero: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
+  numero: { fontFamily: c.mono, fontSize: 13, color: c.text },
   cliente: { fontSize: 13, color: c.muted, marginTop: 2 },
-  total: { fontFamily: fuentes.monoSemi, fontSize: 14, color: c.text, marginTop: 2 },
+  total: { fontFamily: c.monoSemi, fontSize: 14, color: c.text, marginTop: 2 },
   anularBtn: {
     borderWidth: 1,
     borderColor: c.danger,
