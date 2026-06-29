@@ -6,16 +6,17 @@ import { volver } from '@/shared/navegar';
 
 import { useState } from 'react';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
 import { LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
 import { useComprobante, useComprobanteDetalle } from '@/features/ventas/use-ventas';
 
-const c = paletaClara;
-
 export default function ComprobanteScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const { id, nv } = useLocalSearchParams<{ id: string; nv?: string }>();
   const insets = useSafeAreaInsets();
@@ -107,6 +108,8 @@ export default function ComprobanteScreen() {
 }
 
 function Linea({ item, moneda }: { item: LineaComprobante; moneda: string }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <View style={styles.linea}>
       <View style={styles.lineaInfo}>
@@ -121,6 +124,8 @@ function Linea({ item, moneda }: { item: LineaComprobante; moneda: string }) {
 }
 
 function Resumen({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <View style={styles.resumen}>
       <Text style={styles.resumenLabel}>{etiqueta}</Text>
@@ -130,6 +135,8 @@ function Resumen({ etiqueta, valor }: { etiqueta: string; valor: string }) {
 }
 
 function Dato({ etiqueta, valor, ultimo }: { etiqueta: string; valor: string; ultimo?: boolean }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <View style={[styles.dato, ultimo && styles.datoUltimo]}>
       <Text style={styles.datoEtiqueta}>{etiqueta}</Text>
@@ -138,7 +145,8 @@ function Dato({ etiqueta, valor, ultimo }: { etiqueta: string; valor: string; ul
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
@@ -160,8 +168,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   tipo: { fontSize: 13, color: c.muted, fontWeight: '600' },
-  numero: { fontFamily: fuentes.monoSemi, fontSize: 20, color: c.text },
-  total: { fontFamily: fuentes.monoSemi, fontSize: 30, color: c.text, marginVertical: 4, letterSpacing: -0.5 },
+  numero: { fontFamily: c.monoSemi, fontSize: 20, color: c.text },
+  total: { fontFamily: c.monoSemi, fontSize: 30, color: c.text, marginVertical: 4, letterSpacing: -0.5 },
   card: {
     backgroundColor: c.surface,
     borderRadius: radios.lg,
@@ -184,12 +192,12 @@ const styles = StyleSheet.create({
   linea: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 8 },
   lineaInfo: { flex: 1, paddingRight: 12 },
   lineaNombre: { fontSize: 13.5, fontWeight: '600', color: c.text },
-  lineaSub: { fontFamily: fuentes.mono, fontSize: 12, color: c.muted, marginTop: 2 },
-  lineaTotal: { fontFamily: fuentes.monoSemi, fontSize: 13.5, color: c.text },
+  lineaSub: { fontFamily: c.mono, fontSize: 12, color: c.muted, marginTop: 2 },
+  lineaTotal: { fontFamily: c.monoSemi, fontSize: 13.5, color: c.text },
   divisor: { height: 1, backgroundColor: c.surfaceAlt, marginVertical: 10 },
   resumen: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 3 },
   resumenLabel: { fontSize: 13, color: c.muted },
-  resumenValor: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
+  resumenValor: { fontFamily: c.mono, fontSize: 13, color: c.text },
   totalFila: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -197,7 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   totalLabel: { fontSize: 15, fontWeight: '700', color: c.text },
-  totalMonto: { fontFamily: fuentes.monoSemi, fontSize: 20, color: c.text },
+  totalMonto: { fontFamily: c.monoSemi, fontSize: 20, color: c.text },
   dato: {
     flexDirection: 'row',
     justifyContent: 'space-between',
