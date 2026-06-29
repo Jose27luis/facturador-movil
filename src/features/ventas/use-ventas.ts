@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { listarComprobantes, obtenerComprobanteDetalle } from './ventas.api';
+import { listarComprobantes, obtenerComprobanteDetalle, reenviarDocumento } from './ventas.api';
 import { Comprobante } from './ventas.types';
 
 const claveLista = ['ventas', 'lista'];
@@ -25,5 +25,16 @@ export function useComprobanteDetalle(id: number, esNotaVenta: boolean) {
     queryKey: ['ventas', 'detalle', esNotaVenta ? 'nv' : 'doc', id],
     queryFn: () => obtenerComprobanteDetalle(id, esNotaVenta),
     enabled: id > 0,
+  });
+}
+
+export function useReenviar() {
+  const cliente = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => reenviarDocumento(id),
+    onSuccess: () => {
+      void cliente.invalidateQueries({ queryKey: claveLista });
+      void cliente.invalidateQueries({ queryKey: ['ventas', 'detalle'] });
+    },
   });
 }
