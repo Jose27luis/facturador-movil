@@ -17,11 +17,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '@/core/auth/auth.api';
 import { useSession } from '@/core/auth/session';
 import { env } from '@/core/config/env';
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
-
-const c = paletaClara;
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 
 export default function LoginScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const iniciar = useSession((s) => s.iniciar);
   const tenantGuardado = useSession((s) => s.tenant);
 
@@ -141,7 +142,8 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   flex: { flex: 1 },
   content: { padding: 28, paddingTop: 60, paddingBottom: 40, flexGrow: 1, justifyContent: 'center' },
@@ -187,8 +189,8 @@ const styles = StyleSheet.create({
     height: 52,
   },
   input: { flex: 1, fontSize: 15, color: c.text },
-  mono: { fontFamily: fuentes.mono },
-  sufijo: { fontFamily: fuentes.mono, fontSize: 15, color: c.faint },
+  mono: { fontFamily: c.mono },
+  sufijo: { fontFamily: c.mono, fontSize: 15, color: c.faint },
   mostrar: { fontSize: 13, color: '#7A7163', fontWeight: '600' },
   error: { color: c.danger, fontSize: 13, fontWeight: '600', marginTop: 14 },
   button: {
