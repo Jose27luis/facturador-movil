@@ -17,7 +17,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMoneda } from '@/shared/format';
-import { volver } from '@/shared/navegar';
+import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { EstadoCaja, MedioPagoResumen } from '@/features/caja/caja.types';
 import { useAbrirCaja, useCerrarCaja, useEstadoCaja } from '@/features/caja/use-caja';
 
@@ -39,6 +39,7 @@ export default function CajaScreen() {
   const [saldoInicial, setSaldoInicial] = useState('');
   const [cerrarOpen, setCerrarOpen] = useState(false);
   const [efectivoContado, setEfectivoContado] = useState('');
+  const [reporteVer, setReporteVer] = useState<'caja' | 'productos' | null>(null);
 
   function onAbrir() {
     abrir.mutate(aMonto(saldoInicial), {
@@ -65,7 +66,6 @@ export default function CajaScreen() {
         Alert.alert(
           'Caja cerrada',
           `Ventas: ${fmtMoneda(res.ventas)}\nEsperado en efectivo: ${fmtMoneda(res.esperadoEfectivo)}${dif}`,
-          [{ text: 'Listo', onPress: () => volver() }],
         );
       },
       onError: (err) =>
@@ -76,10 +76,7 @@ export default function CajaScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
-        <Pressable style={styles.iconoBtn} onPress={() => volver()} accessibilityLabel="Volver">
-          <Ionicons name="chevron-back" size={24} color={c.text} />
-        </Pressable>
-        <Text style={styles.headerTitulo}>Caja</Text>
+        <Text style={styles.titulo}>Caja</Text>
         <Pressable
           style={styles.iconoBtn}
           onPress={() => router.push('/resumen-dia')}
@@ -104,6 +101,7 @@ export default function CajaScreen() {
         <CajaAbierta
           estado={data}
           onCerrar={() => setCerrarOpen(true)}
+          onReporte={setReporteVer}
           insetsBottom={insets.bottom}
         />
       ) : (
@@ -188,6 +186,16 @@ export default function CajaScreen() {
           </View>
         </View>
       </Modal>
+
+      {reporteVer && data?.abierta ? (
+        <VisorPdf
+          visible
+          numero={reporteVer === 'caja' ? 'Reporte de caja' : 'Productos vendidos'}
+          a4Url={reporteVer === 'caja' ? data.reportes.a4 : data.reportes.productos}
+          ticketUrl={reporteVer === 'caja' ? data.reportes.ticket : ''}
+          onCerrar={() => setReporteVer(null)}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -195,10 +203,12 @@ export default function CajaScreen() {
 function CajaAbierta({
   estado,
   onCerrar,
+  onReporte,
   insetsBottom,
 }: {
   estado: EstadoCaja;
   onCerrar: () => void;
+  onReporte: (tipo: 'caja' | 'productos') => void;
   insetsBottom: number;
 }) {
   const c = useTema();
@@ -248,6 +258,20 @@ function CajaAbierta({
             ))}
           </View>
         )}
+
+        <Text style={styles.seccion}>Reportes</Text>
+        <View style={styles.reportes}>
+          <Pressable style={styles.reporteBtn} onPress={() => onReporte('caja')}>
+            <Ionicons name="document-text-outline" size={22} color={c.text} />
+            <Text style={styles.reporteText}>Reporte de caja</Text>
+            <Text style={styles.reporteSub}>PDF y ticket</Text>
+          </Pressable>
+          <Pressable style={styles.reporteBtn} onPress={() => onReporte('productos')}>
+            <Ionicons name="cube-outline" size={22} color={c.text} />
+            <Text style={styles.reporteText}>Productos</Text>
+            <Text style={styles.reporteSub}>Vendidos del turno</Text>
+          </Pressable>
+        </View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insetsBottom + 14 }]}>
@@ -281,9 +305,11 @@ const crear = (c: Tema) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
+    titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.6 },
     iconoBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     headerTitulo: { fontSize: 16, fontWeight: '700', color: c.text },
     content: { padding: 20, gap: 14 },
@@ -381,6 +407,18 @@ const crear = (c: Tema) =>
     medioBorde: { borderBottomWidth: 1, borderBottomColor: c.border },
     medioNombre: { fontSize: 15, fontWeight: '600', color: c.text },
     medioTotal: { fontFamily: c.monoSemi, fontSize: 16, color: c.text },
+    reportes: { flexDirection: 'row', gap: 12 },
+    reporteBtn: {
+      flex: 1,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radios.lg,
+      padding: 16,
+      gap: 4,
+    },
+    reporteText: { fontSize: 14.5, fontWeight: '700', color: c.text, marginTop: 6 },
+    reporteSub: { fontSize: 12, color: c.muted },
     footer: {
       position: 'absolute',
       left: 0,
