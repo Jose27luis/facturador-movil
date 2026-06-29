@@ -150,6 +150,21 @@ export default function ComprobanteScreen() {
           </Pressable>
         ) : null}
 
+        {!esNotaVenta && estadoId === '05' && (base?.tipoId === '01' || base?.tipoId === '03') ? (
+          <Pressable
+            style={styles.notaCredito}
+            onPress={() =>
+              router.push({
+                pathname: '/nota-credito',
+                params: { id: String(idNum), numero, total: String(total), moneda },
+              })
+            }
+          >
+            <Ionicons name="receipt-outline" size={20} color={c.onBrand} />
+            <Text style={styles.notaCreditoText}>Emitir nota de crédito</Text>
+          </Pressable>
+        ) : null}
+
         {!esNotaVenta && ESTADOS_REENVIABLES.includes(estadoId) ? (
           <Pressable
             style={[styles.reenviar, reenvio.isPending && styles.reimprimirOff]}
@@ -341,5 +356,15 @@ const crear = (c: Tema) =>
     paddingVertical: 15,
   },
   reenviarText: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
+  notaCredito: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: c.brand,
+    borderRadius: radios.md,
+    paddingVertical: 15,
+  },
+  notaCreditoText: { fontSize: 15, fontWeight: '700', color: c.onBrand },
 });
 
