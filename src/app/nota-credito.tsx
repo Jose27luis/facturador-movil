@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import {
@@ -18,7 +18,13 @@ import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { volver } from '@/shared/navegar';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
-import { NotaCreditoResultado, TIPOS_NOTA_CREDITO, TipoNotaCredito } from '@/features/notas/notas.types';
+import { useComprobanteDetalle } from '@/features/ventas/use-ventas';
+import {
+  ItemDevolucion,
+  NotaCreditoResultado,
+  TIPOS_NOTA_CREDITO,
+  TipoNotaCredito,
+} from '@/features/notas/notas.types';
 import { useCrearNotaCredito } from '@/features/notas/use-notas';
 
 export default function NotaCreditoScreen() {
@@ -32,11 +38,47 @@ export default function NotaCreditoScreen() {
 
   const [tipo, setTipo] = useState<TipoNotaCredito>('06');
   const [motivo, setMotivo] = useState('');
+  const [devolver, setDevolver] = useState<Record<number, number>>({});
   const [resultado, setResultado] = useState<NotaCreditoResultado | null>(null);
   const enviando = useRef(false);
   const crearNota = useCrearNotaCredito();
+  const esParcial = tipo === '07';
+  const detalle = useComprobanteDetalle(idNum, false);
 
-  const puedeEmitir = motivo.trim().length >= 3 && !crearNota.isPending;
+  const itemsDevolucion = useMemo<ItemDevolucion[]>(
+    () =>
+      Object.entries(devolver)
+        .map(([id, quantity]) => ({ id: Number(id), quantity }))
+        .filter((it) => it.quantity > 0),
+    [devolver],
+  );
+
+  const totalDevolver = useMemo(() => {
+    const lineas = detalle.data?.items ?? [];
+    return Math.round(
+      lineas.reduce((acc, l) => acc + (devolver[l.id] ?? 0) * l.precioUnitario, 0) * 100,
+    ) / 100;
+  }, [detalle.data, devolver]);
+
+  const puedeEmitir =
+    motivo.trim().length >= 3 &&
+    !crearNota.isPending &&
+    (!esParcial || itemsDevolucion.length > 0);
+
+  function cambiarCantidad(lineId: number, max: number, delta: number) {
+    setDevolver((prev) => {
+      const actual = prev[lineId] ?? 0;
+      let siguiente = actual + delta;
+      if (siguiente < 0) {
+        siguiente = 0;
+      }
+      if (siguiente > max) {
+        siguiente = max;
+      }
+      siguiente = Math.round(siguiente * 1000) / 1000;
+      return { ...prev, [lineId]: siguiente };
+    });
+  }
 
   function emitir() {
     if (!puedeEmitir || enviando.current || crearNota.isPending) {
@@ -44,7 +86,12 @@ export default function NotaCreditoScreen() {
     }
     enviando.current = true;
     crearNota.mutate(
-      { documentId: idNum, tipo, motivo: motivo.trim() },
+      {
+        documentId: idNum,
+        tipo,
+        motivo: motivo.trim(),
+        items: esParcial ? itemsDevolucion : undefined,
+      },
       {
         onSuccess: (res) => {
           if (res.pdfUrl) {
@@ -118,6 +165,52 @@ export default function NotaCreditoScreen() {
             </Pressable>
           );
         })}
+
+        {esParcial ? (
+          <>
+            <Text style={styles.seccion}>Ítems a devolver</Text>
+            {detalle.isLoading ? (
+              <ActivityIndicator color={c.brand} style={styles.carga} />
+            ) : detalle.isError || (detalle.data?.items.length ?? 0) === 0 ? (
+              <Text style={styles.vacioItems}>No se pudieron cargar los ítems del comprobante.</Text>
+            ) : (
+              detalle.data?.items.map((l) => {
+                const cant = devolver[l.id] ?? 0;
+                return (
+                  <View key={l.id} style={styles.itemFila}>
+                    <View style={styles.itemInfo}>
+                      <Text style={styles.itemNombre} numberOfLines={2}>
+                        {l.descripcion}
+                      </Text>
+                      <Text style={styles.itemSub}>
+                        Vendido {l.cantidad} · {fmtMonto(l.precioUnitario, moneda)} c/u
+                      </Text>
+                    </View>
+                    <View style={styles.stepper}>
+                      <Pressable
+                        style={styles.stepBtn}
+                        onPress={() => cambiarCantidad(l.id, l.cantidad, -1)}
+                      >
+                        <Ionicons name="remove" size={18} color={c.text} />
+                      </Pressable>
+                      <Text style={styles.stepCant}>{cant}</Text>
+                      <Pressable
+                        style={styles.stepBtn}
+                        onPress={() => cambiarCantidad(l.id, l.cantidad, 1)}
+                      >
+                        <Ionicons name="add" size={18} color={c.text} />
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              })
+            )}
+            <View style={styles.totalDevolver}>
+              <Text style={styles.totalDevolverLabel}>Total a devolver</Text>
+              <Text style={styles.totalDevolverValor}>{fmtMonto(totalDevolver, moneda)}</Text>
+            </View>
+          </>
+        ) : null}
 
         <Text style={styles.seccion}>Motivo</Text>
         <TextInput
@@ -225,6 +318,43 @@ const crear = (c: Tema) =>
     opcionInfo: { flex: 1 },
     opcionTitulo: { fontSize: 15, fontWeight: '700', color: c.text },
     opcionDetalle: { fontSize: 12.5, color: c.muted, marginTop: 2 },
+    carga: { marginVertical: 16 },
+    vacioItems: { fontSize: 13.5, color: c.muted, paddingVertical: 10 },
+    itemFila: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 12,
+      backgroundColor: c.surface,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: radios.md,
+      padding: 14,
+    },
+    itemInfo: { flex: 1, marginRight: 8 },
+    itemNombre: { fontSize: 14, fontWeight: '600', color: c.text },
+    itemSub: { fontSize: 12.5, color: c.muted, marginTop: 2 },
+    stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    stepBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: c.surfaceAlt,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stepCant: { fontFamily: c.monoSemi, fontSize: 16, color: c.text, minWidth: 28, textAlign: 'center' },
+    totalDevolver: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: c.accentSoft,
+      borderRadius: radios.md,
+      padding: 16,
+      marginTop: 4,
+    },
+    totalDevolverLabel: { fontSize: 14, fontWeight: '700', color: c.accentText, textTransform: 'uppercase' },
+    totalDevolverValor: { fontFamily: c.monoSemi, fontSize: 22, color: c.accentText },
     input: {
       backgroundColor: c.surface,
       borderWidth: 1,
