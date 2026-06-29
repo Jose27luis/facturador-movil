@@ -5,7 +5,8 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { volver } from '@/shared/navegar';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { SelectorFecha } from '@/shared/ui/selector-fecha';
 import { PreviewResumen, ResumenEnviado } from '@/features/resumenes/resumenes.types';
@@ -14,8 +15,6 @@ import {
   useConsultarResumen,
   useEnviarResumen,
 } from '@/features/resumenes/use-resumenes';
-
-const c = paletaClara;
 
 function pad(n: number): string {
   return n < 10 ? `0${n}` : `${n}`;
@@ -39,6 +38,8 @@ function fechaLegible(iso: string): string {
 }
 
 export default function ResumenesScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const hoy = hoyISO();
@@ -242,7 +243,8 @@ export default function ResumenesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
   },
   fechaBtnOff: { backgroundColor: c.bg },
   fechaCentro: { alignItems: 'center', flex: 1 },
-  fechaValor: { fontFamily: fuentes.monoSemi, fontSize: 18, color: c.text },
+  fechaValor: { fontFamily: c.monoSemi, fontSize: 18, color: c.text },
   fechaHint: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   fechaHintText: { fontSize: 11.5, color: c.accent, fontWeight: '600' },
   consultar: {
@@ -308,8 +310,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: c.surfaceAlt,
   },
-  boletaNum: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
-  boletaTotal: { fontFamily: fuentes.monoSemi, fontSize: 13, color: c.text },
+  boletaNum: { fontFamily: c.mono, fontSize: 13, color: c.text },
+  boletaTotal: { fontFamily: c.monoSemi, fontSize: 13, color: c.text },
   boletaMas: { fontSize: 12.5, color: c.muted, marginTop: 4 },
   enviar: {
     backgroundColor: c.brand,
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
   okText: { fontSize: 15, fontWeight: '800', color: c.ok },
   dato: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 2 },
   datoEtiqueta: { fontSize: 14, color: c.muted },
-  datoValor: { fontFamily: fuentes.mono, fontSize: 13.5, color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
+  datoValor: { fontFamily: c.mono, fontSize: 13.5, color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
   anularLink: {
     flexDirection: 'row',
     alignItems: 'center',
