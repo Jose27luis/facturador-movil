@@ -4,9 +4,7 @@ import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,6 +13,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAlturaTeclado } from '@/shared/usar-teclado';
 
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
@@ -34,6 +33,7 @@ export default function CajaScreen() {
   const styles = useEstilos(crear);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const alturaTeclado = useAlturaTeclado();
   const { data, isLoading, isError, refetch } = useEstadoCaja();
   const abrir = useAbrirCaja();
   const cerrar = useCerrarCaja();
@@ -107,52 +107,50 @@ export default function CajaScreen() {
           insetsBottom={insets.bottom}
         />
       ) : (
-        <KeyboardAvoidingView
-          style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: alturaTeclado + 24 }]}
+          keyboardShouldPersistTaps="handled"
         >
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-            <View style={styles.cerrada}>
-              <Ionicons name="lock-closed-outline" size={40} color={c.faint} />
-              <Text style={styles.cerradaTitulo}>No tienes una caja abierta</Text>
-              <Text style={styles.cerradaSub}>
-                Abre la caja con el monto en efectivo con el que inicias el turno.
-              </Text>
-            </View>
+          <View style={styles.cerrada}>
+            <Ionicons name="lock-closed-outline" size={40} color={c.faint} />
+            <Text style={styles.cerradaTitulo}>No tienes una caja abierta</Text>
+            <Text style={styles.cerradaSub}>
+              Abre la caja con el monto en efectivo con el que inicias el turno.
+            </Text>
+          </View>
 
-            <Text style={styles.label}>Saldo inicial (S/)</Text>
-            <View style={styles.montoBox}>
-              <Text style={styles.montoSimbolo}>S/</Text>
-              <TextInput
-                style={styles.montoInput}
-                value={saldoInicial}
-                onChangeText={setSaldoInicial}
-                keyboardType="decimal-pad"
-                accessibilityLabel="Saldo inicial"
-              />
-            </View>
+          <Text style={styles.label}>Saldo inicial (S/)</Text>
+          <View style={styles.montoBox}>
+            <Text style={styles.montoSimbolo}>S/</Text>
+            <TextInput
+              style={styles.montoInput}
+              value={saldoInicial}
+              onChangeText={setSaldoInicial}
+              keyboardType="decimal-pad"
+              accessibilityLabel="Saldo inicial"
+            />
+          </View>
 
-            <Pressable
-              style={[styles.boton, abrir.isPending && styles.botonOff]}
-              onPress={onAbrir}
-              disabled={abrir.isPending}
-            >
-              {abrir.isPending ? (
-                <ActivityIndicator color={c.onBrand} />
-              ) : (
-                <Text style={styles.botonText}>Abrir caja</Text>
-              )}
-            </Pressable>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          <Pressable
+            style={[styles.boton, abrir.isPending && styles.botonOff]}
+            onPress={onAbrir}
+            disabled={abrir.isPending}
+          >
+            {abrir.isPending ? (
+              <ActivityIndicator color={c.onBrand} />
+            ) : (
+              <Text style={styles.botonText}>Abrir caja</Text>
+            )}
+          </Pressable>
+        </ScrollView>
       )}
 
       <Modal visible={cerrarOpen} transparent animationType="slide" onRequestClose={() => setCerrarOpen(false)}>
-        <KeyboardAvoidingView
-          style={styles.modalFondo}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <View style={[styles.modalHoja, { paddingBottom: insets.bottom + 16 }]}>
+        <Pressable style={styles.modalFondo} onPress={() => setCerrarOpen(false)}>
+          <Pressable
+            style={[styles.modalHoja, { paddingBottom: insets.bottom + 16, marginBottom: alturaTeclado }]}
+            onPress={() => undefined}
+          >
             <View style={styles.modalBarra} />
             <Text style={styles.modalTitulo}>Cerrar caja</Text>
             {data?.abierta ? (
@@ -193,8 +191,8 @@ export default function CajaScreen() {
                 )}
               </Pressable>
             </View>
-          </View>
-        </KeyboardAvoidingView>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {reporteVer && data?.abierta ? (
