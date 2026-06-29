@@ -20,6 +20,7 @@ import { useSession } from '@/core/auth/session';
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
+import { errorDocumento, soloDigitos } from '@/shared/validacion';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { usePrinter } from '@/core/printer/printer-store';
 import { imprimirTicket } from '@/core/printer/printer';
@@ -443,7 +444,12 @@ function ModalBuscarCliente({
   const consulta = useConsultarCliente();
 
   const numero = texto.trim();
-  const esDocumento = /^\d{8}$/.test(numero) || /^\d{11}$/.test(numero);
+  const digitos = soloDigitos(numero);
+  const pareceDocumento = numero.length > 0 && numero === digitos;
+  const longitudDocumento = digitos.length === 8 || digitos.length === 11;
+  const esDocumento = pareceDocumento && longitudDocumento;
+  const errorDoc = esDocumento ? errorDocumento(digitos) : null;
+  const documentoValido = esDocumento && errorDoc === null;
 
   function consultar(conNombre?: string) {
     consulta.mutate(
@@ -495,16 +501,22 @@ function ModalBuscarCliente({
 
         {esDocumento ? (
           <View style={styles.consultaCard}>
+            {errorDoc ? (
+              <View style={styles.docError}>
+                <Ionicons name="alert-circle-outline" size={18} color={c.danger} />
+                <Text style={styles.docErrorText}>{errorDoc}</Text>
+              </View>
+            ) : null}
             <Pressable
-              style={[styles.consultaBtn, consulta.isPending && styles.consultaBtnOff]}
+              style={[styles.consultaBtn, (consulta.isPending || !documentoValido) && styles.consultaBtnOff]}
               onPress={() => consultar()}
-              disabled={consulta.isPending}
+              disabled={consulta.isPending || !documentoValido}
             >
               {consulta.isPending ? (
                 <ActivityIndicator color={c.onBrand} />
               ) : (
                 <Text style={styles.consultaText}>
-                  Consultar {numero.length === 11 ? 'RUC' : 'DNI'} {numero}
+                  Consultar {digitos.length === 11 ? 'RUC' : 'DNI'} {digitos}
                 </Text>
               )}
             </Pressable>
@@ -850,6 +862,16 @@ const crear = (c: Tema) =>
   variosTitulo: { fontSize: 15, fontWeight: '700', color: c.text },
   variosSub: { fontSize: 12.5, color: c.muted, marginTop: 1 },
   consultaCard: { marginHorizontal: 20, marginTop: 12, gap: 10 },
+  docError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F9EEEE',
+    borderRadius: radios.sm,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  docErrorText: { flex: 1, fontSize: 13, color: c.danger, fontWeight: '600' },
   consultaBtn: {
     backgroundColor: c.brand,
     borderRadius: radios.md,
