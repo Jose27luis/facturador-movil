@@ -19,3 +19,18 @@ export interface PreviewResumen {
   cantidad: number;
   boletas: BoletaPendiente[];
 }
+
+export interface DocumentoAnulable {
+  id: number;
+  numero: string;
+  tipo: string;
+  tipoId: string;
+  cliente: string;
+  total: number;
+  moneda: string;
+}
+
+export interface AnulacionResultado {
+  tipo: string;
+  ticket: string;
+}
