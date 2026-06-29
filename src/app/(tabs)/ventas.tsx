@@ -13,13 +13,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
 import { Comprobante, tonoEstado } from '@/features/ventas/ventas.types';
 import { useComprobantes } from '@/features/ventas/use-ventas';
-
-const c = paletaClara;
 
 type Filtro = 'todos' | 'boletas' | 'facturas' | 'notas';
 
@@ -30,7 +29,7 @@ const FILTROS: { id: Filtro; etiqueta: string }[] = [
   { id: 'notas', etiqueta: 'Notas' },
 ];
 
-function tipoBadge(tipoId: string): { letra: string; bg: string; color: string } {
+function tipoBadge(tipoId: string, c: Tema): { letra: string; bg: string; color: string } {
   if (tipoId === '01') {
     return { letra: 'F', bg: '#E7EEF4', color: '#2A5E86' };
   }
@@ -57,6 +56,8 @@ function coincideFiltro(tipoId: string, filtro: Filtro): boolean {
 }
 
 export default function VentasScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const { data, isLoading, isError, refetch, isRefetching } = useComprobantes();
   const [texto, setTexto] = useState('');
@@ -152,7 +153,9 @@ export default function VentasScreen() {
 }
 
 function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
-  const badge = tipoBadge(item.tipoId);
+  const c = useTema();
+  const styles = useEstilos(crear);
+  const badge = tipoBadge(item.tipoId, c);
   return (
     <Pressable style={styles.fila} onPress={onPress}>
       <View style={[styles.badge, { backgroundColor: badge.bg }]}>
@@ -177,7 +180,8 @@ function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 6, gap: 11 },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.6 },
@@ -245,9 +249,9 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 14, fontWeight: '800' },
   filaInfo: { flex: 1, minWidth: 0 },
   filaTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  numero: { fontFamily: fuentes.mono, fontSize: 13, color: c.text },
+  numero: { fontFamily: c.mono, fontSize: 13, color: c.text },
   cliente: { fontSize: 13, color: '#6E665B', marginTop: 3 },
   filaDer: { alignItems: 'flex-end' },
-  monto: { fontFamily: fuentes.monoSemi, fontSize: 14, color: c.text },
+  monto: { fontFamily: c.monoSemi, fontSize: 14, color: c.text },
   fecha: { fontSize: 11.5, color: c.faint, marginTop: 2 },
 });
