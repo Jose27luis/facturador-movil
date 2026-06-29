@@ -4,10 +4,9 @@ import { ActivityIndicator, Modal, Platform, Pressable, StyleSheet, Text, View }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { enviarWhatsApp } from '@/shared/compartir';
-
-const c = paletaClara;
 
 type Formato = 'a4' | 'ticket';
 
@@ -27,6 +26,8 @@ interface Props {
 }
 
 export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const [formato, setFormato] = useState<Formato>('a4');
   const [cargando, setCargando] = useState(true);
   const url = formato === 'a4' ? a4Url : ticketUrl;
@@ -94,7 +95,8 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
