@@ -10,14 +10,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { Compra } from '@/features/compras/compras.types';
 import { useCompras } from '@/features/compras/use-compras';
 
-const c = paletaClara;
-
 export default function ComprasScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const [texto, setTexto] = useState('');
   const { data, isLoading, isError } = useCompras(texto);
 
@@ -72,6 +73,8 @@ export default function ComprasScreen() {
 }
 
 function Fila({ item }: { item: Compra }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <View style={styles.fila}>
       <View style={styles.thumb}>
@@ -91,7 +94,8 @@ function Fila({ item }: { item: Compra }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 8 },
   titulo: { fontSize: 26, fontWeight: '800', color: c.text, letterSpacing: -0.6 },
@@ -133,9 +137,9 @@ const styles = StyleSheet.create({
   },
   info: { flex: 1, minWidth: 0 },
   proveedor: { fontSize: 14, fontWeight: '600', color: c.text },
-  meta: { fontFamily: fuentes.mono, fontSize: 12, color: c.muted, marginTop: 3 },
+  meta: { fontFamily: c.mono, fontSize: 12, color: c.muted, marginTop: 3 },
   pago: { fontSize: 11.5, fontWeight: '700', marginTop: 3 },
-  monto: { fontFamily: fuentes.monoSemi, fontSize: 14, color: c.text },
+  monto: { fontFamily: c.monoSemi, fontSize: 14, color: c.text },
   nota: {
     flexDirection: 'row',
     gap: 9,
