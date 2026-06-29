@@ -41,12 +41,16 @@ import {
 
 type MedioPago = 'efectivo' | 'tarjeta' | 'yape' | 'transferencia';
 
-const MEDIOS: { id: MedioPago; etiqueta: string; icono: keyof typeof Ionicons.glyphMap }[] = [
-  { id: 'efectivo', etiqueta: 'Efectivo', icono: 'cash-outline' },
-  { id: 'tarjeta', etiqueta: 'Tarjeta', icono: 'card-outline' },
-  { id: 'yape', etiqueta: 'Yape/Plin', icono: 'phone-portrait-outline' },
-  { id: 'transferencia', etiqueta: 'Transfer.', icono: 'swap-horizontal-outline' },
+const MEDIOS: { id: MedioPago; etiqueta: string; icono: keyof typeof Ionicons.glyphMap; sunatId: string }[] = [
+  { id: 'efectivo', etiqueta: 'Efectivo', icono: 'cash-outline', sunatId: '01' },
+  { id: 'tarjeta', etiqueta: 'Tarjeta', icono: 'card-outline', sunatId: '02' },
+  { id: 'yape', etiqueta: 'Yape/Plin', icono: 'phone-portrait-outline', sunatId: '11' },
+  { id: 'transferencia', etiqueta: 'Transfer.', icono: 'swap-horizontal-outline', sunatId: '04' },
 ];
+
+function sunatIdMedio(medio: MedioPago): string {
+  return MEDIOS.find((m) => m.id === medio)?.sunatId ?? '01';
+}
 
 function aMonto(texto: string): number {
   const limpio = texto.replace(',', '.').replace(/[^0-9.]/g, '');
@@ -164,6 +168,7 @@ export default function EmitirScreen() {
             quantity: l.cantidad,
             ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
           })),
+          payment: { payment_method_type_id: sunatIdMedio(medioPago) },
         },
         esNotaVenta,
       },
