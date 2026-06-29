@@ -17,6 +17,12 @@ export interface ResumenDia {
   mediosPago: MedioPagoResumen[];
 }
 
+export interface ReportesCaja {
+  a4: string;
+  ticket: string;
+  productos: string;
+}
+
 export interface EstadoCaja {
   abierta: boolean;
   cashId: number;
@@ -29,6 +35,7 @@ export interface EstadoCaja {
   esperadoEfectivo: number;
   esperadoTotal: number;
   mediosPago: MedioPagoResumen[];
+  reportes: ReportesCaja;
 }
 
 export interface CierreCaja {
