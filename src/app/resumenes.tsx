@@ -218,6 +218,12 @@ export default function ResumenesScreen() {
             </Pressable>
           </View>
         ) : null}
+
+        <Pressable style={styles.anularLink} onPress={() => router.push('/anular')}>
+          <Ionicons name="close-circle-outline" size={20} color={c.danger} />
+          <Text style={styles.anularLinkText}>Anular comprobantes</Text>
+          <Ionicons name="chevron-forward" size={18} color={c.faint} />
+        </Pressable>
       </ScrollView>
 
       {calOpen ? (
@@ -318,4 +324,17 @@ const styles = StyleSheet.create({
   dato: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 2 },
   datoEtiqueta: { fontSize: 14, color: c.muted },
   datoValor: { fontFamily: fuentes.mono, fontSize: 13.5, color: c.text, flexShrink: 1, textAlign: 'right', marginLeft: 12 },
+  anularLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingHorizontal: 14,
+    paddingVertical: 15,
+    marginTop: 6,
+  },
+  anularLinkText: { flex: 1, fontSize: 15, fontWeight: '700', color: c.text },
 });
