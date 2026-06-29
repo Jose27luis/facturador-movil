@@ -1,7 +1,14 @@
 import { isAxiosError } from 'axios';
 
 import { api } from '@/core/api/client';
-import { BoletaPendiente, EstadoResumen, PreviewResumen, ResumenEnviado } from './resumenes.types';
+import {
+  AnulacionResultado,
+  BoletaPendiente,
+  DocumentoAnulable,
+  EstadoResumen,
+  PreviewResumen,
+  ResumenEnviado,
+} from './resumenes.types';
 
 function mensajeError(error: unknown, porDefecto: string): string {
   if (isAxiosError(error)) {
@@ -36,6 +43,58 @@ export async function consultarPreview(fecha: string): Promise<PreviewResumen> {
     return { fecha: d.date ?? fecha, cantidad: d.count ?? boletas.length, boletas };
   } catch (error) {
     throw new Error(mensajeError(error, 'No se pudieron consultar las boletas.'));
+  }
+}
+
+interface AnulablesResponse {
+  data?: {
+    documents?: {
+      id?: number;
+      number?: string;
+      document_type_id?: string;
+      document_type_description?: string;
+      customer_name?: string;
+      total?: number;
+      currency_type_id?: string;
+    }[];
+  };
+}
+
+export async function obtenerAnulables(fecha: string): Promise<DocumentoAnulable[]> {
+  try {
+    const { data } = await api.get<AnulablesResponse>(`/mobile/voidables/${fecha}`);
+    return (data.data?.documents ?? []).map((d) => ({
+      id: typeof d.id === 'number' ? d.id : 0,
+      numero: d.number ?? '',
+      tipo: d.document_type_description ?? '',
+      tipoId: d.document_type_id ?? '',
+      cliente: d.customer_name ?? '',
+      total: typeof d.total === 'number' ? d.total : 0,
+      moneda: d.currency_type_id ?? 'PEN',
+    }));
+  } catch (error) {
+    throw new Error(mensajeError(error, 'No se pudieron consultar los comprobantes.'));
+  }
+}
+
+interface AnularResponse {
+  success?: boolean;
+  message?: string;
+  data?: { tipo?: string; ticket?: string };
+}
+
+export async function anularDocumento(id: number, motivo: string): Promise<AnulacionResultado> {
+  try {
+    const { data } = await api.post<AnularResponse>('/mobile/anular', {
+      document_id: id,
+      motivo,
+    });
+    if (!data.success || !data.data) {
+      throw new Error(data.message || 'No se pudo anular el comprobante.');
+    }
+    return { tipo: data.data.tipo ?? 'Anulación', ticket: data.data.ticket ?? '' };
+  } catch (error) {
+    throw new Error(mensajeError(error, 'No se pudo anular el comprobante.'));
   }
 }
 
