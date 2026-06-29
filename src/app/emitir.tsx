@@ -75,12 +75,14 @@ export default function EmitirScreen() {
   const [lineas, setLineas] = useState<LineaCarrito[]>([]);
   const [modalCliente, setModalCliente] = useState(false);
   const [modalItem, setModalItem] = useState(false);
+  const [modalLibre, setModalLibre] = useState(false);
   const [resultado, setResultado] = useState<EmitirResultado | null>(null);
   const [cobrarOpen, setCobrarOpen] = useState(false);
   const [descuento, setDescuento] = useState('');
   const [recibido, setRecibido] = useState('');
   const [medioPago, setMedioPago] = useState<MedioPago>('efectivo');
   const enviando = useRef(false);
+  const idLibre = useRef(-1);
 
   const serieSel = useMemo<Serie | undefined>(() => {
     if (!series || series.length === 0) {
@@ -110,6 +112,22 @@ export default function EmitirScreen() {
       return [...prev, { item, cantidad: 1 }];
     });
     setModalItem(false);
+  }
+
+  function agregarItemLibre(nombre: string, precio: number, gravado: boolean) {
+    const item: ItemBusqueda = {
+      id: idLibre.current,
+      nombre,
+      descripcion: nombre,
+      precio,
+      moneda: 'PEN',
+      stock: 0,
+      afectacionId: gravado ? '10' : '20',
+      libre: true,
+    };
+    idLibre.current -= 1;
+    setLineas((prev) => [...prev, { item, cantidad: 1 }]);
+    setModalLibre(false);
   }
 
   function cambiarCantidad(itemId: number, delta: number) {
@@ -164,11 +182,21 @@ export default function EmitirScreen() {
           series_id: serieSel.id,
           customer_id: cliente?.id,
           currency_type_id: moneda,
-          items: lineas.map((l) => ({
-            item_id: l.item.id,
-            quantity: l.cantidad,
-            ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
-          })),
+          items: lineas.map((l) =>
+            l.item.libre
+              ? {
+                  libre: true,
+                  description: l.item.nombre,
+                  quantity: l.cantidad,
+                  unit_price: conDescuento ? precioFinal(l.item.precio) : l.item.precio,
+                  affectation_igv_type_id: l.item.afectacionId,
+                }
+              : {
+                  item_id: l.item.id,
+                  quantity: l.cantidad,
+                  ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
+                },
+          ),
           payment: { payment_method_type_id: sunatIdMedio(medioPago) },
         },
         esNotaVenta,
@@ -240,10 +268,16 @@ export default function EmitirScreen() {
 
         <View style={styles.seccionFila}>
           <Text style={styles.seccion}>Productos</Text>
-          <Pressable style={styles.agregar} onPress={() => setModalItem(true)}>
-            <Ionicons name="add" size={18} color={c.brand} />
-            <Text style={styles.agregarText}>Agregar</Text>
-          </Pressable>
+          <View style={styles.agregarAcciones}>
+            <Pressable style={styles.agregar} onPress={() => setModalLibre(true)}>
+              <Ionicons name="create-outline" size={17} color={c.brand} />
+              <Text style={styles.agregarText}>Libre</Text>
+            </Pressable>
+            <Pressable style={styles.agregar} onPress={() => setModalItem(true)}>
+              <Ionicons name="add" size={18} color={c.brand} />
+              <Text style={styles.agregarText}>Catálogo</Text>
+            </Pressable>
+          </View>
         </View>
 
         {lineas.length === 0 ? (
@@ -305,6 +339,11 @@ export default function EmitirScreen() {
         visible={modalItem}
         onCerrar={() => setModalItem(false)}
         onElegir={agregarItem}
+      />
+      <ModalItemLibre
+        visible={modalLibre}
+        onCerrar={() => setModalLibre(false)}
+        onAgregar={agregarItemLibre}
       />
       {resultado ? (
         <VisorPdf
@@ -617,6 +656,99 @@ function ModalBuscarItem({
   );
 }
 
+function ModalItemLibre({
+  visible,
+  onCerrar,
+  onAgregar,
+}: {
+  visible: boolean;
+  onCerrar: () => void;
+  onAgregar: (nombre: string, precio: number, gravado: boolean) => void;
+}) {
+  const c = useTema();
+  const styles = useEstilos(crear);
+  const [nombre, setNombre] = useState('');
+  const [precio, setPrecio] = useState('');
+  const [gravado, setGravado] = useState(true);
+
+  const precioNum = aMonto(precio);
+  const puede = nombre.trim() !== '' && precioNum > 0;
+
+  function confirmar() {
+    if (!puede) {
+      return;
+    }
+    onAgregar(nombre.trim(), precioNum, gravado);
+    setNombre('');
+    setPrecio('');
+    setGravado(true);
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onCerrar}>
+      <View style={styles.cobrarFondo}>
+        <View style={styles.libreHoja}>
+          <View style={styles.cobrarBarra} />
+          <Text style={styles.cobrarTitulo}>Ítem libre</Text>
+          <Text style={styles.libreAyuda}>
+            Vende algo que no está en el catálogo. No afecta el inventario.
+          </Text>
+
+          <Text style={styles.libreLabel}>Descripción</Text>
+          <TextInput
+            style={styles.libreInput}
+            value={nombre}
+            onChangeText={setNombre}
+            autoFocus
+            accessibilityLabel="Descripción del ítem"
+          />
+
+          <Text style={styles.libreLabel}>Precio (S/)</Text>
+          <View style={styles.descInputBox}>
+            <Text style={styles.descSimbolo}>S/</Text>
+            <TextInput
+              style={styles.descInput}
+              value={precio}
+              onChangeText={setPrecio}
+              keyboardType="decimal-pad"
+              accessibilityLabel="Precio del ítem"
+            />
+          </View>
+
+          <Text style={styles.libreLabel}>Afectación IGV</Text>
+          <View style={styles.medios}>
+            <Pressable
+              style={[styles.medio, gravado && styles.medioOn]}
+              onPress={() => setGravado(true)}
+            >
+              <Text style={[styles.medioText, gravado && styles.medioTextOn]}>Gravado · 18%</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.medio, !gravado && styles.medioOn]}
+              onPress={() => setGravado(false)}
+            >
+              <Text style={[styles.medioText, !gravado && styles.medioTextOn]}>Exonerado</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.cobrarAccionesLibre}>
+            <Pressable style={styles.cobrarCancelar} onPress={onCerrar}>
+              <Text style={styles.cobrarCancelarText}>Cancelar</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.cobrarEmitir, !puede && styles.emitirBtnOff]}
+              onPress={confirmar}
+              disabled={!puede}
+            >
+              <Text style={styles.cobrarEmitirText}>Agregar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 const crear = (c: Tema) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
@@ -662,8 +794,38 @@ const crear = (c: Tema) =>
   },
   selectorValor: { fontSize: 15, color: c.text, flex: 1, marginRight: 8 },
   selectorVacio: { fontSize: 15, color: c.faint, flex: 1, marginRight: 8 },
-  agregar: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  agregarAcciones: { flexDirection: 'row', gap: 16 },
+  agregar: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   agregarText: { fontSize: 14, fontWeight: '700', color: c.brand },
+  libreHoja: {
+    backgroundColor: c.bg,
+    borderTopLeftRadius: radios.xl,
+    borderTopRightRadius: radios.xl,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 28,
+    gap: 8,
+  },
+  libreAyuda: { fontSize: 13, color: c.muted, lineHeight: 18, marginBottom: 4 },
+  libreLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: c.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 6,
+  },
+  libreInput: {
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: '#E0D8C8',
+    borderRadius: radios.md,
+    paddingHorizontal: 14,
+    height: 50,
+    fontSize: 15,
+    color: c.text,
+  },
+  cobrarAccionesLibre: { flexDirection: 'row', gap: 10, marginTop: 14 },
   vacio: { fontSize: 14, color: c.faint, paddingVertical: 12 },
   linea: {
     flexDirection: 'row',
