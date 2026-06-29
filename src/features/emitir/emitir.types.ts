@@ -32,6 +32,7 @@ export interface EmitirPayload {
   customer_id?: number;
   currency_type_id: string;
   items: { item_id: number; quantity: number; unit_price?: number }[];
+  payment?: { payment_method_type_id: string };
 }
 
 export interface EmitirResultado {
