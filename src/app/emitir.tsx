@@ -40,6 +40,21 @@ import {
 
 const c = paletaClara;
 
+type MedioPago = 'efectivo' | 'tarjeta' | 'yape' | 'transferencia';
+
+const MEDIOS: { id: MedioPago; etiqueta: string; icono: keyof typeof Ionicons.glyphMap }[] = [
+  { id: 'efectivo', etiqueta: 'Efectivo', icono: 'cash-outline' },
+  { id: 'tarjeta', etiqueta: 'Tarjeta', icono: 'card-outline' },
+  { id: 'yape', etiqueta: 'Yape/Plin', icono: 'phone-portrait-outline' },
+  { id: 'transferencia', etiqueta: 'Transfer.', icono: 'swap-horizontal-outline' },
+];
+
+function aMonto(texto: string): number {
+  const limpio = texto.replace(',', '.').replace(/[^0-9.]/g, '');
+  const n = Number(limpio);
+  return Number.isNaN(n) ? 0 : n;
+}
+
 export default function EmitirScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -55,6 +70,10 @@ export default function EmitirScreen() {
   const [modalCliente, setModalCliente] = useState(false);
   const [modalItem, setModalItem] = useState(false);
   const [resultado, setResultado] = useState<EmitirResultado | null>(null);
+  const [cobrarOpen, setCobrarOpen] = useState(false);
+  const [descuento, setDescuento] = useState('');
+  const [recibido, setRecibido] = useState('');
+  const [medioPago, setMedioPago] = useState<MedioPago>('efectivo');
 
   const serieSel = useMemo<Serie | undefined>(() => {
     if (!series || series.length === 0) {
@@ -66,6 +85,12 @@ export default function EmitirScreen() {
 
   const total = lineas.reduce((acc, l) => acc + l.item.precio * l.cantidad, 0);
   const moneda = lineas[0]?.item.moneda ?? 'PEN';
+
+  const descuentoNum = Math.min(aMonto(descuento), total);
+  const totalPagar = Math.max(0, Math.round((total - descuentoNum) * 100) / 100);
+  const factor = total > 0 ? totalPagar / total : 1;
+  const recibidoNum = aMonto(recibido);
+  const vuelto = Math.round((recibidoNum - totalPagar) * 100) / 100;
 
   function agregarItem(item: ItemBusqueda) {
     setLineas((prev) => {
@@ -93,6 +118,8 @@ export default function EmitirScreen() {
       return;
     }
     const esNotaVenta = serieSel.tipoId === '80';
+    const conDescuento = descuentoNum > 0;
+    const precioFinal = (precio: number) => Math.round(precio * factor * 100) / 100;
 
     const imprimir = async (numero: string) => {
       if (!impresoraActiva || !autoImprimir || !serieSel) {
@@ -109,10 +136,10 @@ export default function EmitirScreen() {
           items: lineas.map((l) => ({
             nombre: l.item.nombre,
             cantidad: l.cantidad,
-            precio: l.item.precio,
-            total: l.item.precio * l.cantidad,
+            precio: precioFinal(l.item.precio),
+            total: precioFinal(l.item.precio) * l.cantidad,
           })),
-          total,
+          total: totalPagar,
           moneda,
         });
       } catch {
@@ -126,12 +153,17 @@ export default function EmitirScreen() {
           series_id: serieSel.id,
           customer_id: cliente?.id,
           currency_type_id: moneda,
-          items: lineas.map((l) => ({ item_id: l.item.id, quantity: l.cantidad })),
+          items: lineas.map((l) => ({
+            item_id: l.item.id,
+            quantity: l.cantidad,
+            ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
+          })),
         },
         esNotaVenta,
       },
       {
         onSuccess: (res) => {
+          setCobrarOpen(false);
           void imprimir(res.numero);
           if (res.pdfUrl) {
             setResultado(res);
@@ -148,7 +180,7 @@ export default function EmitirScreen() {
     );
   }
 
-  const puedeEmitir = !!serieSel && lineas.length > 0 && !emitir.isPending;
+  const puedeCobrar = !!serieSel && lineas.length > 0;
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -232,15 +264,12 @@ export default function EmitirScreen() {
           <Text style={styles.totalValor}>{fmtMonto(total, moneda)}</Text>
         </View>
         <Pressable
-          style={[styles.emitirBtn, !puedeEmitir && styles.emitirBtnOff]}
-          onPress={confirmarEmision}
-          disabled={!puedeEmitir}
+          style={[styles.emitirBtn, !puedeCobrar && styles.emitirBtnOff]}
+          onPress={() => setCobrarOpen(true)}
+          disabled={!puedeCobrar}
         >
-          {emitir.isPending ? (
-            <ActivityIndicator color={c.onBrand} />
-          ) : (
-            <Text style={styles.emitirText}>Emitir</Text>
-          )}
+          <Ionicons name="cash-outline" size={20} color={c.onBrand} />
+          <Text style={styles.emitirText}>Cobrar</Text>
         </Pressable>
       </View>
 
@@ -274,6 +303,106 @@ export default function EmitirScreen() {
           }}
         />
       ) : null}
+
+      <Modal visible={cobrarOpen} animationType="slide" transparent onRequestClose={() => setCobrarOpen(false)}>
+        <View style={styles.cobrarFondo}>
+          <View style={[styles.cobrarHoja, { paddingBottom: insets.bottom + 16 }]}>
+            <View style={styles.cobrarBarra} />
+            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.cobrarContent}>
+              <Text style={styles.cobrarTitulo}>Cobrar</Text>
+
+              <View style={styles.resumenFila}>
+                <Text style={styles.resumenLabel}>Subtotal</Text>
+                <Text style={styles.resumenValor}>{fmtMonto(total, moneda)}</Text>
+              </View>
+
+              <View style={styles.descFila}>
+                <Text style={styles.resumenLabel}>Descuento</Text>
+                <View style={styles.descInputBox}>
+                  <Text style={styles.descSimbolo}>S/</Text>
+                  <TextInput
+                    style={styles.descInput}
+                    value={descuento}
+                    onChangeText={setDescuento}
+                    keyboardType="decimal-pad"
+                    accessibilityLabel="Descuento"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.totalPagarCard}>
+                <Text style={styles.totalPagarLabel}>Total a pagar</Text>
+                <Text style={styles.totalPagarValor}>{fmtMonto(totalPagar, moneda)}</Text>
+              </View>
+
+              <Text style={styles.cobrarSeccion}>Medio de pago</Text>
+              <View style={styles.medios}>
+                {MEDIOS.map((m) => {
+                  const activo = medioPago === m.id;
+                  return (
+                    <Pressable
+                      key={m.id}
+                      style={[styles.medio, activo && styles.medioOn]}
+                      onPress={() => setMedioPago(m.id)}
+                    >
+                      <Ionicons name={m.icono} size={20} color={activo ? c.onBrand : c.text} />
+                      <Text style={[styles.medioText, activo && styles.medioTextOn]}>{m.etiqueta}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {medioPago === 'efectivo' ? (
+                <>
+                  <Text style={styles.cobrarSeccion}>Monto recibido</Text>
+                  <View style={styles.descInputBox}>
+                    <Text style={styles.descSimbolo}>S/</Text>
+                    <TextInput
+                      style={styles.descInput}
+                      value={recibido}
+                      onChangeText={setRecibido}
+                      keyboardType="decimal-pad"
+                      accessibilityLabel="Monto recibido"
+                    />
+                  </View>
+                  {recibidoNum > 0 ? (
+                    <View style={[styles.vueltoCard, vuelto < 0 && styles.vueltoFalta]}>
+                      <Text style={styles.vueltoLabel}>{vuelto < 0 ? 'Falta' : 'Vuelto'}</Text>
+                      <Text style={[styles.vueltoValor, vuelto < 0 && styles.vueltoValorFalta]}>
+                        {fmtMonto(Math.abs(vuelto), moneda)}
+                      </Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.rapidos}>
+                    {[totalPagar, 20, 50, 100].map((m, i) => (
+                      <Pressable key={i} style={styles.rapido} onPress={() => setRecibido(String(m))}>
+                        <Text style={styles.rapidoText}>{i === 0 ? 'Exacto' : `S/ ${m}`}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </>
+              ) : null}
+            </ScrollView>
+
+            <View style={styles.cobrarAcciones}>
+              <Pressable style={styles.cobrarCancelar} onPress={() => setCobrarOpen(false)}>
+                <Text style={styles.cobrarCancelarText}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.cobrarEmitir, emitir.isPending && styles.emitirBtnOff]}
+                onPress={confirmarEmision}
+                disabled={emitir.isPending}
+              >
+                {emitir.isPending ? (
+                  <ActivityIndicator color={c.onBrand} />
+                ) : (
+                  <Text style={styles.cobrarEmitirText}>Emitir {fmtMonto(totalPagar, moneda)}</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -539,13 +668,124 @@ const styles = StyleSheet.create({
   totalLabel: { fontSize: 15, color: c.muted, fontWeight: '600' },
   totalValor: { fontFamily: fuentes.monoSemi, fontSize: 24, color: c.text },
   emitirBtn: {
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: c.brand,
+    borderRadius: radios.md,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emitirBtnOff: { backgroundColor: c.faint },
+  emitirText: { color: c.onBrand, fontSize: 16, fontWeight: '700' },
+  cobrarFondo: { flex: 1, backgroundColor: 'rgba(33,29,23,0.45)', justifyContent: 'flex-end' },
+  cobrarHoja: {
+    backgroundColor: c.bg,
+    borderTopLeftRadius: radios.xl,
+    borderTopRightRadius: radios.xl,
+    maxHeight: '88%',
+  },
+  cobrarBarra: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: c.border,
+    alignSelf: 'center',
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  cobrarContent: { paddingHorizontal: 20, paddingTop: 8, gap: 12 },
+  cobrarTitulo: { fontSize: 22, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
+  resumenFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  resumenLabel: { fontSize: 15, color: c.muted, fontWeight: '600' },
+  resumenValor: { fontFamily: fuentes.monoSemi, fontSize: 16, color: c.text },
+  descFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  descInputBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: '#E0D8C8',
+    borderRadius: radios.md,
+    paddingHorizontal: 12,
+    height: 48,
+    minWidth: 130,
+  },
+  descSimbolo: { fontFamily: fuentes.mono, fontSize: 15, color: c.muted },
+  descInput: { flex: 1, fontFamily: fuentes.monoSemi, fontSize: 17, color: c.text, textAlign: 'right' },
+  totalPagarCard: {
+    backgroundColor: c.brand,
+    borderRadius: radios.lg,
+    padding: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  totalPagarLabel: { fontSize: 14, color: '#B8AF9C', fontWeight: '700', textTransform: 'uppercase' },
+  totalPagarValor: { fontFamily: fuentes.monoSemi, fontSize: 26, color: c.onBrand, letterSpacing: -0.5 },
+  cobrarSeccion: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: c.muted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginTop: 4,
+  },
+  medios: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  medio: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  medioOn: { backgroundColor: c.brand, borderColor: c.brand },
+  medioText: { fontSize: 13.5, fontWeight: '600', color: c.text },
+  medioTextOn: { color: c.onBrand },
+  vueltoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#E3EFE6',
+    borderRadius: radios.md,
+    padding: 16,
+  },
+  vueltoFalta: { backgroundColor: '#F3DDDD' },
+  vueltoLabel: { fontSize: 15, fontWeight: '700', color: c.ok, textTransform: 'uppercase' },
+  vueltoValor: { fontFamily: fuentes.monoSemi, fontSize: 24, color: c.ok },
+  vueltoValorFalta: { color: c.danger },
+  rapidos: { flexDirection: 'row', gap: 8 },
+  rapido: {
+    flex: 1,
+    backgroundColor: c.surfaceAlt,
+    borderRadius: radios.sm,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  rapidoText: { fontSize: 13, fontWeight: '700', color: c.text },
+  cobrarAcciones: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingTop: 12 },
+  cobrarCancelar: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  cobrarCancelarText: { color: c.text, fontSize: 15, fontWeight: '700' },
+  cobrarEmitir: {
+    flex: 1.6,
     backgroundColor: c.brand,
     borderRadius: radios.md,
     paddingVertical: 16,
     alignItems: 'center',
   },
-  emitirBtnOff: { backgroundColor: c.faint },
-  emitirText: { color: c.onBrand, fontSize: 16, fontWeight: '700' },
+  cobrarEmitirText: { color: c.onBrand, fontSize: 15, fontWeight: '700' },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
