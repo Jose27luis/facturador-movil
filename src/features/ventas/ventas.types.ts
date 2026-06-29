@@ -14,6 +14,8 @@ export interface Comprobante {
 }
 
 export interface LineaComprobante {
+  id: number;
+  itemId: number;
   descripcion: string;
   cantidad: number;
   precioUnitario: number;
