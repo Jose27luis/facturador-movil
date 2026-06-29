@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -105,43 +107,51 @@ export default function CajaScreen() {
           insetsBottom={insets.bottom}
         />
       ) : (
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.cerrada}>
-            <Ionicons name="lock-closed-outline" size={40} color={c.faint} />
-            <Text style={styles.cerradaTitulo}>No tienes una caja abierta</Text>
-            <Text style={styles.cerradaSub}>
-              Abre la caja con el monto en efectivo con el que inicias el turno.
-            </Text>
-          </View>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+            <View style={styles.cerrada}>
+              <Ionicons name="lock-closed-outline" size={40} color={c.faint} />
+              <Text style={styles.cerradaTitulo}>No tienes una caja abierta</Text>
+              <Text style={styles.cerradaSub}>
+                Abre la caja con el monto en efectivo con el que inicias el turno.
+              </Text>
+            </View>
 
-          <Text style={styles.label}>Saldo inicial (S/)</Text>
-          <View style={styles.montoBox}>
-            <Text style={styles.montoSimbolo}>S/</Text>
-            <TextInput
-              style={styles.montoInput}
-              value={saldoInicial}
-              onChangeText={setSaldoInicial}
-              keyboardType="decimal-pad"
-              accessibilityLabel="Saldo inicial"
-            />
-          </View>
+            <Text style={styles.label}>Saldo inicial (S/)</Text>
+            <View style={styles.montoBox}>
+              <Text style={styles.montoSimbolo}>S/</Text>
+              <TextInput
+                style={styles.montoInput}
+                value={saldoInicial}
+                onChangeText={setSaldoInicial}
+                keyboardType="decimal-pad"
+                accessibilityLabel="Saldo inicial"
+              />
+            </View>
 
-          <Pressable
-            style={[styles.boton, abrir.isPending && styles.botonOff]}
-            onPress={onAbrir}
-            disabled={abrir.isPending}
-          >
-            {abrir.isPending ? (
-              <ActivityIndicator color={c.onBrand} />
-            ) : (
-              <Text style={styles.botonText}>Abrir caja</Text>
-            )}
-          </Pressable>
-        </ScrollView>
+            <Pressable
+              style={[styles.boton, abrir.isPending && styles.botonOff]}
+              onPress={onAbrir}
+              disabled={abrir.isPending}
+            >
+              {abrir.isPending ? (
+                <ActivityIndicator color={c.onBrand} />
+              ) : (
+                <Text style={styles.botonText}>Abrir caja</Text>
+              )}
+            </Pressable>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
 
       <Modal visible={cerrarOpen} transparent animationType="slide" onRequestClose={() => setCerrarOpen(false)}>
-        <View style={styles.modalFondo}>
+        <KeyboardAvoidingView
+          style={styles.modalFondo}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <View style={[styles.modalHoja, { paddingBottom: insets.bottom + 16 }]}>
             <View style={styles.modalBarra} />
             <Text style={styles.modalTitulo}>Cerrar caja</Text>
@@ -184,7 +194,7 @@ export default function CajaScreen() {
               </Pressable>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {reporteVer && data?.abierta ? (
@@ -301,6 +311,7 @@ function Diferencia({ esperado, contado }: { esperado: number; contado: number }
 const crear = (c: Tema) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: c.bg },
+    flex: { flex: 1 },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
