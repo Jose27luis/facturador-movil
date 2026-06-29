@@ -5,7 +5,9 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -667,6 +669,7 @@ function ModalItemLibre({
 }) {
   const c = useTema();
   const styles = useEstilos(crear);
+  const insets = useSafeAreaInsets();
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [gravado, setGravado] = useState(true);
@@ -686,8 +689,16 @@ function ModalItemLibre({
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onCerrar}>
-      <View style={styles.cobrarFondo}>
-        <View style={styles.libreHoja}>
+      <KeyboardAvoidingView
+        style={styles.cobrarFondo}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.libreScroll}
+          keyboardShouldPersistTaps="handled"
+          bounces={false}
+        >
+        <View style={[styles.libreHoja, { paddingBottom: insets.bottom + 20 }]}>
           <View style={styles.cobrarBarra} />
           <Text style={styles.cobrarTitulo}>Ítem libre</Text>
           <Text style={styles.libreAyuda}>
@@ -744,7 +755,8 @@ function ModalItemLibre({
             </Pressable>
           </View>
         </View>
-      </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -797,13 +809,13 @@ const crear = (c: Tema) =>
   agregarAcciones: { flexDirection: 'row', gap: 16 },
   agregar: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   agregarText: { fontSize: 14, fontWeight: '700', color: c.brand },
+  libreScroll: { flexGrow: 1, justifyContent: 'flex-end' },
   libreHoja: {
     backgroundColor: c.bg,
     borderTopLeftRadius: radios.xl,
     borderTopRightRadius: radios.xl,
     paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 28,
     gap: 8,
   },
   libreAyuda: { fontSize: 13, color: c.muted, lineHeight: 18, marginBottom: 4 },
