@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { crearNotaCredito } from './notas.api';
-import { TipoNotaCredito } from './notas.types';
+import { ItemDevolucion, TipoNotaCredito } from './notas.types';
 
 export function useCrearNotaCredito() {
   const cliente = useQueryClient();
@@ -10,11 +10,13 @@ export function useCrearNotaCredito() {
       documentId,
       tipo,
       motivo,
+      items,
     }: {
       documentId: number;
       tipo: TipoNotaCredito;
       motivo: string;
-    }) => crearNotaCredito(documentId, tipo, motivo),
+      items?: ItemDevolucion[];
+    }) => crearNotaCredito(documentId, tipo, motivo, items),
     onSuccess: () => {
       void cliente.invalidateQueries({ queryKey: ['ventas', 'lista'] });
     },
