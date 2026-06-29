@@ -16,14 +16,13 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { volver } from '@/shared/navegar';
 
-import { paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import {
   useActualizarProducto,
   useCrearProducto,
   useDesactivarProducto,
 } from '@/features/productos/use-productos';
-
-const c = paletaClara;
 
 function aNumero(texto: string): number {
   const limpio = texto.replace(',', '.').replace(/[^0-9.]/g, '');
@@ -32,6 +31,8 @@ function aNumero(texto: string): number {
 }
 
 export default function ProductoFormScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ id?: string; nombre?: string; precio?: string }>();
@@ -43,10 +44,10 @@ export default function ProductoFormScreen() {
   const [stock, setStock] = useState('0');
   const [afectacion, setAfectacion] = useState<'10' | '20'>('10');
 
-  const crear = useCrearProducto();
+  const crearProd = useCrearProducto();
   const actualizar = useActualizarProducto();
   const desactivar = useDesactivarProducto();
-  const guardando = crear.isPending || actualizar.isPending || desactivar.isPending;
+  const guardando = crearProd.isPending || actualizar.isPending || desactivar.isPending;
 
   const puedeGuardar = nombre.trim() !== '' && aNumero(precio) > 0 && !guardando;
 
@@ -69,7 +70,7 @@ export default function ProductoFormScreen() {
         { onSuccess: ok, onError: fail },
       );
     } else {
-      crear.mutate(
+      crearProd.mutate(
         {
           description: nombre.trim(),
           sale_unit_price: aNumero(precio),
@@ -195,7 +196,8 @@ export default function ProductoFormScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   flex: { flex: 1 },
   header: {
