@@ -12,15 +12,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useSession } from '@/core/auth/session';
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMoneda, fmtNumero } from '@/shared/format';
 import { BarraDia } from '@/features/dashboard/dashboard.types';
 import { useDashboard } from '@/features/dashboard/use-dashboard';
 import { useOverview } from '@/features/dashboard/use-overview';
 
-const c = paletaClara;
-
 export default function InicioScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const usuario = useSession((s) => s.usuario);
   const cerrar = useSession((s) => s.cerrar);
@@ -132,6 +133,8 @@ export default function InicioScreen() {
 }
 
 function Grafico({ barras }: { barras: BarraDia[] }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const max = Math.max(1, ...barras.map((b) => b.valor));
   const conValor = barras.filter((b) => b.valor > 0).length;
   return (
@@ -163,6 +166,8 @@ function Grafico({ barras }: { barras: BarraDia[] }) {
 }
 
 function Conteo({ etiqueta, valor }: { etiqueta: string; valor: number }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <View style={styles.conteo}>
       <Text style={styles.conteoValor}>{fmtNumero(valor)}</Text>
@@ -180,6 +185,8 @@ function Acceso({
   texto: string;
   onPress: () => void;
 }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   return (
     <Pressable style={styles.acceso} onPress={onPress}>
       <Ionicons name={icono} size={22} color={c.text} />
@@ -188,7 +195,8 @@ function Acceso({
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   top: {
     paddingHorizontal: 20,
@@ -244,7 +252,7 @@ const styles = StyleSheet.create({
     padding: 14,
     alignItems: 'center',
   },
-  conteoValor: { fontFamily: fuentes.monoSemi, fontSize: 22, color: c.text },
+  conteoValor: { fontFamily: c.monoSemi, fontSize: 22, color: c.text },
   conteoLabel: { fontSize: 11.5, color: c.muted, fontWeight: '600', marginTop: 3 },
   content: { padding: 20, gap: 12 },
   estado: { paddingVertical: 40, alignItems: 'center' },
@@ -258,7 +266,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   heroMonto: {
-    fontFamily: fuentes.monoSemi,
+    fontFamily: c.monoSemi,
     fontSize: 34,
     color: c.onBrand,
     letterSpacing: -1,
@@ -280,7 +288,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  kpiValor: { fontFamily: fuentes.monoSemi, fontSize: 18, color: c.text, marginTop: 6 },
+  kpiValor: { fontFamily: c.monoSemi, fontSize: 18, color: c.text, marginTop: 6 },
   grafico: {
     backgroundColor: c.surface,
     borderRadius: radios.lg,
