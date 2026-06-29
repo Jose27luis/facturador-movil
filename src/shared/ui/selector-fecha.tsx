@@ -3,9 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
-
-const c = paletaClara;
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 
 const MESES = [
   'Enero',
@@ -41,6 +40,8 @@ interface Props {
 }
 
 export function SelectorFecha({ visible, valor, maxima, onCerrar, onElegir }: Props) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const [a, m, d] = valor.split('-').map(Number);
   const [anio, setAnio] = useState(a);
   const [mes, setMes] = useState(m - 1);
@@ -151,7 +152,8 @@ export function SelectorFecha({ visible, valor, maxima, onCerrar, onElegir }: Pr
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   fondo: {
     flex: 1,
     backgroundColor: 'rgba(33,29,23,0.45)',
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
   celda: { width: `${100 / 7}%`, aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   dia: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
   diaSel: { backgroundColor: c.brand },
-  diaText: { fontFamily: fuentes.mono, fontSize: 15, color: c.text },
+  diaText: { fontFamily: c.mono, fontSize: 15, color: c.text },
   diaTextSel: { color: c.onBrand, fontWeight: '700' },
   diaTextOff: { color: c.faint },
 });
