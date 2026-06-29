@@ -17,7 +17,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { volver } from '@/shared/navegar';
 
 import { useSession } from '@/core/auth/session';
-import { fuentes, paletaClara, radios } from '@/core/theme/tokens';
+import { radios } from '@/core/theme/tokens';
+import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { usePrinter } from '@/core/printer/printer-store';
@@ -38,8 +39,6 @@ import {
   useSeries,
 } from '@/features/emitir/use-emitir';
 
-const c = paletaClara;
-
 type MedioPago = 'efectivo' | 'tarjeta' | 'yape' | 'transferencia';
 
 const MEDIOS: { id: MedioPago; etiqueta: string; icono: keyof typeof Ionicons.glyphMap }[] = [
@@ -56,6 +55,8 @@ function aMonto(texto: string): number {
 }
 
 export default function EmitirScreen() {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const usuario = useSession((s) => s.usuario);
@@ -420,6 +421,8 @@ function ModalBuscarCliente({
   onElegir: (cl: ClienteBusqueda) => void;
   onVarios: () => void;
 }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const [texto, setTexto] = useState('');
   const [nombreManual, setNombreManual] = useState('');
   const [pedirNombre, setPedirNombre] = useState(false);
@@ -542,6 +545,8 @@ function ModalBuscarItem({
   onCerrar: () => void;
   onElegir: (item: ItemBusqueda) => void;
 }) {
+  const c = useTema();
+  const styles = useEstilos(crear);
   const [texto, setTexto] = useState('');
   const { data, isFetching } = useBuscarItems(texto);
 
@@ -587,7 +592,8 @@ function ModalBuscarItem({
   );
 }
 
-const styles = StyleSheet.create({
+const crear = (c: Tema) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: c.bg },
   header: {
     flexDirection: 'row',
@@ -656,7 +662,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepCant: { fontFamily: fuentes.monoSemi, fontSize: 16, color: c.text, minWidth: 20, textAlign: 'center' },
+  stepCant: { fontFamily: c.monoSemi, fontSize: 16, color: c.text, minWidth: 20, textAlign: 'center' },
   footer: {
     borderTopWidth: 1,
     borderTopColor: c.border,
@@ -666,7 +672,7 @@ const styles = StyleSheet.create({
   },
   totalFila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   totalLabel: { fontSize: 15, color: c.muted, fontWeight: '600' },
-  totalValor: { fontFamily: fuentes.monoSemi, fontSize: 24, color: c.text },
+  totalValor: { fontFamily: c.monoSemi, fontSize: 24, color: c.text },
   emitirBtn: {
     flexDirection: 'row',
     gap: 8,
@@ -698,7 +704,7 @@ const styles = StyleSheet.create({
   cobrarTitulo: { fontSize: 22, fontWeight: '800', color: c.text, letterSpacing: -0.4 },
   resumenFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   resumenLabel: { fontSize: 15, color: c.muted, fontWeight: '600' },
-  resumenValor: { fontFamily: fuentes.monoSemi, fontSize: 16, color: c.text },
+  resumenValor: { fontFamily: c.monoSemi, fontSize: 16, color: c.text },
   descFila: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   descInputBox: {
     flexDirection: 'row',
@@ -712,8 +718,8 @@ const styles = StyleSheet.create({
     height: 48,
     minWidth: 130,
   },
-  descSimbolo: { fontFamily: fuentes.mono, fontSize: 15, color: c.muted },
-  descInput: { flex: 1, fontFamily: fuentes.monoSemi, fontSize: 17, color: c.text, textAlign: 'right' },
+  descSimbolo: { fontFamily: c.mono, fontSize: 15, color: c.muted },
+  descInput: { flex: 1, fontFamily: c.monoSemi, fontSize: 17, color: c.text, textAlign: 'right' },
   totalPagarCard: {
     backgroundColor: c.brand,
     borderRadius: radios.lg,
@@ -723,7 +729,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   totalPagarLabel: { fontSize: 14, color: '#B8AF9C', fontWeight: '700', textTransform: 'uppercase' },
-  totalPagarValor: { fontFamily: fuentes.monoSemi, fontSize: 26, color: c.onBrand, letterSpacing: -0.5 },
+  totalPagarValor: { fontFamily: c.monoSemi, fontSize: 26, color: c.onBrand, letterSpacing: -0.5 },
   cobrarSeccion: {
     fontSize: 13,
     fontWeight: '700',
@@ -757,7 +763,7 @@ const styles = StyleSheet.create({
   },
   vueltoFalta: { backgroundColor: '#F3DDDD' },
   vueltoLabel: { fontSize: 15, fontWeight: '700', color: c.ok, textTransform: 'uppercase' },
-  vueltoValor: { fontFamily: fuentes.monoSemi, fontSize: 24, color: c.ok },
+  vueltoValor: { fontFamily: c.monoSemi, fontSize: 24, color: c.ok },
   vueltoValorFalta: { color: c.danger },
   rapidos: { flexDirection: 'row', gap: 8 },
   rapido: {
