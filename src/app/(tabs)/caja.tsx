@@ -20,12 +20,19 @@ import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMoneda } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { EstadoCaja, MedioPagoResumen } from '@/features/caja/caja.types';
-import { useAbrirCaja, useCerrarCaja, useEstadoCaja } from '@/features/caja/use-caja';
+import { useAbrirCaja, useCerrarCaja, useEstadoCaja, useResumenDia } from '@/features/caja/use-caja';
 
 function aMonto(texto: string): number {
   const limpio = texto.replace(',', '.').replace(/[^0-9.]/g, '');
   const n = Number(limpio);
   return Number.isNaN(n) ? 0 : n;
+}
+
+function fechaHoy(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 export default function CajaScreen() {
@@ -35,6 +42,7 @@ export default function CajaScreen() {
   const insets = useSafeAreaInsets();
   const alturaTeclado = useAlturaTeclado();
   const { data, isLoading, isError, refetch } = useEstadoCaja();
+  const ventaDia = useResumenDia(fechaHoy()).data?.total ?? 0;
   const abrir = useAbrirCaja();
   const cerrar = useCerrarCaja();
 
@@ -102,6 +110,7 @@ export default function CajaScreen() {
       ) : data?.abierta ? (
         <CajaAbierta
           estado={data}
+          ventaDia={ventaDia}
           onCerrar={() => setCerrarOpen(true)}
           onReporte={setReporteVer}
           insetsBottom={insets.bottom}
@@ -210,11 +219,13 @@ export default function CajaScreen() {
 
 function CajaAbierta({
   estado,
+  ventaDia,
   onCerrar,
   onReporte,
   insetsBottom,
 }: {
   estado: EstadoCaja;
+  ventaDia: number;
   onCerrar: () => void;
   onReporte: (tipo: 'caja' | 'productos') => void;
   insetsBottom: number;
@@ -239,8 +250,8 @@ function CajaAbierta({
 
         <View style={styles.fila}>
           <View style={styles.kpi}>
-            <Text style={styles.kpiValor}>{fmtMoneda(estado.ventas)}</Text>
-            <Text style={styles.kpiLabel}>Ventas del turno</Text>
+            <Text style={styles.kpiValor}>{fmtMoneda(ventaDia)}</Text>
+            <Text style={styles.kpiLabel}>Ventas del día</Text>
           </View>
           <View style={styles.kpi}>
             <Text style={styles.kpiValor}>{estado.comprobantes}</Text>
