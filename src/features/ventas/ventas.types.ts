@@ -11,6 +11,7 @@ export interface Comprobante {
   tipoId: string;
   tipo: string;
   esNotaVenta: boolean;
+  pagoEtiqueta: string;
 }
 
 export interface LineaComprobante {
