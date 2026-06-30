@@ -117,11 +117,6 @@ export default function InicioScreen() {
         <View style={styles.accesos}>
           <Acceso icono="add" texto="Nueva venta" onPress={() => router.push('/emitir')} />
           <Acceso
-            icono="cart-outline"
-            texto="Compras"
-            onPress={() => router.push('/(tabs)/compras')}
-          />
-          <Acceso
             icono="cube-outline"
             texto="Productos"
             onPress={() => router.push('/(tabs)/productos')}
