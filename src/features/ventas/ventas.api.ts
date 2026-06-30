@@ -40,6 +40,7 @@ function mapComprobante(fila: Fila): Comprobante {
     tipoId: leerTexto(fila, 'document_type_id'),
     tipo: leerTexto(fila, 'document_type_description'),
     esNotaVenta: Boolean(fila.es_nota_venta),
+    pagoEtiqueta: leerTexto(fila, 'payment_label'),
   };
 }
 
