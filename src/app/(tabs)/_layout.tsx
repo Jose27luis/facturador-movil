@@ -17,39 +17,39 @@ interface BarraProps {
 const meta: Record<string, { icono: keyof typeof Ionicons.glyphMap; titulo: string; ruta: string }> = {
   index: { icono: 'home-outline', titulo: 'Inicio', ruta: '/(tabs)' },
   ventas: { icono: 'receipt-outline', titulo: 'Ventas', ruta: '/(tabs)/ventas' },
-  compras: { icono: 'cart-outline', titulo: 'Compras', ruta: '/(tabs)/compras' },
   productos: { icono: 'cube-outline', titulo: 'Productos', ruta: '/(tabs)/productos' },
   caja: { icono: 'cash-outline', titulo: 'Caja', ruta: '/(tabs)/caja' },
 };
+
+const VISIBLES = ['index', 'ventas', 'productos', 'caja'];
 
 function BarraTabs({ state }: BarraProps) {
   const router = useRouter();
   const c = useTema();
   const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
-  const rutas = state.routes;
+  const activa = state.routes[state.index]?.name;
 
-  function boton(ruta: RutaTab, index: number) {
-    const activo = state.index === index;
-    const color = activo ? c.brand : c.faint;
-    const info = meta[ruta.name];
+  function boton(nombre: string) {
+    const info = meta[nombre];
+    const color = activa === nombre ? c.brand : c.faint;
     return (
-      <Pressable key={ruta.key} style={styles.tab} onPress={() => router.navigate(info.ruta as never)}>
-        <Ionicons name={info?.icono ?? 'ellipse-outline'} size={23} color={color} />
-        <Text style={[styles.tabText, { color }]}>{info?.titulo ?? ruta.name}</Text>
+      <Pressable key={nombre} style={styles.tab} onPress={() => router.navigate(info.ruta as never)}>
+        <Ionicons name={info.icono} size={23} color={color} />
+        <Text style={[styles.tabText, { color }]}>{info.titulo}</Text>
       </Pressable>
     );
   }
 
   return (
     <View style={[styles.barra, { paddingBottom: insets.bottom + 9 }]}>
-      {rutas.slice(0, 2).map((r, i) => boton(r, i))}
+      {VISIBLES.slice(0, 2).map(boton)}
       <View style={styles.centro}>
         <Pressable style={styles.fab} onPress={() => router.push('/emitir')} accessibilityLabel="Nueva venta">
           <Ionicons name="add" size={26} color={c.onBrand} />
         </Pressable>
       </View>
-      {rutas.slice(2).map((r, i) => boton(r, i + 2))}
+      {VISIBLES.slice(2).map(boton)}
     </View>
   );
 }
