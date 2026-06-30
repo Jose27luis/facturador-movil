@@ -42,7 +42,10 @@ export default function CajaScreen() {
   const insets = useSafeAreaInsets();
   const alturaTeclado = useAlturaTeclado();
   const { data, isLoading, isError, refetch } = useEstadoCaja();
-  const ventaDia = useResumenDia(fechaHoy()).data?.total ?? 0;
+  const resumenDia = useResumenDia(fechaHoy()).data;
+  const ventaDia = resumenDia?.total ?? 0;
+  const mediosDia = resumenDia?.mediosPago ?? [];
+  const comprobantesDia = resumenDia?.comprobantes ?? 0;
   const abrir = useAbrirCaja();
   const cerrar = useCerrarCaja();
 
@@ -111,6 +114,8 @@ export default function CajaScreen() {
         <CajaAbierta
           estado={data}
           ventaDia={ventaDia}
+          mediosDia={mediosDia}
+          comprobantesDia={comprobantesDia}
           onCerrar={() => setCerrarOpen(true)}
           onReporte={setReporteVer}
           insetsBottom={insets.bottom}
@@ -220,18 +225,23 @@ export default function CajaScreen() {
 function CajaAbierta({
   estado,
   ventaDia,
+  mediosDia,
+  comprobantesDia,
   onCerrar,
   onReporte,
   insetsBottom,
 }: {
   estado: EstadoCaja;
   ventaDia: number;
+  mediosDia: MedioPagoResumen[];
+  comprobantesDia: number;
   onCerrar: () => void;
   onReporte: (tipo: 'caja' | 'productos') => void;
   insetsBottom: number;
 }) {
   const c = useTema();
   const styles = useEstilos(crear);
+  const efectivoDia = mediosDia.find((m) => m.id === '01')?.total ?? 0;
   return (
     <>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insetsBottom + 90 }]}>
@@ -241,8 +251,8 @@ function CajaAbierta({
         </View>
 
         <View style={styles.hero}>
-          <Text style={styles.heroLabel}>Esperado en efectivo</Text>
-          <Text style={styles.heroMonto}>{fmtMoneda(estado.esperadoEfectivo)}</Text>
+          <Text style={styles.heroLabel}>Total en caja</Text>
+          <Text style={styles.heroMonto}>{fmtMoneda(ventaDia)}</Text>
           <Text style={styles.heroSub}>
             Saldo inicial {fmtMoneda(estado.saldoInicial)} · desde {estado.horaApertura?.slice(0, 5)}
           </Text>
@@ -250,26 +260,26 @@ function CajaAbierta({
 
         <View style={styles.fila}>
           <View style={styles.kpi}>
-            <Text style={styles.kpiValor}>{fmtMoneda(ventaDia)}</Text>
-            <Text style={styles.kpiLabel}>Ventas del día</Text>
+            <Text style={styles.kpiValor}>{fmtMoneda(efectivoDia)}</Text>
+            <Text style={styles.kpiLabel}>En efectivo</Text>
           </View>
           <View style={styles.kpi}>
-            <Text style={styles.kpiValor}>{estado.comprobantes}</Text>
+            <Text style={styles.kpiValor}>{comprobantesDia}</Text>
             <Text style={styles.kpiLabel}>Comprobantes</Text>
           </View>
         </View>
 
         <Text style={styles.seccion}>Por medio de pago</Text>
-        {estado.mediosPago.length === 0 ? (
+        {mediosDia.length === 0 ? (
           <View style={styles.card}>
-            <Text style={styles.vacio}>Aún no hay ventas en este turno.</Text>
+            <Text style={styles.vacio}>Aún no hay ventas hoy.</Text>
           </View>
         ) : (
           <View style={styles.card}>
-            {estado.mediosPago.map((m: MedioPagoResumen, i) => (
+            {mediosDia.map((m: MedioPagoResumen, i) => (
               <View
                 key={m.id}
-                style={[styles.medioFila, i < estado.mediosPago.length - 1 && styles.medioBorde]}
+                style={[styles.medioFila, i < mediosDia.length - 1 && styles.medioBorde]}
               >
                 <Text style={styles.medioNombre}>{m.descripcion}</Text>
                 <Text style={styles.medioTotal}>{fmtMoneda(m.total)}</Text>
