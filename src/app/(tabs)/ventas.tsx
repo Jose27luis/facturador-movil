@@ -164,6 +164,11 @@ function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
       <View style={styles.filaInfo}>
         <View style={styles.filaTop}>
           <Text style={styles.numero}>{item.numero}</Text>
+          {item.pagoEtiqueta ? (
+            <View style={styles.pago}>
+              <Text style={styles.pagoText}>{item.pagoEtiqueta}</Text>
+            </View>
+          ) : null}
           {item.estado ? (
             <BadgeEstado tono={tonoEstado(item.estadoId)} etiqueta={item.estado} />
           ) : null}
@@ -250,6 +255,8 @@ const crear = (c: Tema) =>
   filaInfo: { flex: 1, minWidth: 0 },
   filaTop: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   numero: { fontFamily: c.mono, fontSize: 13, color: c.text },
+  pago: { backgroundColor: '#EFE3F5', borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
+  pagoText: { fontSize: 10, fontWeight: '700', color: '#7A2E86', textTransform: 'lowercase' },
   cliente: { fontSize: 13, color: '#6E665B', marginTop: 3 },
   filaDer: { alignItems: 'flex-end' },
   monto: { fontFamily: c.monoSemi, fontSize: 14, color: c.text },
