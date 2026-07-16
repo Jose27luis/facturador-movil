@@ -1,4 +1,4 @@
 export const env = {
-  baseDomain: 'insoft.cloud',
+  baseDomain: 'factix.cloud',
   requestTimeout: 20000,
 };
