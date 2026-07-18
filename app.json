@@ -54,15 +54,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "68f63d88-e222-44f5-8684-2e9fe0a8f8d5"
+        "projectId": "93745dce-44f7-49b2-a84d-84725943b7d6"
       }
     },
     "owner": "jose_teco",
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "fingerprint"
     },
     "updates": {
-      "url": "https://u.expo.dev/68f63d88-e222-44f5-8684-2e9fe0a8f8d5"
+      "url": "https://u.expo.dev/93745dce-44f7-49b2-a84d-84725943b7d6"
     }
   }
 }
