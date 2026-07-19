@@ -6,16 +6,14 @@ import { volver } from '@/shared/navegar';
 
 import { useState } from 'react';
 
-import { useSession } from '@/core/auth/session';
 import { radios } from '@/core/theme/tokens';
 import { Tema, useEstilos, useTema } from '@/core/theme/use-tema';
 import { fmtMonto } from '@/shared/format';
 import { VisorPdf } from '@/shared/ui/visor-pdf';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
-import { usePrinter } from '@/core/printer/printer-store';
-import { imprimirTicket } from '@/core/printer/printer';
-import { ComprobanteDetalle, LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
+import { LineaComprobante, tonoEstado } from '@/features/ventas/ventas.types';
 import { useComprobante, useComprobanteDetalle, useReenviar } from '@/features/ventas/use-ventas';
+import { useReimprimir } from '@/features/ventas/use-reimprimir';
 
 const ESTADOS_REENVIABLES = ['01', '03', '09'];
 
@@ -28,9 +26,8 @@ export default function ComprobanteScreen() {
   const idNum = Number(id);
   const esNotaVenta = nv === '1';
   const [verPdf, setVerPdf] = useState(false);
-  const [imprimiendo, setImprimiendo] = useState(false);
-  const usuario = useSession((s) => s.usuario);
-  const impresoraActiva = usePrinter((s) => s.activa);
+  const { reimprimir, impresoraActiva, estaImprimiendo } = useReimprimir();
+  const imprimiendo = estaImprimiendo(idNum, esNotaVenta);
   const reenvio = useReenviar();
   const { data: base } = useComprobante(idNum, esNotaVenta);
   const { data: detalle, isLoading, isError } = useComprobanteDetalle(idNum, esNotaVenta);
@@ -54,32 +51,11 @@ export default function ComprobanteScreen() {
     );
   }
 
-  async function reimprimir(d: ComprobanteDetalle) {
-    if (!impresoraActiva || imprimiendo) {
-      return;
-    }
-    setImprimiendo(true);
+  async function alReimprimir() {
     try {
-      await imprimirTicket(impresoraActiva, {
-        empresa: usuario?.nombre || 'Amantix',
-        ruc: usuario?.ruc,
-        tipo: d.tipo,
-        numero: d.numero,
-        fecha: d.fecha,
-        cliente: d.cliente || 'Cliente varios',
-        items: d.items.map((it) => ({
-          nombre: it.descripcion,
-          cantidad: it.cantidad,
-          precio: it.precioUnitario,
-          total: it.total,
-        })),
-        total: d.total,
-        moneda: d.moneda,
-      });
+      await reimprimir(idNum, esNotaVenta);
     } catch (err) {
       Alert.alert('No se pudo imprimir', err instanceof Error ? err.message : 'Revisa la impresora.');
-    } finally {
-      setImprimiendo(false);
     }
   }
 
@@ -185,7 +161,7 @@ export default function ComprobanteScreen() {
         {detalle && impresoraActiva && detalle.items.length > 0 ? (
           <Pressable
             style={[styles.reimprimir, imprimiendo && styles.reimprimirOff]}
-            onPress={() => void reimprimir(detalle)}
+            onPress={() => void alReimprimir()}
             disabled={imprimiendo}
           >
             {imprimiendo ? (

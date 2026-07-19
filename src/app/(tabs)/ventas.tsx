@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -19,6 +20,7 @@ import { fmtMonto } from '@/shared/format';
 import { BadgeEstado } from '@/shared/ui/badge-estado';
 import { Comprobante, tonoEstado } from '@/features/ventas/ventas.types';
 import { useComprobantes } from '@/features/ventas/use-ventas';
+import { useReimprimir } from '@/features/ventas/use-reimprimir';
 
 type Filtro = 'todos' | 'boletas' | 'facturas' | 'notas';
 
@@ -62,6 +64,18 @@ export default function VentasScreen() {
   const { data, isLoading, isError, refetch, isRefetching } = useComprobantes();
   const [texto, setTexto] = useState('');
   const [filtro, setFiltro] = useState<Filtro>('todos');
+  const { reimprimir, impresoraActiva, enCurso, estaImprimiendo } = useReimprimir();
+
+  async function alReimprimir(item: Comprobante) {
+    if (enCurso !== null) {
+      return;
+    }
+    try {
+      await reimprimir(item.id, item.esNotaVenta);
+    } catch (err) {
+      Alert.alert('No se pudo imprimir', err instanceof Error ? err.message : 'Revisa la impresora.');
+    }
+  }
 
   const lista = useMemo(() => {
     const t = texto.trim().toLowerCase();
@@ -138,6 +152,9 @@ export default function VentasScreen() {
           renderItem={({ item }) => (
             <Fila
               item={item}
+              mostrarImprimir={impresoraActiva !== null}
+              imprimiendo={estaImprimiendo(item.id, item.esNotaVenta)}
+              onImprimir={() => void alReimprimir(item)}
               onPress={() =>
                 router.push({
                   pathname: '/comprobante/[id]',
@@ -152,7 +169,19 @@ export default function VentasScreen() {
   );
 }
 
-function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
+function Fila({
+  item,
+  mostrarImprimir,
+  imprimiendo,
+  onImprimir,
+  onPress,
+}: {
+  item: Comprobante;
+  mostrarImprimir: boolean;
+  imprimiendo: boolean;
+  onImprimir: () => void;
+  onPress: () => void;
+}) {
   const c = useTema();
   const styles = useEstilos(crear);
   const badge = tipoBadge(item.tipoId, c);
@@ -181,6 +210,21 @@ function Fila({ item, onPress }: { item: Comprobante; onPress: () => void }) {
         <Text style={styles.monto}>{fmtMonto(item.total, item.moneda)}</Text>
         <Text style={styles.fecha}>{item.fecha}</Text>
       </View>
+      {mostrarImprimir ? (
+        <Pressable
+          style={styles.imprimir}
+          onPress={onImprimir}
+          disabled={imprimiendo}
+          hitSlop={8}
+          accessibilityLabel={`Reimprimir ${item.numero}`}
+        >
+          {imprimiendo ? (
+            <ActivityIndicator size="small" color={c.brand} />
+          ) : (
+            <Ionicons name="print-outline" size={19} color={c.muted} />
+          )}
+        </Pressable>
+      ) : null}
     </Pressable>
   );
 }
@@ -261,4 +305,14 @@ const crear = (c: Tema) =>
   filaDer: { alignItems: 'flex-end' },
   monto: { fontFamily: c.monoSemi, fontSize: 14, color: c.text },
   fecha: { fontSize: 11.5, color: c.faint, marginTop: 2 },
+  imprimir: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: c.border,
+    backgroundColor: c.surfaceAlt,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
