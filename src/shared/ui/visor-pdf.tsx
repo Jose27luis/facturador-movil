@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import {
   ActivityIndicator,
+  Alert,
   Modal,
   Platform,
   Pressable,
@@ -40,12 +41,30 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
   const [formato, setFormato] = useState<Formato>('a4');
   const [cargando, setCargando] = useState(true);
   const [telefono, setTelefono] = useState('');
+  const [compartiendo, setCompartiendo] = useState(false);
   const url = formato === 'a4' ? a4Url : ticketUrl;
 
   function cambiar(f: Formato) {
     if (f !== formato) {
       setCargando(true);
       setFormato(f);
+    }
+  }
+
+  async function compartir() {
+    if (compartiendo) {
+      return;
+    }
+    setCompartiendo(true);
+    try {
+      await compartirPdf(url, `Comprobante ${numero}`);
+    } catch (err) {
+      Alert.alert(
+        'No se pudo compartir',
+        err instanceof Error ? err.message : 'No se pudo preparar el PDF.',
+      );
+    } finally {
+      setCompartiendo(false);
     }
   }
 
@@ -110,15 +129,22 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
           >
             <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" />
             <Text style={styles.whatsappText}>
-              {telefono.trim() ? 'Enviar al número' : 'Enviar por WhatsApp'}
+              {telefono.trim() ? 'Enviar enlace al número' : 'Enviar enlace por WhatsApp'}
             </Text>
           </Pressable>
           <Pressable
-            style={styles.compartir}
-            onPress={() => void compartirPdf(url, `Comprobante ${numero}`)}
+            style={[styles.compartir, compartiendo && styles.compartirOff]}
+            onPress={() => void compartir()}
+            disabled={compartiendo}
           >
-            <Ionicons name="share-social-outline" size={20} color={c.text} />
-            <Text style={styles.compartirText}>Compartir por otro medio</Text>
+            {compartiendo ? (
+              <ActivityIndicator color={c.text} />
+            ) : (
+              <>
+                <Ionicons name="document-attach-outline" size={20} color={c.text} />
+                <Text style={styles.compartirText}>Compartir PDF</Text>
+              </>
+            )}
           </Pressable>
         </View>
       </SafeAreaView>
@@ -202,5 +228,6 @@ const crear = (c: Tema) =>
     borderRadius: radios.md,
     paddingVertical: 14,
   },
+  compartirOff: { opacity: 0.6 },
   compartirText: { color: c.text, fontSize: 15, fontWeight: '700' },
 });
