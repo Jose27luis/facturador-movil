@@ -1,10 +1,12 @@
 import { api } from '@/core/api/client';
 import {
   ClienteBusqueda,
+  ConfiguracionEmision,
   EmitirPayload,
   EmitirResultado,
   ItemBusqueda,
   Serie,
+  esAfectacionValida,
 } from './emitir.types';
 
 type Fila = Record<string, unknown>;
@@ -50,6 +52,16 @@ export async function obtenerSeries(): Promise<Serie[]> {
   const documentos = mapSeries(docs.data).filter((s) => s.tipoId === '01' || s.tipoId === '03');
   const notas = mapSeries(nvs.data).filter((s) => s.tipoId === '80');
   return [...documentos, ...notas];
+}
+
+interface ConfiguracionResponse {
+  data?: Fila;
+}
+
+export async function obtenerConfiguracion(): Promise<ConfiguracionEmision> {
+  const { data } = await api.get<ConfiguracionResponse>('/configuration-web');
+  const afectacion = texto(data.data ?? {}, 'affectation_igv_type_id');
+  return { afectacionPorDefecto: esAfectacionValida(afectacion) ? afectacion : '10' };
 }
 
 export type ResultadoLookup =

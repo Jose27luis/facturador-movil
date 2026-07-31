@@ -5,6 +5,7 @@ import {
   buscarItems,
   consultarCliente,
   emitirDocumento,
+  obtenerConfiguracion,
   obtenerSeries,
 } from './emitir.api';
 import { EmitirPayload } from './emitir.types';
@@ -14,6 +15,14 @@ export function useSeries() {
     queryKey: ['emitir', 'series'],
     queryFn: obtenerSeries,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useConfiguracionEmision() {
+  return useQuery({
+    queryKey: ['emitir', 'configuracion'],
+    queryFn: obtenerConfiguracion,
+    staleTime: 10 * 60 * 1000,
   });
 }
 

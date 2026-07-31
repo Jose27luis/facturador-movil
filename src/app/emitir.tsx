@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import {
@@ -27,6 +27,7 @@ import { usePrinter } from '@/core/printer/printer-store';
 import { imprimirTicket } from '@/core/printer/printer';
 import { EmitirResultado } from '@/features/emitir/emitir.types';
 import {
+  AFECTACIONES,
   ClienteBusqueda,
   ItemBusqueda,
   LineaCarrito,
@@ -36,6 +37,7 @@ import {
 import {
   useBuscarClientes,
   useBuscarItems,
+  useConfiguracionEmision,
   useConsultarCliente,
   useEmitir,
   useSeries,
@@ -69,6 +71,7 @@ export default function EmitirScreen() {
   const impresoraActiva = usePrinter((s) => s.activa);
   const autoImprimir = usePrinter((s) => s.autoImprimir);
   const { data: series, isLoading: cargandoSeries } = useSeries();
+  const { data: configuracion } = useConfiguracionEmision();
   const emitir = useEmitir();
 
   const [serieId, setSerieId] = useState<number | null>(null);
@@ -115,7 +118,7 @@ export default function EmitirScreen() {
     setModalItem(false);
   }
 
-  function agregarItemLibre(nombre: string, precio: number, gravado: boolean) {
+  function agregarItemLibre(nombre: string, precio: number, afectacionId: string) {
     const item: ItemBusqueda = {
       id: idLibre.current,
       nombre,
@@ -123,7 +126,7 @@ export default function EmitirScreen() {
       precio,
       moneda: 'PEN',
       stock: 0,
-      afectacionId: gravado ? '10' : '20',
+      afectacionId,
       libre: true,
     };
     idLibre.current -= 1;
@@ -343,6 +346,7 @@ export default function EmitirScreen() {
       />
       <ModalItemLibre
         visible={modalLibre}
+        afectacionPorDefecto={configuracion?.afectacionPorDefecto ?? '10'}
         onCerrar={() => setModalLibre(false)}
         onAgregar={agregarItemLibre}
       />
@@ -659,31 +663,38 @@ function ModalBuscarItem({
 
 function ModalItemLibre({
   visible,
+  afectacionPorDefecto,
   onCerrar,
   onAgregar,
 }: {
   visible: boolean;
+  afectacionPorDefecto: string;
   onCerrar: () => void;
-  onAgregar: (nombre: string, precio: number, gravado: boolean) => void;
+  onAgregar: (nombre: string, precio: number, afectacionId: string) => void;
 }) {
   const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
   const alturaTeclado = useAlturaTeclado();
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
-  const [gravado, setGravado] = useState(true);
+  const [afectacion, setAfectacion] = useState(afectacionPorDefecto);
 
   const precioNum = aMonto(precio);
   const puede = nombre.trim() !== '' && precioNum > 0;
+
+  useEffect(() => {
+    if (visible) {
+      setAfectacion(afectacionPorDefecto);
+    }
+  }, [visible, afectacionPorDefecto]);
 
   function confirmar() {
     if (!puede) {
       return;
     }
-    onAgregar(nombre.trim(), precioNum, gravado);
+    onAgregar(nombre.trim(), precioNum, afectacion);
     setNombre('');
     setPrecio('');
-    setGravado(true);
   }
 
   return (
@@ -725,18 +736,18 @@ function ModalItemLibre({
 
           <Text style={styles.libreLabel}>Afectación IGV</Text>
           <View style={styles.medios}>
-            <Pressable
-              style={[styles.medio, gravado && styles.medioOn]}
-              onPress={() => setGravado(true)}
-            >
-              <Text style={[styles.medioText, gravado && styles.medioTextOn]}>Gravado · 18%</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.medio, !gravado && styles.medioOn]}
-              onPress={() => setGravado(false)}
-            >
-              <Text style={[styles.medioText, !gravado && styles.medioTextOn]}>Exonerado</Text>
-            </Pressable>
+            {AFECTACIONES.map((a) => {
+              const activa = afectacion === a.id;
+              return (
+                <Pressable
+                  key={a.id}
+                  style={[styles.medio, activa && styles.medioOn]}
+                  onPress={() => setAfectacion(a.id)}
+                >
+                  <Text style={[styles.medioText, activa && styles.medioTextOn]}>{a.etiqueta}</Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <View style={styles.cobrarAccionesLibre}>

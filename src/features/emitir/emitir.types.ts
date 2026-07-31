@@ -53,6 +53,20 @@ export interface EmitirResultado {
   pdfTicket: string;
 }
 
+export interface ConfiguracionEmision {
+  afectacionPorDefecto: string;
+}
+
+export const AFECTACIONES: { id: string; etiqueta: string }[] = [
+  { id: '10', etiqueta: 'Gravado · 18%' },
+  { id: '20', etiqueta: 'Exonerado' },
+  { id: '30', etiqueta: 'Inafecto' },
+];
+
+export function esAfectacionValida(id: string): boolean {
+  return AFECTACIONES.some((a) => a.id === id);
+}
+
 export function etiquetaTipo(tipoId: string): string {
   if (tipoId === '01') {
     return 'Factura';
