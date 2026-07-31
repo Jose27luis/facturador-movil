@@ -80,6 +80,7 @@ export default function EmitirScreen() {
   const [modalCliente, setModalCliente] = useState(false);
   const [modalItem, setModalItem] = useState(false);
   const [modalLibre, setModalLibre] = useState(false);
+  const [modalSerie, setModalSerie] = useState(false);
   const [resultado, setResultado] = useState<EmitirResultado | null>(null);
   const [cobrarOpen, setCobrarOpen] = useState(false);
   const [descuento, setDescuento] = useState('');
@@ -244,22 +245,16 @@ export default function EmitirScreen() {
         {cargandoSeries ? (
           <ActivityIndicator color={c.brand} />
         ) : (
-          <View style={styles.chips}>
-            {series?.map((s) => {
-              const activo = serieSel?.id === s.id;
-              return (
-                <Pressable
-                  key={s.id}
-                  style={[styles.chip, activo && styles.chipActivo]}
-                  onPress={() => setSerieId(s.id)}
-                >
-                  <Text style={[styles.chipText, activo && styles.chipTextActivo]}>
-                    {etiquetaTipo(s.tipoId)} {s.numero}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <Pressable
+            style={styles.selector}
+            onPress={() => setModalSerie(true)}
+            accessibilityLabel="Elegir tipo de comprobante"
+          >
+            <Text style={serieSel ? styles.selectorValor : styles.selectorVacio} numberOfLines={1}>
+              {serieSel ? `${etiquetaTipo(serieSel.tipoId)} · ${serieSel.numero}` : 'Sin series disponibles'}
+            </Text>
+            <Ionicons name="chevron-down" size={20} color={c.faint} />
+          </Pressable>
         )}
 
         <Text style={styles.seccion}>Cliente</Text>
@@ -349,6 +344,16 @@ export default function EmitirScreen() {
         afectacionPorDefecto={configuracion?.afectacionPorDefecto ?? '10'}
         onCerrar={() => setModalLibre(false)}
         onAgregar={agregarItemLibre}
+      />
+      <ModalSerie
+        visible={modalSerie}
+        series={series ?? []}
+        seleccionadaId={serieSel?.id ?? null}
+        onCerrar={() => setModalSerie(false)}
+        onElegir={(id) => {
+          setSerieId(id);
+          setModalSerie(false);
+        }}
       />
       {resultado ? (
         <VisorPdf
@@ -661,6 +666,56 @@ function ModalBuscarItem({
   );
 }
 
+function ModalSerie({
+  visible,
+  series,
+  seleccionadaId,
+  onCerrar,
+  onElegir,
+}: {
+  visible: boolean;
+  series: Serie[];
+  seleccionadaId: number | null;
+  onCerrar: () => void;
+  onElegir: (id: number) => void;
+}) {
+  const c = useTema();
+  const styles = useEstilos(crear);
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onCerrar}>
+      <Pressable style={styles.cobrarFondo} onPress={onCerrar}>
+        <Pressable
+          style={[styles.libreHoja, { paddingBottom: insets.bottom + 20 }]}
+          onPress={() => undefined}
+        >
+          <View style={styles.cobrarBarra} />
+          <Text style={styles.cobrarTitulo}>Tipo de comprobante</Text>
+          <View style={styles.serieLista}>
+            {series.map((s) => {
+              const activa = s.id === seleccionadaId;
+              return (
+                <Pressable
+                  key={s.id}
+                  style={[styles.serieOpcion, activa && styles.serieOpcionOn]}
+                  onPress={() => onElegir(s.id)}
+                >
+                  <View style={styles.serieInfo}>
+                    <Text style={styles.opcionTitulo}>{etiquetaTipo(s.tipoId)}</Text>
+                    <Text style={styles.opcionSub}>Serie {s.numero}</Text>
+                  </View>
+                  {activa ? <Ionicons name="checkmark-circle" size={22} color={c.brand} /> : null}
+                </Pressable>
+              );
+            })}
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 function ModalItemLibre({
   visible,
   afectacionPorDefecto,
@@ -788,18 +843,6 @@ const crear = (c: Tema) =>
     justifyContent: 'space-between',
     marginTop: 8,
   },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: c.border,
-    backgroundColor: c.surface,
-  },
-  chipActivo: { backgroundColor: c.brand, borderColor: c.brand },
-  chipText: { fontSize: 14, fontWeight: '600', color: c.text },
-  chipTextActivo: { color: c.onBrand },
   selector: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1083,4 +1126,17 @@ const crear = (c: Tema) =>
   },
   opcionTitulo: { fontSize: 15, fontWeight: '600', color: c.text },
   opcionSub: { fontSize: 13, color: c.muted, marginTop: 2 },
+  serieLista: { gap: 10, marginTop: 6 },
+  serieOpcion: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: c.surface,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    padding: 14,
+  },
+  serieOpcionOn: { borderColor: c.brand },
+  serieInfo: { flex: 1, marginRight: 8 },
 });
