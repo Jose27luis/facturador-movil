@@ -15,6 +15,8 @@ function ascii(texto: string): string {
   return texto.replace(/[^\x00-\x7F]/g, (ch) => REEMPLAZOS[ch] ?? '');
 }
 
+const CHICA = { fonttype: 1 };
+
 interface LibImpresion {
   BluetoothManager: {
     checkBluetoothEnabled(): Promise<boolean>;
@@ -176,14 +178,19 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   };
 
   await alinear(A.CENTER);
+  let logoImpreso = false;
   if (datos.logoBase64) {
     try {
-      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: 300, left: 60 });
+      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: 384, left: 0 });
+      await BluetoothEscposPrinter.printText('\n', {});
+      logoImpreso = true;
     } catch {
-      // si el logo no se puede imprimir, el ticket continua sin el
+      // si el logo no se puede imprimir, se cae al nombre de la empresa
     }
   }
-  await texto(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
+  if (!logoImpreso) {
+    await texto(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
+  }
   if (datos.ruc) {
     await texto(`R.U.C. ${datos.ruc}\n`);
   }
@@ -215,16 +222,16 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await texto(`${linea()}\n`);
 
   for (const it of datos.items) {
-    await texto(`${it.nombre}\n`);
+    await texto(`${it.nombre}\n`, CHICA);
     await negrita();
     await BluetoothEscposPrinter.printColumn(
-      [26, 22],
+      [38, 26],
       [A.LEFT, A.RIGHT],
       [
-        ascii(`${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`),
+        ascii(`  ${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`),
         fmtMonto(it.total, datos.moneda),
       ],
-      {},
+      CHICA,
     );
   }
 
