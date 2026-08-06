@@ -3,7 +3,7 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import { fmtMonto } from '@/shared/format';
 import { Impresora } from './printer-store';
 
-const ANCHO = 32;
+const ANCHO = 48;
 
 interface LibImpresion {
   BluetoothManager: {
@@ -125,46 +125,66 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 
   const par = async (etiqueta: string, valor: string, grande = false) => {
     await BluetoothEscposPrinter.printColumn(
-      [14, 18],
+      [30, 18],
       [A.LEFT, A.RIGHT],
       [etiqueta, valor],
       grande ? { widthtimes: 1, heigthtimes: 1 } : {},
     );
   };
 
+  const dato = async (etiqueta: string, valor: string) => {
+    await BluetoothEscposPrinter.printColumn(
+      [16, 32],
+      [A.LEFT, A.LEFT],
+      [etiqueta, valor],
+      {},
+    );
+  };
+
   await BluetoothEscposPrinter.printerAlign(A.CENTER);
   await BluetoothEscposPrinter.printText(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
   if (datos.ruc) {
-    await BluetoothEscposPrinter.printText(`RUC ${datos.ruc}\n`, {});
+    await BluetoothEscposPrinter.printText(`R.U.C. ${datos.ruc}\n`, {});
   }
-  await BluetoothEscposPrinter.printText(`${datos.tipo.toUpperCase()}\n`, {});
-  await BluetoothEscposPrinter.printText(`${datos.numero}\n`, { widthtimes: 1, heigthtimes: 1 });
+  await BluetoothEscposPrinter.printText(`\n${datos.tipo.toUpperCase()}\n`, {});
+  await BluetoothEscposPrinter.printText(`${datos.numero}\n\n`, { widthtimes: 1, heigthtimes: 1 });
 
   await BluetoothEscposPrinter.printerAlign(A.LEFT);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printText(`FECHA  : ${datos.fecha}${datos.hora ? ' ' + datos.hora : ''}\n`, {});
-  await BluetoothEscposPrinter.printText(`CLIENTE: ${datos.cliente}\n`, {});
+  await dato('F. EMISION:', datos.fecha);
+  if (datos.hora) {
+    await dato('H. EMISION:', datos.hora);
+  }
+  await dato('CLIENTE:', datos.cliente);
   if (datos.clienteDoc) {
-    await BluetoothEscposPrinter.printText(`DOC.   : ${datos.clienteDoc}\n`, {});
+    await dato('DOCUMENTO:', datos.clienteDoc);
   }
   if (datos.clienteDireccion) {
-    await BluetoothEscposPrinter.printText(`DIREC. : ${datos.clienteDireccion}\n`, {});
+    await dato('DIRECCION:', datos.clienteDireccion);
   }
   if (datos.medioPago) {
-    await BluetoothEscposPrinter.printText(`PAGO   : ${datos.medioPago}\n`, {});
+    await dato('M. PAGO:', datos.medioPago);
   }
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printText('CANT/UND  DESCRIPCION    IMPORTE\n', {});
+
+  await BluetoothEscposPrinter.printColumn(
+    [6, 5, 5, 16, 8, 8],
+    [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
+    ['COD.', 'CANT', 'UND', 'DESCRIPCION', 'P.UNIT', 'TOTAL'],
+    {},
+  );
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   for (const it of datos.items) {
-    const codigo = it.codigo ? `[${it.codigo}] ` : '';
-    await BluetoothEscposPrinter.printText(`${codigo}${it.nombre}\n`, {});
     await BluetoothEscposPrinter.printColumn(
-      [18, 14],
-      [A.LEFT, A.RIGHT],
+      [6, 5, 4, 17, 8, 8],
+      [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
       [
-        `  ${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`,
+        (it.codigo ?? '').slice(0, 5),
+        String(it.cantidad),
+        (it.unidad ?? '').slice(0, 3),
+        it.nombre,
+        fmtMonto(it.precio, datos.moneda),
         fmtMonto(it.total, datos.moneda),
       ],
       {},
@@ -173,16 +193,15 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
   if (datos.gravado) {
-    await par('OP. GRAVADA', fmtMonto(datos.gravado, datos.moneda));
+    await par('OP. GRAVADAS:', fmtMonto(datos.gravado, datos.moneda));
   }
   if (datos.exonerado) {
-    await par('OP. EXONERADA', fmtMonto(datos.exonerado, datos.moneda));
+    await par('OP. EXONERADAS:', fmtMonto(datos.exonerado, datos.moneda));
   }
   if (datos.igv) {
-    await par('IGV 18%', fmtMonto(datos.igv, datos.moneda));
+    await par('IGV:', fmtMonto(datos.igv, datos.moneda));
   }
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await par('TOTAL', fmtMonto(datos.total, datos.moneda), true);
+  await par('TOTAL A PAGAR:', fmtMonto(datos.total, datos.moneda), true);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   await BluetoothEscposPrinter.printerAlign(A.LEFT);
