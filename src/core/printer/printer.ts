@@ -15,7 +15,6 @@ function ascii(texto: string): string {
   return texto.replace(/[^\x00-\x7F]/g, (ch) => REEMPLAZOS[ch] ?? '');
 }
 
-const CHICA = { fonttype: 1 };
 const PUNTOS_80MM = 576;
 const LOGO_PUNTOS = 384;
 
@@ -232,13 +231,13 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     await texto(`${it.nombre}\n`);
     await negrita();
     await BluetoothEscposPrinter.printColumn(
-      [38, 26],
+      [30, 18],
       [A.LEFT, A.RIGHT],
       [
         ascii(`  ${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`),
         fmtMonto(it.total, datos.moneda),
       ],
-      CHICA,
+      {},
     );
   }
 
