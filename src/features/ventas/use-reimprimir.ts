@@ -30,8 +30,14 @@ export function useReimprimir() {
         staleTime: 60000,
       });
       await imprimirTicket(impresoraActiva, {
-        empresa: usuario?.nombre || 'Amantix',
-        ruc: usuario?.ruc,
+        empresa: detalle.empresaNombre || usuario?.nombre || 'Amantix',
+        ruc: detalle.empresaRuc || usuario?.ruc,
+        empresaDireccion: detalle.empresaDireccion,
+        hash: detalle.hash,
+        vendedor: detalle.vendedor,
+        condicionPago: detalle.condicionPago,
+        pagos: detalle.pagos,
+        urlConsulta: detalle.urlConsulta,
         tipo: detalle.tipo,
         numero: detalle.numero,
         fecha: detalle.fecha,

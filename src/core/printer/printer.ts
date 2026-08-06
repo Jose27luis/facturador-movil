@@ -5,6 +5,16 @@ import { Impresora } from './printer-store';
 
 const ANCHO = 48;
 
+const REEMPLAZOS: Record<string, string> = {
+  Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ü: 'U', Ñ: 'N',
+  á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u', ü: 'u', ñ: 'n',
+  '¿': '?', '¡': '!', '°': 'o', '–': '-', '—': '-', '’': "'", '“': '"', '”': '"',
+};
+
+function ascii(texto: string): string {
+  return texto.replace(/[^\x00-\x7F]/g, (ch) => REEMPLAZOS[ch] ?? '');
+}
+
 interface LibImpresion {
   BluetoothManager: {
     checkBluetoothEnabled(): Promise<boolean>;
@@ -113,6 +123,12 @@ export interface DatosTicket {
   clienteDireccion?: string;
   leyendas?: string[];
   qr?: string;
+  hash?: string;
+  vendedor?: string;
+  condicionPago?: string;
+  pagos?: { descripcion: string; monto: number }[];
+  empresaDireccion?: string;
+  urlConsulta?: string;
 }
 
 export async function imprimirTicket(direccion: string, datos: DatosTicket): Promise<void> {
@@ -123,11 +139,15 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await BluetoothEscposPrinter.printerInit();
   await BluetoothEscposPrinter.setBlob(1);
 
+  const texto = async (valor: string, opciones: object = {}) => {
+    await BluetoothEscposPrinter.printText(ascii(valor), opciones);
+  };
+
   const par = async (etiqueta: string, valor: string, grande = false) => {
     await BluetoothEscposPrinter.printColumn(
       [30, 18],
       [A.LEFT, A.RIGHT],
-      [etiqueta, valor],
+      [ascii(etiqueta), ascii(valor)],
       grande ? { widthtimes: 1, heigthtimes: 1 } : {},
     );
   };
@@ -136,18 +156,21 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     await BluetoothEscposPrinter.printColumn(
       [16, 32],
       [A.LEFT, A.LEFT],
-      [etiqueta, valor],
+      [ascii(etiqueta), ascii(valor)],
       {},
     );
   };
 
   await BluetoothEscposPrinter.printerAlign(A.CENTER);
-  await BluetoothEscposPrinter.printText(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
+  await texto(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
   if (datos.ruc) {
-    await BluetoothEscposPrinter.printText(`R.U.C. ${datos.ruc}\n`, {});
+    await texto(`R.U.C. ${datos.ruc}\n`);
   }
-  await BluetoothEscposPrinter.printText(`\n${datos.tipo.toUpperCase()}\n`, {});
-  await BluetoothEscposPrinter.printText(`${datos.numero}\n\n`, { widthtimes: 1, heigthtimes: 1 });
+  if (datos.empresaDireccion) {
+    await texto(`${datos.empresaDireccion}\n`);
+  }
+  await texto(`\n${datos.tipo.toUpperCase()}\n`);
+  await texto(`${datos.numero}\n\n`, { widthtimes: 1, heigthtimes: 1 });
 
   await BluetoothEscposPrinter.printerAlign(A.LEFT);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
@@ -168,7 +191,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   await BluetoothEscposPrinter.printColumn(
-    [6, 5, 5, 16, 8, 8],
+    [6, 5, 4, 17, 8, 8],
     [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
     ['COD.', 'CANT', 'UND', 'DESCRIPCION', 'P.UNIT', 'TOTAL'],
     {},
@@ -180,10 +203,10 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
       [6, 5, 4, 17, 8, 8],
       [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
       [
-        (it.codigo ?? '').slice(0, 5),
+        ascii(it.codigo ?? '').slice(0, 5),
         String(it.cantidad),
-        (it.unidad ?? '').slice(0, 3),
-        it.nombre,
+        ascii(it.unidad ?? '').slice(0, 3),
+        ascii(it.nombre),
         fmtMonto(it.precio, datos.moneda),
         fmtMonto(it.total, datos.moneda),
       ],
@@ -205,8 +228,26 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   await BluetoothEscposPrinter.printerAlign(A.LEFT);
-  for (const leyenda of datos.leyendas ?? []) {
-    await BluetoothEscposPrinter.printText(`${leyenda.trim().toUpperCase()}\n`, {});
+  const leyendas = datos.leyendas ?? [];
+  if (leyendas.length > 0) {
+    await texto('LEYENDAS:\n');
+    for (const leyenda of leyendas) {
+      await texto(`${leyenda.trim().toUpperCase()}\n`);
+    }
+    await texto(`${linea()}\n`);
+  }
+
+  if (datos.condicionPago) {
+    await texto(`CONDICION DE PAGO: ${datos.condicionPago}\n`);
+  }
+  if ((datos.pagos ?? []).length > 0) {
+    await texto('PAGOS:\n');
+    for (const pago of datos.pagos ?? []) {
+      await par(`  ${pago.descripcion}`, fmtMonto(pago.monto, datos.moneda));
+    }
+  }
+  if (datos.vendedor) {
+    await texto(`VENDEDOR: ${datos.vendedor}\n`);
   }
 
   await BluetoothEscposPrinter.printerAlign(A.CENTER);
@@ -215,12 +256,18 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     await BluetoothEscposPrinter.printQRCode(datos.qr, 220, 2);
     await BluetoothEscposPrinter.printText('\n', {});
   }
-  if (datos.estado) {
-    await BluetoothEscposPrinter.printText(`${datos.estado.toUpperCase()}\n`, {});
+  if (datos.hash) {
+    await texto(`CODIGO HASH: ${datos.hash}\n`);
   }
-  await BluetoothEscposPrinter.printText('REPRESENTACION IMPRESA DEL\n', {});
-  await BluetoothEscposPrinter.printText('COMPROBANTE ELECTRONICO\n', {});
-  await BluetoothEscposPrinter.printText('\nGRACIAS POR SU COMPRA\n', {});
+  if (datos.estado) {
+    await texto(`${datos.estado.toUpperCase()}\n`);
+  }
+  if (datos.urlConsulta) {
+    await texto('\nConsulta tu comprobante en:\n');
+    await texto(`${datos.urlConsulta}\n`);
+  }
+  await texto(`\nREPRESENTACION IMPRESA DE LA\n${datos.tipo.toUpperCase()}\n`);
+  await texto('\nGRACIAS POR SU COMPRA\n');
   await BluetoothEscposPrinter.printAndFeed(3);
 }
 

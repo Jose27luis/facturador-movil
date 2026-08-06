@@ -46,6 +46,14 @@ export interface ComprobanteDetalle {
   clienteDireccion: string;
   leyendas: string[];
   qr: string;
+  hash: string;
+  vendedor: string;
+  condicionPago: string;
+  pagos: { descripcion: string; monto: number }[];
+  empresaNombre: string;
+  empresaRuc: string;
+  empresaDireccion: string;
+  urlConsulta: string;
   items: LineaComprobante[];
 }
 

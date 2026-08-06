@@ -83,6 +83,7 @@ export async function obtenerComprobanteDetalle(
   const ruta = esNotaVenta ? `/mobile/sale-notes/${id}` : `/mobile/documents/${id}`;
   const { data } = await api.get<DetalleResponse>(ruta);
   const d = data.data ?? {};
+  const empresa = typeof d.company === 'object' && d.company !== null ? (d.company as Fila) : {};
   const filas = Array.isArray(d.items) ? d.items : [];
   const items: LineaComprobante[] = filas
     .filter((f): f is Fila => typeof f === 'object' && f !== null)
@@ -117,6 +118,18 @@ export async function obtenerComprobanteDetalle(
     clienteDireccion: leerTexto(d, 'customer_address'),
     leyendas: Array.isArray(d.legends) ? d.legends.map((l) => String(l)) : [],
     qr: leerTexto(d, 'qr_content'),
+    hash: leerTexto(d, 'hash'),
+    vendedor: leerTexto(d, 'seller'),
+    condicionPago: leerTexto(d, 'payment_condition'),
+    pagos: Array.isArray(d.payments)
+      ? d.payments
+          .filter((p): p is Fila => typeof p === 'object' && p !== null)
+          .map((p) => ({ descripcion: leerTexto(p, 'descripcion'), monto: leerMonto(p, 'monto') }))
+      : [],
+    empresaNombre: leerTexto(empresa, 'nombre'),
+    empresaRuc: leerTexto(empresa, 'ruc'),
+    empresaDireccion: leerTexto(empresa, 'direccion'),
+    urlConsulta: leerTexto(empresa, 'url_consulta'),
     items,
   };
 }
