@@ -124,12 +124,26 @@ export function VisorPdf({ visible, numero, a4Url, ticketUrl, onCerrar }: Props)
             />
           </View>
           <Pressable
-            style={styles.whatsapp}
+            style={[styles.whatsapp, compartiendo && styles.compartirOff]}
+            onPress={() => void compartir()}
+            disabled={compartiendo}
+          >
+            {compartiendo ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" />
+                <Text style={styles.whatsappText}>Enviar PDF por WhatsApp</Text>
+              </>
+            )}
+          </Pressable>
+          <Pressable
+            style={styles.enlace}
             onPress={() => void enviarWhatsApp(url, `Tu comprobante ${numero}:`, telefono)}
           >
-            <Ionicons name="logo-whatsapp" size={20} color="#FFFFFF" />
-            <Text style={styles.whatsappText}>
-              {telefono.trim() ? 'Enviar enlace al número' : 'Enviar enlace por WhatsApp'}
+            <Ionicons name="link-outline" size={18} color={c.muted} />
+            <Text style={styles.enlaceText}>
+              {telefono.trim() ? 'Enviar solo el enlace al número' : 'Enviar solo el enlace'}
             </Text>
           </Pressable>
           <Pressable
@@ -229,5 +243,13 @@ const crear = (c: Tema) =>
     paddingVertical: 14,
   },
   compartirOff: { opacity: 0.6 },
+  enlace: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 8,
+  },
+  enlaceText: { color: c.muted, fontSize: 13.5, fontWeight: '600' },
   compartirText: { color: c.text, fontSize: 15, fontWeight: '700' },
 });

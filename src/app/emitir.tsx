@@ -167,14 +167,18 @@ export default function EmitirScreen() {
           numero,
           fecha: new Date().toLocaleDateString('es-PE'),
           cliente: cliente?.descripcion || 'Cliente varios',
+          clienteDoc: cliente?.numero,
           items: lineas.map((l) => ({
             nombre: l.item.nombre,
             cantidad: l.cantidad,
             precio: precioFinal(l.item.precio),
             total: precioFinal(l.item.precio) * l.cantidad,
           })),
+          igv: Math.round((totalPagar - totalPagar / 1.18) * 100) / 100,
+          gravado: Math.round((totalPagar / 1.18) * 100) / 100,
           total: totalPagar,
           moneda,
+          medioPago: MEDIOS.find((m) => m.id === medioPago)?.etiqueta,
         });
       } catch {
         // si la impresion falla no se interrumpe la emision

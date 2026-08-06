@@ -16,6 +16,7 @@ import { useComprobante, useComprobanteDetalle, useReenviar } from '@/features/v
 import { useReimprimir } from '@/features/ventas/use-reimprimir';
 
 const ESTADOS_REENVIABLES = ['01', '03', '09'];
+const ESTADOS_CON_GUIA = ['01', '03', '05'];
 
 export default function ComprobanteScreen() {
   const c = useTema();
@@ -65,6 +66,9 @@ export default function ComprobanteScreen() {
   const estado = detalle?.estado ?? base?.estado ?? '';
   const moneda = detalle?.moneda ?? base?.moneda ?? 'PEN';
   const total = detalle?.total ?? base?.total ?? 0;
+  const tipoId = detalle?.tipoId || base?.tipoId || '';
+  const puedeGenerarGuia =
+    !esNotaVenta && (tipoId === '01' || tipoId === '03') && ESTADOS_CON_GUIA.includes(estadoId);
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -141,7 +145,7 @@ export default function ComprobanteScreen() {
           </Pressable>
         ) : null}
 
-        {!esNotaVenta && estadoId === '05' && (base?.tipoId === '01' || base?.tipoId === '03') ? (
+        {puedeGenerarGuia ? (
           <Pressable
             style={styles.guia}
             onPress={() => router.push({ pathname: '/guia', params: { id: String(idNum) } })}

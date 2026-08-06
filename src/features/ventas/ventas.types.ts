@@ -26,6 +26,7 @@ export interface LineaComprobante {
 export interface ComprobanteDetalle {
   id: number;
   numero: string;
+  tipoId: string;
   tipo: string;
   estadoId: string;
   estado: string;

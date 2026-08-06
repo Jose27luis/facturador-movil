@@ -36,14 +36,19 @@ export function useReimprimir() {
         numero: detalle.numero,
         fecha: detalle.fecha,
         cliente: detalle.cliente || 'Cliente varios',
+        clienteDoc: detalle.clienteDoc,
         items: detalle.items.map((it) => ({
           nombre: it.descripcion,
           cantidad: it.cantidad,
           precio: it.precioUnitario,
           total: it.total,
         })),
+        gravado: detalle.totalGravado,
+        exonerado: detalle.totalExonerado,
+        igv: detalle.totalIgv,
         total: detalle.total,
         moneda: detalle.moneda,
+        estado: detalle.estado,
       });
     } finally {
       setEnCurso(null);

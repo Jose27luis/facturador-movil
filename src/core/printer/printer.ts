@@ -17,6 +17,7 @@ interface LibImpresion {
     printText(texto: string, opciones: object): Promise<void>;
     printColumn(anchos: number[], alineaciones: number[], textos: string[], opciones: object): Promise<void>;
     printAndFeed(lineas: number): Promise<void>;
+    setBlob(peso: number): Promise<void>;
     ALIGN: { LEFT: number; CENTER: number; RIGHT: number };
   };
 }
@@ -96,50 +97,87 @@ export interface DatosTicket {
   numero: string;
   fecha: string;
   cliente: string;
+  clienteDoc?: string;
   items: ItemTicket[];
+  gravado?: number;
+  exonerado?: number;
+  igv?: number;
   total: number;
   moneda: string;
+  estado?: string;
+  medioPago?: string;
 }
 
 export async function imprimirTicket(direccion: string, datos: DatosTicket): Promise<void> {
   const { BluetoothManager, BluetoothEscposPrinter } = requerirLib();
+  const A = BluetoothEscposPrinter.ALIGN;
+
   await BluetoothManager.connect(direccion);
   await BluetoothEscposPrinter.printerInit();
+  await BluetoothEscposPrinter.setBlob(1);
 
-  await BluetoothEscposPrinter.printerAlign(BluetoothEscposPrinter.ALIGN.CENTER);
+  const par = async (etiqueta: string, valor: string, grande = false) => {
+    await BluetoothEscposPrinter.printColumn(
+      [14, 18],
+      [A.LEFT, A.RIGHT],
+      [etiqueta, valor],
+      grande ? { widthtimes: 1, heigthtimes: 1 } : {},
+    );
+  };
+
+  await BluetoothEscposPrinter.printerAlign(A.CENTER);
   await BluetoothEscposPrinter.printText(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
   if (datos.ruc) {
     await BluetoothEscposPrinter.printText(`RUC ${datos.ruc}\n`, {});
   }
-  await BluetoothEscposPrinter.printText(`${datos.tipo}\n`, {});
-  await BluetoothEscposPrinter.printText(`${datos.numero}\n`, {});
+  await BluetoothEscposPrinter.printText(`${datos.tipo.toUpperCase()}\n`, {});
+  await BluetoothEscposPrinter.printText(`${datos.numero}\n`, { widthtimes: 1, heigthtimes: 1 });
 
-  await BluetoothEscposPrinter.printerAlign(BluetoothEscposPrinter.ALIGN.LEFT);
+  await BluetoothEscposPrinter.printerAlign(A.LEFT);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printText(`Fecha: ${datos.fecha}\n`, {});
-  await BluetoothEscposPrinter.printText(`Cliente: ${datos.cliente}\n`, {});
+  await BluetoothEscposPrinter.printText(`FECHA : ${datos.fecha}\n`, {});
+  await BluetoothEscposPrinter.printText(`CLIENTE: ${datos.cliente}\n`, {});
+  if (datos.clienteDoc) {
+    await BluetoothEscposPrinter.printText(`DOC.  : ${datos.clienteDoc}\n`, {});
+  }
+  if (datos.medioPago) {
+    await BluetoothEscposPrinter.printText(`PAGO  : ${datos.medioPago}\n`, {});
+  }
+  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await BluetoothEscposPrinter.printText('CANT  DESCRIPCION         IMPORTE\n', {});
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   for (const it of datos.items) {
     await BluetoothEscposPrinter.printText(`${it.nombre}\n`, {});
     await BluetoothEscposPrinter.printColumn(
-      [16, 16],
-      [BluetoothEscposPrinter.ALIGN.LEFT, BluetoothEscposPrinter.ALIGN.RIGHT],
-      [`${it.cantidad} x ${fmtMonto(it.precio, datos.moneda)}`, fmtMonto(it.total, datos.moneda)],
+      [18, 14],
+      [A.LEFT, A.RIGHT],
+      [`  ${it.cantidad} x ${fmtMonto(it.precio, datos.moneda)}`, fmtMonto(it.total, datos.moneda)],
       {},
     );
   }
 
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printColumn(
-    [16, 16],
-    [BluetoothEscposPrinter.ALIGN.LEFT, BluetoothEscposPrinter.ALIGN.RIGHT],
-    ['TOTAL', fmtMonto(datos.total, datos.moneda)],
-    { widthtimes: 1, heigthtimes: 1 },
-  );
+  if (datos.gravado) {
+    await par('OP. GRAVADA', fmtMonto(datos.gravado, datos.moneda));
+  }
+  if (datos.exonerado) {
+    await par('OP. EXONERADA', fmtMonto(datos.exonerado, datos.moneda));
+  }
+  if (datos.igv) {
+    await par('IGV 18%', fmtMonto(datos.igv, datos.moneda));
+  }
+  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await par('TOTAL', fmtMonto(datos.total, datos.moneda), true);
+  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
-  await BluetoothEscposPrinter.printerAlign(BluetoothEscposPrinter.ALIGN.CENTER);
-  await BluetoothEscposPrinter.printText('\nGracias por su compra\n', {});
+  await BluetoothEscposPrinter.printerAlign(A.CENTER);
+  if (datos.estado) {
+    await BluetoothEscposPrinter.printText(`${datos.estado.toUpperCase()}\n`, {});
+  }
+  await BluetoothEscposPrinter.printText('REPRESENTACION IMPRESA DEL\n', {});
+  await BluetoothEscposPrinter.printText('COMPROBANTE ELECTRONICO\n', {});
+  await BluetoothEscposPrinter.printText('\nGRACIAS POR SU COMPRA\n', {});
   await BluetoothEscposPrinter.printAndFeed(3);
 }
 

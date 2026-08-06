@@ -97,6 +97,7 @@ export async function obtenerComprobanteDetalle(
   return {
     id: leerMonto(d, 'id'),
     numero: leerTexto(d, 'number'),
+    tipoId: leerTexto(d, 'document_type_id'),
     tipo: leerTexto(d, 'document_type_description'),
     estadoId: leerTexto(d, 'state_type_id'),
     estado: leerTexto(d, 'state_type_description'),
