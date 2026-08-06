@@ -141,6 +141,16 @@ export default function ComprobanteScreen() {
           </Pressable>
         ) : null}
 
+        {!esNotaVenta && estadoId === '05' && (base?.tipoId === '01' || base?.tipoId === '03') ? (
+          <Pressable
+            style={styles.guia}
+            onPress={() => router.push({ pathname: '/guia', params: { id: String(idNum) } })}
+          >
+            <Ionicons name="cube-outline" size={20} color={c.text} />
+            <Text style={styles.guiaText}>Generar guía de remisión</Text>
+          </Pressable>
+        ) : null}
+
         {!esNotaVenta && ESTADOS_REENVIABLES.includes(estadoId) ? (
           <Pressable
             style={[styles.reenviar, reenvio.isPending && styles.reimprimirOff]}
@@ -342,5 +352,18 @@ const crear = (c: Tema) =>
     paddingVertical: 15,
   },
   notaCreditoText: { fontSize: 15, fontWeight: '700', color: c.onBrand },
+  guia: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: c.surfaceAlt,
+    borderWidth: 1,
+    borderColor: c.border,
+    borderRadius: radios.md,
+    paddingVertical: 14,
+    marginTop: 10,
+  },
+  guiaText: { fontSize: 15, fontWeight: '700', color: c.text },
 });
 
