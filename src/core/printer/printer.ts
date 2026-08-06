@@ -16,6 +16,8 @@ function ascii(texto: string): string {
 }
 
 const CHICA = { fonttype: 1 };
+const PUNTOS_80MM = 576;
+const LOGO_PUNTOS = 384;
 
 interface LibImpresion {
   BluetoothManager: {
@@ -32,6 +34,7 @@ interface LibImpresion {
     setBlob(peso: number): Promise<void>;
     printQRCode(contenido: string, tamano: number, correccion: number): Promise<void>;
     printPic(base64: string, opciones: { width: number; left: number }): Promise<void>;
+    setWidth(puntos: number): Promise<void>;
     ALIGN: { LEFT: number; CENTER: number; RIGHT: number };
   };
 }
@@ -141,6 +144,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 
   await BluetoothManager.connect(direccion);
   await BluetoothEscposPrinter.printerInit();
+  await BluetoothEscposPrinter.setWidth(PUNTOS_80MM);
   await BluetoothEscposPrinter.setBlob(1);
 
   const negrita = async () => {
@@ -181,7 +185,10 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   let logoImpreso = false;
   if (datos.logoBase64) {
     try {
-      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: 384, left: 0 });
+      await BluetoothEscposPrinter.printPic(datos.logoBase64, {
+        width: LOGO_PUNTOS,
+        left: Math.round((PUNTOS_80MM - LOGO_PUNTOS) / 2),
+      });
       await BluetoothEscposPrinter.printText('\n', {});
       logoImpreso = true;
     } catch {
