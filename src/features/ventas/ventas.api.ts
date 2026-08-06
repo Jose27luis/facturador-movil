@@ -90,6 +90,8 @@ export async function obtenerComprobanteDetalle(
       id: leerMonto(f, 'id'),
       itemId: leerMonto(f, 'item_id'),
       descripcion: leerTexto(f, 'description'),
+      unidad: leerTexto(f, 'unit_type_id'),
+      codigo: leerTexto(f, 'internal_id'),
       cantidad: leerMonto(f, 'quantity'),
       precioUnitario: leerMonto(f, 'unit_price'),
       total: leerMonto(f, 'total'),
@@ -111,6 +113,10 @@ export async function obtenerComprobanteDetalle(
     total: leerMonto(d, 'total'),
     pdfUrl: leerTexto(d, 'pdf_url'),
     pdfTicket: leerTexto(d, 'pdf_ticket'),
+    hora: leerTexto(d, 'time_of_issue'),
+    clienteDireccion: leerTexto(d, 'customer_address'),
+    leyendas: Array.isArray(d.legends) ? d.legends.map((l) => String(l)) : [],
+    qr: leerTexto(d, 'qr_content'),
     items,
   };
 }

@@ -18,6 +18,8 @@ export interface LineaComprobante {
   id: number;
   itemId: number;
   descripcion: string;
+  unidad: string;
+  codigo: string;
   cantidad: number;
   precioUnitario: number;
   total: number;
@@ -40,6 +42,10 @@ export interface ComprobanteDetalle {
   total: number;
   pdfUrl: string;
   pdfTicket: string;
+  hora: string;
+  clienteDireccion: string;
+  leyendas: string[];
+  qr: string;
   items: LineaComprobante[];
 }
 

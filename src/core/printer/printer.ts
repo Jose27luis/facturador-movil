@@ -18,6 +18,7 @@ interface LibImpresion {
     printColumn(anchos: number[], alineaciones: number[], textos: string[], opciones: object): Promise<void>;
     printAndFeed(lineas: number): Promise<void>;
     setBlob(peso: number): Promise<void>;
+    printQRCode(contenido: string, tamano: number, correccion: number): Promise<void>;
     ALIGN: { LEFT: number; CENTER: number; RIGHT: number };
   };
 }
@@ -88,6 +89,8 @@ export interface ItemTicket {
   cantidad: number;
   precio: number;
   total: number;
+  unidad?: string;
+  codigo?: string;
 }
 
 export interface DatosTicket {
@@ -106,6 +109,10 @@ export interface DatosTicket {
   moneda: string;
   estado?: string;
   medioPago?: string;
+  hora?: string;
+  clienteDireccion?: string;
+  leyendas?: string[];
+  qr?: string;
 }
 
 export async function imprimirTicket(direccion: string, datos: DatosTicket): Promise<void> {
@@ -135,24 +142,31 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 
   await BluetoothEscposPrinter.printerAlign(A.LEFT);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printText(`FECHA : ${datos.fecha}\n`, {});
+  await BluetoothEscposPrinter.printText(`FECHA  : ${datos.fecha}${datos.hora ? ' ' + datos.hora : ''}\n`, {});
   await BluetoothEscposPrinter.printText(`CLIENTE: ${datos.cliente}\n`, {});
   if (datos.clienteDoc) {
-    await BluetoothEscposPrinter.printText(`DOC.  : ${datos.clienteDoc}\n`, {});
+    await BluetoothEscposPrinter.printText(`DOC.   : ${datos.clienteDoc}\n`, {});
+  }
+  if (datos.clienteDireccion) {
+    await BluetoothEscposPrinter.printText(`DIREC. : ${datos.clienteDireccion}\n`, {});
   }
   if (datos.medioPago) {
-    await BluetoothEscposPrinter.printText(`PAGO  : ${datos.medioPago}\n`, {});
+    await BluetoothEscposPrinter.printText(`PAGO   : ${datos.medioPago}\n`, {});
   }
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
-  await BluetoothEscposPrinter.printText('CANT  DESCRIPCION         IMPORTE\n', {});
+  await BluetoothEscposPrinter.printText('CANT/UND  DESCRIPCION    IMPORTE\n', {});
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
   for (const it of datos.items) {
-    await BluetoothEscposPrinter.printText(`${it.nombre}\n`, {});
+    const codigo = it.codigo ? `[${it.codigo}] ` : '';
+    await BluetoothEscposPrinter.printText(`${codigo}${it.nombre}\n`, {});
     await BluetoothEscposPrinter.printColumn(
       [18, 14],
       [A.LEFT, A.RIGHT],
-      [`  ${it.cantidad} x ${fmtMonto(it.precio, datos.moneda)}`, fmtMonto(it.total, datos.moneda)],
+      [
+        `  ${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`,
+        fmtMonto(it.total, datos.moneda),
+      ],
       {},
     );
   }
@@ -171,7 +185,17 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await par('TOTAL', fmtMonto(datos.total, datos.moneda), true);
   await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
 
+  await BluetoothEscposPrinter.printerAlign(A.LEFT);
+  for (const leyenda of datos.leyendas ?? []) {
+    await BluetoothEscposPrinter.printText(`${leyenda.trim().toUpperCase()}\n`, {});
+  }
+
   await BluetoothEscposPrinter.printerAlign(A.CENTER);
+  if (datos.qr) {
+    await BluetoothEscposPrinter.printText('\n', {});
+    await BluetoothEscposPrinter.printQRCode(datos.qr, 220, 2);
+    await BluetoothEscposPrinter.printText('\n', {});
+  }
   if (datos.estado) {
     await BluetoothEscposPrinter.printText(`${datos.estado.toUpperCase()}\n`, {});
   }
