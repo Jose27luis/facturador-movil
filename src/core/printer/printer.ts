@@ -229,7 +229,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await texto(`${linea()}\n`);
 
   for (const it of datos.items) {
-    await texto(`${it.nombre}\n`, CHICA);
+    await texto(`${it.nombre}\n`);
     await negrita();
     await BluetoothEscposPrinter.printColumn(
       [38, 26],
