@@ -38,6 +38,7 @@ export function useReimprimir() {
         condicionPago: detalle.condicionPago,
         pagos: detalle.pagos,
         urlConsulta: detalle.urlConsulta,
+        logoBase64: detalle.logoBase64,
         tipo: detalle.tipo,
         numero: detalle.numero,
         fecha: detalle.fecha,

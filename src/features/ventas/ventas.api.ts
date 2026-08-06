@@ -130,6 +130,7 @@ export async function obtenerComprobanteDetalle(
     empresaRuc: leerTexto(empresa, 'ruc'),
     empresaDireccion: leerTexto(empresa, 'direccion'),
     urlConsulta: leerTexto(empresa, 'url_consulta'),
+    logoBase64: leerTexto(empresa, 'logo_base64'),
     items,
   };
 }

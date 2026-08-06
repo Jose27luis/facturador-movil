@@ -29,6 +29,7 @@ interface LibImpresion {
     printAndFeed(lineas: number): Promise<void>;
     setBlob(peso: number): Promise<void>;
     printQRCode(contenido: string, tamano: number, correccion: number): Promise<void>;
+    printPic(base64: string, opciones: { width: number; left: number }): Promise<void>;
     ALIGN: { LEFT: number; CENTER: number; RIGHT: number };
   };
 }
@@ -129,6 +130,7 @@ export interface DatosTicket {
   pagos?: { descripcion: string; monto: number }[];
   empresaDireccion?: string;
   urlConsulta?: string;
+  logoBase64?: string;
 }
 
 export async function imprimirTicket(direccion: string, datos: DatosTicket): Promise<void> {
@@ -139,11 +141,22 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await BluetoothEscposPrinter.printerInit();
   await BluetoothEscposPrinter.setBlob(1);
 
+  const negrita = async () => {
+    await BluetoothEscposPrinter.setBlob(1);
+  };
+
+  const alinear = async (alineacion: number) => {
+    await BluetoothEscposPrinter.printerAlign(alineacion);
+    await negrita();
+  };
+
   const texto = async (valor: string, opciones: object = {}) => {
+    await negrita();
     await BluetoothEscposPrinter.printText(ascii(valor), opciones);
   };
 
   const par = async (etiqueta: string, valor: string, grande = false) => {
+    await negrita();
     await BluetoothEscposPrinter.printColumn(
       [30, 18],
       [A.LEFT, A.RIGHT],
@@ -153,6 +166,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   };
 
   const dato = async (etiqueta: string, valor: string) => {
+    await negrita();
     await BluetoothEscposPrinter.printColumn(
       [16, 32],
       [A.LEFT, A.LEFT],
@@ -161,7 +175,14 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     );
   };
 
-  await BluetoothEscposPrinter.printerAlign(A.CENTER);
+  await alinear(A.CENTER);
+  if (datos.logoBase64) {
+    try {
+      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: 300, left: 60 });
+    } catch {
+      // si el logo no se puede imprimir, el ticket continua sin el
+    }
+  }
   await texto(`${datos.empresa}\n`, { widthtimes: 1, heigthtimes: 1 });
   if (datos.ruc) {
     await texto(`R.U.C. ${datos.ruc}\n`);
@@ -172,8 +193,8 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   await texto(`\n${datos.tipo.toUpperCase()}\n`);
   await texto(`${datos.numero}\n\n`, { widthtimes: 1, heigthtimes: 1 });
 
-  await BluetoothEscposPrinter.printerAlign(A.LEFT);
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await alinear(A.LEFT);
+  await texto(`${linea()}\n`);
   await dato('F. EMISION:', datos.fecha);
   if (datos.hora) {
     await dato('H. EMISION:', datos.hora);
@@ -188,33 +209,26 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   if (datos.medioPago) {
     await dato('M. PAGO:', datos.medioPago);
   }
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await texto(`${linea()}\n`);
 
-  await BluetoothEscposPrinter.printColumn(
-    [6, 5, 4, 17, 8, 8],
-    [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
-    ['COD.', 'CANT', 'UND', 'DESCRIPCION', 'P.UNIT', 'TOTAL'],
-    {},
-  );
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await par('DESCRIPCION / CANT x P.UNIT', 'IMPORTE');
+  await texto(`${linea()}\n`);
 
   for (const it of datos.items) {
+    await texto(`${it.nombre}\n`);
+    await negrita();
     await BluetoothEscposPrinter.printColumn(
-      [6, 5, 4, 17, 8, 8],
-      [A.LEFT, A.LEFT, A.LEFT, A.LEFT, A.RIGHT, A.RIGHT],
+      [26, 22],
+      [A.LEFT, A.RIGHT],
       [
-        ascii(it.codigo ?? '').slice(0, 5),
-        String(it.cantidad),
-        ascii(it.unidad ?? '').slice(0, 3),
-        ascii(it.nombre),
-        fmtMonto(it.precio, datos.moneda),
+        ascii(`${it.cantidad} ${it.unidad ?? ''} x ${fmtMonto(it.precio, datos.moneda)}`),
         fmtMonto(it.total, datos.moneda),
       ],
       {},
     );
   }
 
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await texto(`${linea()}\n`);
   if (datos.gravado) {
     await par('OP. GRAVADAS:', fmtMonto(datos.gravado, datos.moneda));
   }
@@ -225,9 +239,9 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     await par('IGV:', fmtMonto(datos.igv, datos.moneda));
   }
   await par('TOTAL A PAGAR:', fmtMonto(datos.total, datos.moneda), true);
-  await BluetoothEscposPrinter.printText(`${linea()}\n`, {});
+  await texto(`${linea()}\n`);
 
-  await BluetoothEscposPrinter.printerAlign(A.LEFT);
+  await alinear(A.LEFT);
   const leyendas = datos.leyendas ?? [];
   if (leyendas.length > 0) {
     await texto('LEYENDAS:\n');
@@ -250,7 +264,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
     await texto(`VENDEDOR: ${datos.vendedor}\n`);
   }
 
-  await BluetoothEscposPrinter.printerAlign(A.CENTER);
+  await alinear(A.CENTER);
   if (datos.qr) {
     await BluetoothEscposPrinter.printText('\n', {});
     await BluetoothEscposPrinter.printQRCode(datos.qr, 220, 2);

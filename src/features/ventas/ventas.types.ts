@@ -54,6 +54,7 @@ export interface ComprobanteDetalle {
   empresaRuc: string;
   empresaDireccion: string;
   urlConsulta: string;
+  logoBase64: string;
   items: LineaComprobante[];
 }
 
