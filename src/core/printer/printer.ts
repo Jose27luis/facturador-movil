@@ -16,6 +16,7 @@ function ascii(texto: string): string {
 }
 
 const PUNTOS_80MM = 576;
+const PUNTOS_LOGO = 384;
 
 interface LibImpresion {
   BluetoothManager: {
@@ -183,7 +184,7 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
   let logoImpreso = false;
   if (datos.logoBase64) {
     try {
-      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: PUNTOS_80MM, left: 0 });
+      await BluetoothEscposPrinter.printPic(datos.logoBase64, { width: PUNTOS_LOGO, left: 0 });
       await BluetoothEscposPrinter.printText('\n', {});
       logoImpreso = true;
     } catch {
