@@ -33,6 +33,7 @@ import {
   LineaCarrito,
   Serie,
   etiquetaTipo,
+  fmtCantidad,
 } from '@/features/emitir/emitir.types';
 import {
   useBuscarClientes,
@@ -81,6 +82,7 @@ export default function EmitirScreen() {
   const [modalItem, setModalItem] = useState(false);
   const [modalLibre, setModalLibre] = useState(false);
   const [modalSerie, setModalSerie] = useState(false);
+  const [lineaEditando, setLineaEditando] = useState<LineaCarrito | null>(null);
   const [resultado, setResultado] = useState<EmitirResultado | null>(null);
   const [cobrarOpen, setCobrarOpen] = useState(false);
   const [descuento, setDescuento] = useState('');
@@ -138,9 +140,24 @@ export default function EmitirScreen() {
   function cambiarCantidad(itemId: number, delta: number) {
     setLineas((prev) =>
       prev
-        .map((l) => (l.item.id === itemId ? { ...l, cantidad: l.cantidad + delta } : l))
+        .map((l) =>
+          l.item.id === itemId
+            ? { ...l, cantidad: Math.round((l.cantidad + delta) * 10000) / 10000 }
+            : l,
+        )
         .filter((l) => l.cantidad > 0),
     );
+  }
+
+  function editarLinea(itemId: number, descripcion: string, cantidad: number) {
+    setLineas((prev) =>
+      prev.map((l) =>
+        l.item.id === itemId
+          ? { ...l, cantidad, descripcion: descripcion.trim() || undefined }
+          : l,
+      ),
+    );
+    setLineaEditando(null);
   }
 
   function confirmarEmision() {
@@ -169,7 +186,7 @@ export default function EmitirScreen() {
           cliente: cliente?.descripcion || 'Cliente varios',
           clienteDoc: cliente?.numero,
           items: lineas.map((l) => ({
-            nombre: l.item.nombre,
+            nombre: l.descripcion || l.item.nombre,
             cantidad: l.cantidad,
             precio: precioFinal(l.item.precio),
             total: precioFinal(l.item.precio) * l.cantidad,
@@ -195,7 +212,7 @@ export default function EmitirScreen() {
             l.item.libre
               ? {
                   libre: true,
-                  description: l.item.nombre,
+                  description: l.descripcion || l.item.nombre,
                   quantity: l.cantidad,
                   unit_price: conDescuento ? precioFinal(l.item.precio) : l.item.precio,
                   affectation_igv_type_id: l.item.afectacionId,
@@ -203,6 +220,7 @@ export default function EmitirScreen() {
               : {
                   item_id: l.item.id,
                   quantity: l.cantidad,
+                  ...(l.descripcion ? { description: l.descripcion } : {}),
                   ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
                 },
           ),
@@ -288,19 +306,26 @@ export default function EmitirScreen() {
         ) : (
           lineas.map((l) => (
             <View key={l.item.id} style={styles.linea}>
-              <View style={styles.lineaInfo}>
-                <Text style={styles.lineaNombre} numberOfLines={1}>
-                  {l.item.nombre}
+              <Pressable
+                style={styles.lineaInfo}
+                onPress={() => setLineaEditando(l)}
+                accessibilityLabel={`Editar ${l.descripcion || l.item.nombre}`}
+              >
+                <Text style={styles.lineaNombre} numberOfLines={2}>
+                  {l.descripcion || l.item.nombre}
                 </Text>
-                <Text style={styles.lineaPrecio}>
-                  {fmtMonto(l.item.precio, l.item.moneda)} c/u
-                </Text>
-              </View>
+                <View style={styles.lineaMeta}>
+                  <Text style={styles.lineaPrecio}>
+                    {fmtMonto(l.item.precio, l.item.moneda)} c/u
+                  </Text>
+                  <Ionicons name="create-outline" size={14} color={c.brand} />
+                </View>
+              </Pressable>
               <View style={styles.stepper}>
                 <Pressable style={styles.stepBtn} onPress={() => cambiarCantidad(l.item.id, -1)}>
                   <Ionicons name="remove" size={18} color={c.text} />
                 </Pressable>
-                <Text style={styles.stepCant}>{l.cantidad}</Text>
+                <Text style={styles.stepCant}>{fmtCantidad(l.cantidad)}</Text>
                 <Pressable style={styles.stepBtn} onPress={() => cambiarCantidad(l.item.id, 1)}>
                   <Ionicons name="add" size={18} color={c.text} />
                 </Pressable>
@@ -348,6 +373,11 @@ export default function EmitirScreen() {
         afectacionPorDefecto={configuracion?.afectacionPorDefecto ?? '10'}
         onCerrar={() => setModalLibre(false)}
         onAgregar={agregarItemLibre}
+      />
+      <ModalLinea
+        linea={lineaEditando}
+        onCerrar={() => setLineaEditando(null)}
+        onGuardar={editarLinea}
       />
       <ModalSerie
         visible={modalSerie}
@@ -670,6 +700,83 @@ function ModalBuscarItem({
   );
 }
 
+function ModalLinea({
+  linea,
+  onCerrar,
+  onGuardar,
+}: {
+  linea: LineaCarrito | null;
+  onCerrar: () => void;
+  onGuardar: (itemId: number, descripcion: string, cantidad: number) => void;
+}) {
+  const styles = useEstilos(crear);
+  const insets = useSafeAreaInsets();
+  const alturaTeclado = useAlturaTeclado();
+  const [descripcion, setDescripcion] = useState('');
+  const [cantidad, setCantidad] = useState('');
+
+  useEffect(() => {
+    if (linea) {
+      setDescripcion(linea.descripcion || linea.item.nombre);
+      setCantidad(fmtCantidad(linea.cantidad));
+    }
+  }, [linea]);
+
+  const cantidadNum = aMonto(cantidad);
+  const puede = descripcion.trim() !== '' && cantidadNum > 0;
+
+  return (
+    <Modal visible={linea !== null} animationType="slide" transparent onRequestClose={onCerrar}>
+      <Pressable style={styles.cobrarFondo} onPress={onCerrar}>
+        <Pressable
+          style={[
+            styles.libreHoja,
+            { paddingBottom: insets.bottom + 20, marginBottom: alturaTeclado },
+          ]}
+          onPress={() => undefined}
+        >
+          <View style={styles.cobrarBarra} />
+          <Text style={styles.cobrarTitulo}>Editar producto</Text>
+          <Text style={styles.libreAyuda}>
+            Puedes ajustar el detalle que saldrá impreso y usar cantidades con decimales.
+          </Text>
+
+          <Text style={styles.libreLabel}>Descripción</Text>
+          <TextInput
+            style={styles.libreInput}
+            value={descripcion}
+            onChangeText={setDescripcion}
+            multiline
+            accessibilityLabel="Descripción del producto"
+          />
+
+          <Text style={styles.libreLabel}>Cantidad</Text>
+          <TextInput
+            style={styles.libreInput}
+            value={cantidad}
+            onChangeText={setCantidad}
+            keyboardType="decimal-pad"
+            accessibilityLabel="Cantidad"
+          />
+
+          <View style={styles.cobrarAccionesLibre}>
+            <Pressable style={styles.cobrarCancelar} onPress={onCerrar}>
+              <Text style={styles.cobrarCancelarText}>Cancelar</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.cobrarEmitir, !puede && styles.emitirBtnOff]}
+              onPress={() => linea && onGuardar(linea.item.id, descripcion, cantidadNum)}
+              disabled={!puede}
+            >
+              <Text style={styles.cobrarEmitirText}>Guardar</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 function ModalSerie({
   visible,
   series,
@@ -904,7 +1011,8 @@ const crear = (c: Tema) =>
   },
   lineaInfo: { flex: 1, marginRight: 12 },
   lineaNombre: { fontSize: 14, fontWeight: '600', color: c.text },
-  lineaPrecio: { fontSize: 13, color: c.muted, marginTop: 2 },
+  lineaPrecio: { fontSize: 13, color: c.muted },
+  lineaMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   stepBtn: {
     width: 32,

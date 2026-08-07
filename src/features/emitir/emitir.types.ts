@@ -26,6 +26,11 @@ export interface ItemBusqueda {
 export interface LineaCarrito {
   item: ItemBusqueda;
   cantidad: number;
+  descripcion?: string;
+}
+
+export function fmtCantidad(cantidad: number): string {
+  return Number.isInteger(cantidad) ? String(cantidad) : String(Number(cantidad.toFixed(4)));
 }
 
 export interface EmitirItemPayload {
