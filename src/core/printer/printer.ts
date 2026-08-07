@@ -106,6 +106,7 @@ export interface ItemTicket {
   total: number;
   unidad?: string;
   codigo?: string;
+  detalle?: string;
 }
 
 export interface DatosTicket {
@@ -226,6 +227,9 @@ export async function imprimirTicket(direccion: string, datos: DatosTicket): Pro
 
   for (const it of datos.items) {
     await texto(`${it.nombre}\n`);
+    if (it.detalle) {
+      await texto(`  ${it.detalle}\n`);
+    }
     await negrita();
     await BluetoothEscposPrinter.printColumn(
       [30, 18],

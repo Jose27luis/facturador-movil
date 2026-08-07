@@ -57,6 +57,10 @@ function sunatIdMedio(medio: MedioPago): string {
   return MEDIOS.find((m) => m.id === medio)?.sunatId ?? '01';
 }
 
+function conDetalle(linea: LineaCarrito): string {
+  return linea.detalle ? `${linea.item.nombre} - ${linea.detalle}` : linea.item.nombre;
+}
+
 function aMonto(texto: string): number {
   const limpio = texto.replace(',', '.').replace(/[^0-9.]/g, '');
   const n = Number(limpio);
@@ -149,12 +153,10 @@ export default function EmitirScreen() {
     );
   }
 
-  function editarLinea(itemId: number, descripcion: string, cantidad: number) {
+  function editarLinea(itemId: number, detalle: string, cantidad: number) {
     setLineas((prev) =>
       prev.map((l) =>
-        l.item.id === itemId
-          ? { ...l, cantidad, descripcion: descripcion.trim() || undefined }
-          : l,
+        l.item.id === itemId ? { ...l, cantidad, detalle: detalle.trim() || undefined } : l,
       ),
     );
     setLineaEditando(null);
@@ -186,7 +188,8 @@ export default function EmitirScreen() {
           cliente: cliente?.descripcion || 'Cliente varios',
           clienteDoc: cliente?.numero,
           items: lineas.map((l) => ({
-            nombre: l.descripcion || l.item.nombre,
+            nombre: l.item.nombre,
+            detalle: l.detalle,
             cantidad: l.cantidad,
             precio: precioFinal(l.item.precio),
             total: precioFinal(l.item.precio) * l.cantidad,
@@ -212,7 +215,7 @@ export default function EmitirScreen() {
             l.item.libre
               ? {
                   libre: true,
-                  description: l.descripcion || l.item.nombre,
+                  description: conDetalle(l),
                   quantity: l.cantidad,
                   unit_price: conDescuento ? precioFinal(l.item.precio) : l.item.precio,
                   affectation_igv_type_id: l.item.afectacionId,
@@ -220,7 +223,7 @@ export default function EmitirScreen() {
               : {
                   item_id: l.item.id,
                   quantity: l.cantidad,
-                  ...(l.descripcion ? { description: l.descripcion } : {}),
+                  ...(l.detalle ? { description: conDetalle(l) } : {}),
                   ...(conDescuento ? { unit_price: precioFinal(l.item.precio) } : {}),
                 },
           ),
@@ -309,11 +312,16 @@ export default function EmitirScreen() {
               <Pressable
                 style={styles.lineaInfo}
                 onPress={() => setLineaEditando(l)}
-                accessibilityLabel={`Editar ${l.descripcion || l.item.nombre}`}
+                accessibilityLabel={`Editar ${l.item.nombre}`}
               >
                 <Text style={styles.lineaNombre} numberOfLines={2}>
-                  {l.descripcion || l.item.nombre}
+                  {l.item.nombre}
                 </Text>
+                {l.detalle ? (
+                  <Text style={styles.lineaDetalle} numberOfLines={2}>
+                    {l.detalle}
+                  </Text>
+                ) : null}
                 <View style={styles.lineaMeta}>
                   <Text style={styles.lineaPrecio}>
                     {fmtMonto(l.item.precio, l.item.moneda)} c/u
@@ -707,23 +715,23 @@ function ModalLinea({
 }: {
   linea: LineaCarrito | null;
   onCerrar: () => void;
-  onGuardar: (itemId: number, descripcion: string, cantidad: number) => void;
+  onGuardar: (itemId: number, detalle: string, cantidad: number) => void;
 }) {
   const styles = useEstilos(crear);
   const insets = useSafeAreaInsets();
   const alturaTeclado = useAlturaTeclado();
-  const [descripcion, setDescripcion] = useState('');
+  const [detalle, setDetalle] = useState('');
   const [cantidad, setCantidad] = useState('');
 
   useEffect(() => {
     if (linea) {
-      setDescripcion(linea.descripcion || linea.item.nombre);
+      setDetalle(linea.detalle ?? '');
       setCantidad(fmtCantidad(linea.cantidad));
     }
   }, [linea]);
 
   const cantidadNum = aMonto(cantidad);
-  const puede = descripcion.trim() !== '' && cantidadNum > 0;
+  const puede = cantidadNum > 0;
 
   return (
     <Modal visible={linea !== null} animationType="slide" transparent onRequestClose={onCerrar}>
@@ -736,18 +744,20 @@ function ModalLinea({
           onPress={() => undefined}
         >
           <View style={styles.cobrarBarra} />
-          <Text style={styles.cobrarTitulo}>Editar producto</Text>
+          <Text style={styles.cobrarTitulo} numberOfLines={2}>
+            {linea?.item.nombre ?? ''}
+          </Text>
           <Text style={styles.libreAyuda}>
-            Puedes ajustar el detalle que saldrá impreso y usar cantidades con decimales.
+            El detalle se imprime debajo del producto, sin reemplazar su nombre.
           </Text>
 
-          <Text style={styles.libreLabel}>Descripción</Text>
+          <Text style={styles.libreLabel}>Detalle adicional (opcional)</Text>
           <TextInput
             style={styles.libreInput}
-            value={descripcion}
-            onChangeText={setDescripcion}
+            value={detalle}
+            onChangeText={setDetalle}
             multiline
-            accessibilityLabel="Descripción del producto"
+            accessibilityLabel="Detalle adicional del producto"
           />
 
           <Text style={styles.libreLabel}>Cantidad</Text>
@@ -765,7 +775,7 @@ function ModalLinea({
             </Pressable>
             <Pressable
               style={[styles.cobrarEmitir, !puede && styles.emitirBtnOff]}
-              onPress={() => linea && onGuardar(linea.item.id, descripcion, cantidadNum)}
+              onPress={() => linea && onGuardar(linea.item.id, detalle, cantidadNum)}
               disabled={!puede}
             >
               <Text style={styles.cobrarEmitirText}>Guardar</Text>
@@ -1011,6 +1021,7 @@ const crear = (c: Tema) =>
   },
   lineaInfo: { flex: 1, marginRight: 12 },
   lineaNombre: { fontSize: 14, fontWeight: '600', color: c.text },
+  lineaDetalle: { fontSize: 12.5, color: c.brand, marginTop: 2, fontStyle: 'italic' },
   lineaPrecio: { fontSize: 13, color: c.muted },
   lineaMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },

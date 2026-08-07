@@ -26,7 +26,7 @@ export interface ItemBusqueda {
 export interface LineaCarrito {
   item: ItemBusqueda;
   cantidad: number;
-  descripcion?: string;
+  detalle?: string;
 }
 
 export function fmtCantidad(cantidad: number): string {
