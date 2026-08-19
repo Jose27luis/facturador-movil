@@ -122,6 +122,7 @@ export default function InicioScreen() {
             onPress={() => router.push('/(tabs)/productos')}
           />
           <Acceso icono="people-outline" texto="Clientes" onPress={() => router.push('/clientes')} />
+          <Acceso icono="car-outline" texto="Guías" onPress={() => router.push('/guias')} />
         </View>
       </ScrollView>
     </SafeAreaView>

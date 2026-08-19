@@ -132,16 +132,28 @@ export default function VentasScreen() {
             <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={c.brand} />
           }
           ListHeaderComponent={
-            <Pressable style={styles.banner} onPress={() => router.push('/resumenes')}>
-              <View style={styles.bannerIcono}>
-                <Ionicons name="cloud-upload-outline" size={19} color={c.accent} />
-              </View>
-              <View style={styles.bannerTexto}>
-                <Text style={styles.bannerTitulo}>Resúmenes a SUNAT</Text>
-                <Text style={styles.bannerSub}>Envía el resumen diario de boletas</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={16} color={c.accent} />
-            </Pressable>
+            <>
+              <Pressable style={styles.banner} onPress={() => router.push('/resumenes')}>
+                <View style={styles.bannerIcono}>
+                  <Ionicons name="cloud-upload-outline" size={19} color={c.accent} />
+                </View>
+                <View style={styles.bannerTexto}>
+                  <Text style={styles.bannerTitulo}>Resúmenes a SUNAT</Text>
+                  <Text style={styles.bannerSub}>Envía el resumen diario de boletas</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={c.accent} />
+              </Pressable>
+              <Pressable style={styles.banner} onPress={() => router.push('/guias')}>
+                <View style={styles.bannerIcono}>
+                  <Ionicons name="car-outline" size={19} color={c.accent} />
+                </View>
+                <View style={styles.bannerTexto}>
+                  <Text style={styles.bannerTitulo}>Guías de remisión</Text>
+                  <Text style={styles.bannerSub}>Consulta las guías emitidas y su estado</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={c.accent} />
+              </Pressable>
+            </>
           }
           ItemSeparatorComponent={() => <View style={styles.sep} />}
           ListEmptyComponent={
