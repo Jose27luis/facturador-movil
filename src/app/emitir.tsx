@@ -57,6 +57,23 @@ function sunatIdMedio(medio: MedioPago): string {
   return MEDIOS.find((m) => m.id === medio)?.sunatId ?? '01';
 }
 
+function validarReceptor(
+  tipoId: string,
+  cliente: ClienteBusqueda | null,
+  total: number,
+): string | null {
+  const numero = (cliente?.numero ?? '').replace(/\D/g, '');
+  const generico = numero === '' || numero === '99999999';
+
+  if (tipoId === '01' && numero.length !== 11) {
+    return 'La factura necesita un cliente con RUC de 11 dígitos.';
+  }
+  if (tipoId === '03' && total >= 700 && (generico || numero.length < 8)) {
+    return 'Las boletas desde S/ 700 deben llevar el DNI o RUC del cliente.';
+  }
+  return null;
+}
+
 function conDetalle(linea: LineaCarrito): string {
   return linea.detalle ? `${linea.item.nombre} - ${linea.detalle}` : linea.item.nombre;
 }
@@ -169,6 +186,10 @@ export default function EmitirScreen() {
     if (enviando.current || emitir.isPending) {
       return;
     }
+    if (reparoReceptor) {
+      Alert.alert('Falta el documento del cliente', reparoReceptor);
+      return;
+    }
     enviando.current = true;
     const esNotaVenta = serieSel.tipoId === '80';
     const conDescuento = descuentoNum > 0;
@@ -253,7 +274,8 @@ export default function EmitirScreen() {
     );
   }
 
-  const puedeCobrar = !!serieSel && lineas.length > 0;
+  const reparoReceptor = validarReceptor(serieSel?.tipoId ?? '', cliente, totalPagar);
+  const puedeCobrar = !!serieSel && lineas.length > 0 && reparoReceptor === null;
 
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
@@ -289,6 +311,13 @@ export default function EmitirScreen() {
           </Text>
           <Ionicons name="chevron-forward" size={20} color={c.faint} />
         </Pressable>
+
+        {reparoReceptor ? (
+          <Pressable style={styles.reparo} onPress={() => setModalCliente(true)}>
+            <Ionicons name="alert-circle-outline" size={18} color={c.danger} />
+            <Text style={styles.reparoText}>{reparoReceptor}</Text>
+          </Pressable>
+        ) : null}
 
         <View style={styles.seccionFila}>
           <Text style={styles.seccion}>Productos</Text>
@@ -1022,6 +1051,17 @@ const crear = (c: Tema) =>
   lineaInfo: { flex: 1, marginRight: 12 },
   lineaNombre: { fontSize: 14, fontWeight: '600', color: c.text },
   lineaDetalle: { fontSize: 12.5, color: c.brand, marginTop: 2, fontStyle: 'italic' },
+  reparo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#F3DDDD',
+    borderRadius: radios.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    marginTop: 8,
+  },
+  reparoText: { flex: 1, fontSize: 13, color: c.danger, fontWeight: '600' },
   lineaPrecio: { fontSize: 13, color: c.muted },
   lineaMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 12 },
